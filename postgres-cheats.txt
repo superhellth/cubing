@@ -1,0 +1,3 @@
+switch to postgres user: sudo -i -u postgres
+postgres command-line: psql
+start backend: node app.js
