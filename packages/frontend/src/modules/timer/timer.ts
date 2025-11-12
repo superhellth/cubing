@@ -1,3 +1,5 @@
+import type Solve from "../api/solve";
+
 class Timer {
     constructor() {
     }
@@ -13,18 +15,20 @@ class Timer {
         return `${seconds}.${String(milliseconds).padStart(2, "0")}`;
     };
 
-    static getFilteredAvg(solves: number[]): number {
-        const max = Math.max(...solves);
-        let index = solves.indexOf(max);
+    static getFilteredAvg(solves: Solve[]): number {
+        const solveTimes: number[] = [...solves.map(solve => solve.timeInMs)];
+        const max: number = Math.max(...solveTimes);
+        let index: number = solveTimes.indexOf(max);
         if (index !== -1) solves.splice(index, 1);
-        const min = Math.min(...solves);
-        index = solves.indexOf(min)
+        const min = Math.min(...solveTimes);
+        index = solveTimes.indexOf(min)
         if (index !== -1) solves.splice(index, 1);
         return this.getAvg(solves)
     }
 
-    static getAvg(solves: number[]): number {
-        const sum = solves.reduce((acc, val) => acc + val, 0);
+    static getAvg(solves: Solve[]): number {
+        const solveTimes = [...solves.map(solve => solve.timeInMs)]
+        const sum = solveTimes.reduce((acc, val) => acc + val, 0);
         return sum / solves.length;
     }
 }

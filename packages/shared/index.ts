@@ -1,18 +1,19 @@
 export interface IUser {
-    username: string;
-    createdAt: Date;
+    readonly username: string;
+    readonly createdAt: Date;
 }
 
 export interface ISolve {
-    user: string,
-    timeInMs: number;
-    date: number;
-    scramble: string;
+    readonly username: string;
+    readonly timeInMs: number;
+    readonly date: Date;
+    readonly scramble: string;
+    readonly id: number;
     discipline: Discipline;
 }
 
 export enum Discipline {
     ThreeByThree,
     FourByFour,
-    Onehanded,
+    OneHanded,
 }
