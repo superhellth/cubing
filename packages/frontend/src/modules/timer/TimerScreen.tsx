@@ -4,19 +4,23 @@ import Timer from "./timer";
 import DBWriter from "../api/db_writer";
 import User from "../api/user";
 import Solve from "../api/solve";
-import { Discipline, type ISolve, type IUser } from "@cubing/shared";
+import { Discipline, DISCIPLINE_LABELS, type ISolve, type IUser } from "@cubing/shared";
 import DBReader from "../api/db_reader";
+import ScrambleGenerator from "../utils/scramble_generator";
 
 function TimerScreen() {
+    const [currentScramble, setCurrentScramble] = useState<string>("");
+    const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
     const [time, setTime] = useState<number>(0);
     const [releasedAfterStop, setReleasedAfterStop] = useState<boolean>(true);
-    const [running, setRunning] = useState<boolean> (false);
+    const [running, setRunning] = useState<boolean>(false);
     const [solves, setSolves] = useState<ISolve[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const timerRef = useRef(0);
     const startTimeRef = useRef<number>(0);
-    const dbWriter = new DBWriter();
-    const dbReader = new DBReader();
+    const dbWriter: DBWriter = new DBWriter();
+    const dbReader: DBReader = new DBReader();
+    const scrambleGenerator: ScrambleGenerator = new ScrambleGenerator();
 
     const deleteSolve = function (solveID: number) {
         dbWriter.deleteSolve(solveID);
@@ -34,9 +38,9 @@ function TimerScreen() {
                 setTime(finalTime);
                 setRunning(false);
                 setReleasedAfterStop(false);
-                console.log(time);
-                const solve: ISolve = await dbWriter.insertSolve(new Solve("superhellth", finalTime, new Date(), "", Discipline.ThreeByThree));
+                const solve: ISolve = await dbWriter.insertSolve(new Solve("superhellth", finalTime, new Date(), currentScramble, selectedDiscipline));
                 setSolves(prevSolves => [...prevSolves, solve]);
+                setCurrentScramble(scrambleGenerator.generateScramble(20));
             }
         }
 
@@ -46,7 +50,7 @@ function TimerScreen() {
             setRunning(false);
             setTime(0);
         }
-    }, [running, time, dbWriter, Solve, Discipline]);
+    }, [running, dbWriter, currentScramble, selectedDiscipline]); // Removed time, Solve and Discipline
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
         // Start solve on space up
@@ -60,16 +64,6 @@ function TimerScreen() {
             }
         }
     }, [running, releasedAfterStop]);
-
-    // Register keyboard listeners
-    useEffect(() => {
-        window.addEventListener("keyup", handleKeyUp);
-        window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            window.removeEventListener("keyup", handleKeyUp);
-            window.removeEventListener("keydown", handleKeyDown)
-        };
-    }, [handleKeyDown, handleKeyUp])
 
     // Timer logic
     useEffect(() => {
@@ -86,12 +80,22 @@ function TimerScreen() {
         return () => clearInterval(timerRef.current);
     }, [running]);
 
+    // Register keyboard listeners
+    useEffect(() => {
+        window.addEventListener("keyup", handleKeyUp);
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keyup", handleKeyUp);
+            window.removeEventListener("keydown", handleKeyDown)
+        };
+    }, [handleKeyDown, handleKeyUp])
+
     // Load all solves on startup
     useEffect(() => {
         const fetchUserSolves = async (user: IUser) => {
             try {
                 setLoading(true);
-                const fetchedSolves = await dbReader.getAllUserSolves(user);
+                const fetchedSolves = await dbReader.getAllUserSolves(user, selectedDiscipline);
                 setSolves(fetchedSolves);
             } catch (error) {
                 console.error("Failed to fetch solves:", error);
@@ -101,6 +105,7 @@ function TimerScreen() {
         };
 
         fetchUserSolves(new User("superhellth", new Date()));
+        setCurrentScramble(scrambleGenerator.generateScramble(20));
     }, []);
 
     const divWrapper = {
@@ -117,14 +122,28 @@ function TimerScreen() {
                 <TimeDisplay solves={solves} deleteSolve={deleteSolve} />
             </div>
             <div style={{ flex: 3, backgroundColor: "red" }}>
-                <h1>Spacebar Timer</h1>
-                <div>
-                    {Timer.formatTime(time)}
+                <div style={{backgroundColor: "orange", width: "100%"}}>
+                    <select id="discipline-select" value={selectedDiscipline} onChange={(event) => {setSelectedDiscipline(event.target.value as Discipline)}}>
+                        {DISCIPLINE_LABELS.map((discipline) => (
+                            <option key={discipline.key} value={discipline.value}>
+                                {discipline.key}
+                            </option>
+                        ))}
+                    </select>
                 </div>
-                <p>
-                    Press <span className="font-semibold text-white">Spacebar</span> to{" "}
-                    {running ? "pause" : "start"} the timer.
-                </p>
+                <div>
+                    <div>
+                        <p>{currentScramble}</p>
+                    </div>
+                    <h1>Spacebar Timer</h1>
+                    <div>
+                        {Timer.formatTime(time)}
+                    </div>
+                    <p>
+                        Press <span className="font-semibold text-white">Spacebar</span> to{" "}
+                        {running ? "pause" : "start"} the timer.
+                    </p>
+                </div>
             </div>
         </div>
 

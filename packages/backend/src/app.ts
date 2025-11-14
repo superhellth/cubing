@@ -1,4 +1,4 @@
-import { ISolve, IUser } from "@cubing/shared";
+import { Discipline, ISolve, IUser } from "@cubing/shared";
 import cors from "cors";
 import express, { Request, Response } from 'express';
 import process from "node:process";
@@ -35,13 +35,14 @@ app.get('/', (req, res) => {
 app.get("/db/solves/get", async (req: Request, res: Response) => {
     try {
         const username: string = req.query.username as string;
+        const discipline: Discipline = req.query.discipline as Discipline;
         if (!username) {
             console.log('No user data found in query parameters.');
             return res.status(400).json({ error: 'User data is required in query parameters.' });
         }
 
-        const queryText = "SELECT id, username, date, duration FROM solves WHERE username = $1";
-        const queryValues = [username];
+        const queryText = "SELECT id, scramble, username, date, duration, discipline FROM solves WHERE username = $1 AND discipline = $2";
+        const queryValues = [username, discipline];
 
         const result = await pool.query(queryText, queryValues);
         const solves = result.rows.map(row => {
@@ -50,6 +51,8 @@ app.get("/db/solves/get", async (req: Request, res: Response) => {
                 username: row.username,
                 date: row.date,
                 timeInMs: row.duration,
+                scramble: row.scramble,
+                discipline: row.discipline
             };
         });
         res.status(201).json(solves);
@@ -59,28 +62,12 @@ app.get("/db/solves/get", async (req: Request, res: Response) => {
     }
 });
 
-app.post('/db/users/create', async (req: Request, res: Response) => {
-    try {
-        const user: IUser = req.body.user as IUser;
-
-        const queryText = 'INSERT INTO users(username, created_at) VALUES($1, $2) RETURNING *';
-        const queryValues = [user.username, user.createdAt];
-
-        const result = await pool.query(queryText, queryValues);
-
-        res.status(201).json(result.rows[0]);
-    } catch (error: any) {
-        console.error('Error creating user:', error.message);
-        res.status(500).json({ message: 'Failed to create user.' });
-    }
-});
-
 app.post("/db/solves/insert", async (req: Request, res: Response) => {
     try {
         const solve: ISolve = req.body.solve as ISolve;
 
-        const queryText = "INSERT INTO solves(username, date, duration) VALUES($1, $2, $3) RETURNING *";
-        const queryValues = [solve.username, solve.date, solve.timeInMs];
+        const queryText = "INSERT INTO solves(username, date, duration, scramble, discipline) VALUES($1, $2, $3, $4, $5) RETURNING *";
+        const queryValues = [solve.username, solve.date, solve.timeInMs, solve.scramble, solve.discipline];
 
         const result = await pool.query(queryText, queryValues);
         const solves = result.rows.map(row => {
@@ -89,6 +76,8 @@ app.post("/db/solves/insert", async (req: Request, res: Response) => {
                 username: row.username,
                 date: row.date,
                 timeInMs: row.duration,
+                scramble: row.scramble,
+                discipline: row.discipline
             };
         });
 
@@ -111,6 +100,22 @@ app.post("/db/solves/delete", async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error('Error deleting solve:', error.message);
         res.status(500).json({ message: 'Failed to delete solve.' });
+    }
+});
+
+app.post('/db/users/create', async (req: Request, res: Response) => {
+    try {
+        const user: IUser = req.body.user as IUser;
+
+        const queryText = 'INSERT INTO users(username, created_at) VALUES($1, $2) RETURNING *';
+        const queryValues = [user.username, user.createdAt];
+
+        const result = await pool.query(queryText, queryValues);
+
+        res.status(201).json(result.rows[0]);
+    } catch (error: any) {
+        console.error('Error creating user:', error.message);
+        res.status(500).json({ message: 'Failed to create user.' });
     }
 });
 

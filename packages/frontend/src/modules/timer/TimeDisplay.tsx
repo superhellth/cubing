@@ -17,28 +17,31 @@ function TimeDisplay({ solves, deleteSolve }: { solves: Solve[], deleteSolve: Fu
                 <table className="w-full text-left divide-y divide-gray-700">
                     <thead className="sticky top-0 bg-gray-800 z-10">
                         <tr>
-                            <th scope="col" className="px-6 py-3 text-sm font-medium uppercase tracking-wider text-gray-400">
-                                ID
+                            <th>
+                                #
                             </th>
-                            <th scope="col" className="px-6 py-3 text-sm font-medium uppercase tracking-wider text-gray-400">
+                            <th>
                                 Time
                             </th>
-                            <th scope="col" className="px-6 py-3 text-sm font-medium uppercase tracking-wider text-gray-400">
-                                Scramble
+                            <th>
+                                Disc.
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-800 bg-gray-900">
-                        {solves.map((solve) => (
-                            <tr key={solve.id} className="hover:bg-gray-800 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                    {solve.id}
+                    <tbody>
+                        {solves.map((solve, index) => (
+                            <tr key={solve.id}>
+                                <td>
+                                    {index + 1}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-medium text-white">
+                                <td>
                                     {Timer.formatTime(solve.timeInMs)}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-400 truncate max-w-xs">
+                                {/* <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-400 truncate max-w-xs">
                                     {solve.scramble}
+                                </td> */}
+                                <td>
+                                    {solve.discipline}
                                 </td>
                                 <td>
                                     <button onClick={() => { deleteSolve(solve.id) }}>Delete</button>
@@ -48,13 +51,6 @@ function TimeDisplay({ solves, deleteSolve }: { solves: Solve[], deleteSolve: Fu
                     </tbody>
                 </table>
             </div>
-
-            {/* <div className="border border-green-300 max-h-96 overflow-y-auto background black">
-                {solves.map((solve: Solve, index: number) => (
-                    <p key={index}>{Timer.formatTime(solve.timeInMs)}</p>
-                ))}
-            </div> */}
-
         </div>
     );
 }

@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ISolve, IUser } from "@cubing/shared";
+import type { Discipline, ISolve, IUser } from "@cubing/shared";
 
 class DBReader {
     private static readonly BASE_URL = 'http://localhost:3000';
@@ -8,16 +8,15 @@ class DBReader {
     constructor() {
     }
 
-    public async getAllUserSolves(user: IUser) {
+    public async getAllUserSolves(user: IUser, discipline: Discipline) {
         try {
-            // axios handles stringifying the object and setting headers
             const response = await axios.get(DBReader.BASE_URL + DBReader.READ_SOLVES_URL, {
                 params: {
-                    username: user.username
+                    username: user.username,
+                    discipline: discipline,
                 }
             });
 
-            console.log('Fetched solves');
             const solves: ISolve[] = response.data as ISolve[];
             return solves;
 
