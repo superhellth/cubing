@@ -1,15 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Discipline, DISCIPLINE_LABELS, Status, type ISolve } from "@cubing/shared";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import DBReader from "../api/db_reader";
+import DBWriter from "../api/db_writer";
+import Solve from "../api/solve";
+import ScrambleGenerator from "../utils/scramble_generator";
+import SolveDetailsScreen from "./SolveDetailsScreen";
 import TimeDisplay from "./TimeDisplay";
 import Timer from "./timer";
-import DBWriter from "../api/db_writer";
-import User from "../api/user";
-import Solve from "../api/solve";
-import { Discipline, DISCIPLINE_LABELS, type ISolve, type IUser } from "@cubing/shared";
-import DBReader from "../api/db_reader";
-import ScrambleGenerator from "../utils/scramble_generator";
+import { LineChart } from "@mui/x-charts";
 
 function TimerScreen() {
     const [currentScramble, setCurrentScramble] = useState<string>("");
+    const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
+    const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<Boolean>(false);
+    const [currentUUID, setCurrentUUID] = useState<string>("");
     const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
     const [time, setTime] = useState<number>(0);
     const [releasedAfterStop, setReleasedAfterStop] = useState<boolean>(true);
@@ -22,11 +26,71 @@ function TimerScreen() {
     const dbReader: DBReader = new DBReader();
     const scrambleGenerator: ScrambleGenerator = new ScrambleGenerator();
 
-    const deleteSolve = function (solveID: number) {
+    const USER_ID_KEY = "userID";
+
+    const calculateAverages = (solves: ISolve[], chunkSize: number) => {
+        return solves.map((solve, index) => {
+            if (index + chunkSize > solves.length) {
+                return null;
+            }
+            const chunk = solves.slice(index, index + chunkSize);
+            const currentAvg = Timer.getFilteredAvg(chunk);
+            return currentAvg;
+        });
+    }
+    const useRollingAverage = (solves: ISolve[], chunkSize: number) => {
+        return useMemo(() => {
+            return calculateAverages(solves, chunkSize);
+        }, [solves, chunkSize]);
+    }
+    const averagesOfFive: (number | null)[] = useRollingAverage(solves, 5);
+    const averagesOfTwelve: (number | null)[] = useRollingAverage(solves, 12);
+
+    useEffect(() => {
+        setCurrentScramble(scrambleGenerator.generateScramble(20));
+
+        // Check if user has visited before
+        function getOrCreateUserId(): string {
+            let uID: string | null = localStorage.getItem(USER_ID_KEY);
+            if (!uID) {
+                uID = crypto.randomUUID();
+                localStorage.setItem(USER_ID_KEY, uID);
+            }
+            return uID;
+        }
+
+        const uID: string = getOrCreateUserId();
+        setCurrentUUID(uID);
+    }, []);
+
+    useEffect(() => {
+        if (!currentUUID) {
+            return;
+        }
+        async function fetchUserSolves() {
+            try {
+                setLoading(true);
+                const fetchedSolves = await dbReader.getAllUserSolves(currentUUID, selectedDiscipline);
+                setSolves(fetchedSolves);
+            } catch (error) {
+                console.error("Failed to fetch solves:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchUserSolves();
+    }, [currentUUID, selectedDiscipline]);
+
+    const deleteSolve = (solveID: number) => {
+        setOpenedSolveDetailsDialog(false);
         dbWriter.deleteSolve(solveID);
         setSolves(prevSolves => {
             return prevSolves.filter(solve => solve.id !== solveID);
         });
+    }
+
+    const onDisciplineSelected = (event: any) => {
+        setSelectedDiscipline(event.target.value as Discipline);
     }
 
     const handleKeyDown = useCallback(async (event: KeyboardEvent) => {
@@ -38,8 +102,8 @@ function TimerScreen() {
                 setTime(finalTime);
                 setRunning(false);
                 setReleasedAfterStop(false);
-                const solve: ISolve = await dbWriter.insertSolve(new Solve("superhellth", finalTime, new Date(), currentScramble, selectedDiscipline));
-                setSolves(prevSolves => [...prevSolves, solve]);
+                const solve: ISolve = await dbWriter.insertSolve(new Solve(currentUUID, finalTime, new Date(), currentScramble, selectedDiscipline, Status.Valid));
+                setSolves(prevSolves => [solve, ...prevSolves]);
                 setCurrentScramble(scrambleGenerator.generateScramble(20));
             }
         }
@@ -50,7 +114,7 @@ function TimerScreen() {
             setRunning(false);
             setTime(0);
         }
-    }, [running, dbWriter, currentScramble, selectedDiscipline]); // Removed time, Solve and Discipline
+    }, [running, dbWriter, currentScramble, selectedDiscipline]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
         // Start solve on space up
@@ -90,24 +154,6 @@ function TimerScreen() {
         };
     }, [handleKeyDown, handleKeyUp])
 
-    // Load all solves on startup
-    useEffect(() => {
-        const fetchUserSolves = async (user: IUser) => {
-            try {
-                setLoading(true);
-                const fetchedSolves = await dbReader.getAllUserSolves(user, selectedDiscipline);
-                setSolves(fetchedSolves);
-            } catch (error) {
-                console.error("Failed to fetch solves:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUserSolves(new User("superhellth", new Date()));
-        setCurrentScramble(scrambleGenerator.generateScramble(20));
-    }, []);
-
     const divWrapper = {
         display: "flex",
         justifyContent: "space-between",
@@ -116,17 +162,22 @@ function TimerScreen() {
         width: "100%"
     }
 
+    const openSolveDetailsScreen = (solve: ISolve) => {
+        setSelectedSolve(solve);
+        setOpenedSolveDetailsDialog(true);
+    };
+
     return (
         <div style={divWrapper}>
             <div style={{ flex: 1, backgroundColor: "green", height: "100%", margin: 0, padding: 0 }}>
-                <TimeDisplay solves={solves} deleteSolve={deleteSolve} />
+                <TimeDisplay solves={solves} deleteSolve={deleteSolve} openSolveDetailsScreen={openSolveDetailsScreen} avg5s={averagesOfFive} avg12s={averagesOfTwelve} />
             </div>
             <div style={{ flex: 3, backgroundColor: "red" }}>
-                <div style={{backgroundColor: "orange", width: "100%"}}>
-                    <select id="discipline-select" value={selectedDiscipline} onChange={(event) => {setSelectedDiscipline(event.target.value as Discipline)}}>
+                <div style={{ backgroundColor: "orange", width: "100%" }}>
+                    <select id="discipline-select" value={selectedDiscipline} onChange={onDisciplineSelected}>
                         {DISCIPLINE_LABELS.map((discipline) => (
                             <option key={discipline.key} value={discipline.value}>
-                                {discipline.key}
+                                {discipline.value}
                             </option>
                         ))}
                     </select>
@@ -145,6 +196,18 @@ function TimerScreen() {
                     </p>
                 </div>
             </div>
+            {selectedSolve && (
+                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} isOpen={openedSolveDetailsDialog} onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
+            )}
+            <LineChart
+                xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
+                series={[
+                    {
+                        data: [2, 5.5, 2, 8.5, 1.5, 5],
+                    },
+                ]}
+                height={300}
+            />
         </div>
 
     );

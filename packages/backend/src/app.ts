@@ -1,9 +1,10 @@
-import { Discipline, ISolve, IUser } from "@cubing/shared";
+import { Discipline, ISolve, IUser, Status } from "@cubing/shared";
 import cors from "cors";
 import express, { Request, Response } from 'express';
 import process from "node:process";
 import { exit, loadEnvFile } from 'node:process';
 import { Pool } from "pg";
+import { duration } from "zod/v4/classic/iso.cjs";
 
 const app = express();
 const port = 3000;
@@ -34,31 +35,41 @@ app.get('/', (req, res) => {
 
 app.get("/db/solves/get", async (req: Request, res: Response) => {
     try {
-        const username: string = req.query.username as string;
+        const uuid: string = req.query.uuid as string;
         const discipline: Discipline = req.query.discipline as Discipline;
-        if (!username) {
+        if (!uuid) {
             console.log('No user data found in query parameters.');
             return res.status(400).json({ error: 'User data is required in query parameters.' });
         }
 
-        const queryText = "SELECT id, scramble, username, date, duration, discipline FROM solves WHERE username = $1 AND discipline = $2";
-        const queryValues = [username, discipline];
+        const queryText = `SELECT id, scramble, uuid, date, duration, discipline, status
+                FROM solves
+                WHERE uuid = $1 AND discipline = $2
+                ORDER BY date DESC`;
+        const queryValues = [uuid, discipline];
 
         const result = await pool.query(queryText, queryValues);
-        const solves = result.rows.map(row => {
-            return {
-                id: row.id,
-                username: row.username,
-                date: row.date,
-                timeInMs: row.duration,
-                scramble: row.scramble,
-                discipline: row.discipline
-            };
-        });
-        res.status(201).json(solves);
+        res.status(201).json(result.rows);
     } catch (error: any) {
         console.error('Error loading solves:', error.message);
         res.status(500).json({ message: 'Failed to load solves.' });
+    }
+});
+
+app.post("/db/solves/setStatus", async (req: Request, res: Response) => {
+    try {
+
+        const solveID: number = req.body.solveID as number;
+        const newStatus: Status = req.body.newStatus as Status;
+
+        const queryText: string = "ALTER TABLE solves SET status = $1 WHERE id = $2";
+        const queryValues = [solveID, newStatus];
+
+        const result = await pool.query(queryText, queryValues);
+        res.status(201).json(result.rows[0]);
+    } catch (error: any) {
+        console.error('Error setting solve status:', error.message);
+        res.status(500).json({ message: 'Failed to update solve.' });
     }
 });
 
@@ -66,22 +77,12 @@ app.post("/db/solves/insert", async (req: Request, res: Response) => {
     try {
         const solve: ISolve = req.body.solve as ISolve;
 
-        const queryText = "INSERT INTO solves(username, date, duration, scramble, discipline) VALUES($1, $2, $3, $4, $5) RETURNING *";
-        const queryValues = [solve.username, solve.date, solve.timeInMs, solve.scramble, solve.discipline];
+        const queryText: string = "INSERT INTO solves(uuid, date, duration, scramble, discipline, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING *";
+        const queryValues = [solve.uuid, solve.date, solve.duration, solve.scramble, solve.discipline, solve.status];
 
         const result = await pool.query(queryText, queryValues);
-        const solves = result.rows.map(row => {
-            return {
-                id: row.id,
-                username: row.username,
-                date: row.date,
-                timeInMs: row.duration,
-                scramble: row.scramble,
-                discipline: row.discipline
-            };
-        });
 
-        res.status(201).json(solves[0]);
+        res.status(201).json(result.rows[0]);
     } catch (error: any) {
         console.error('Error inserting solve:', error.message);
         res.status(500).json({ message: 'Failed to insert solve.' });

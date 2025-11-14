@@ -4,7 +4,10 @@ class Timer {
     constructor() {
     }
 
-    static formatTime(ms: number) {
+    static formatTime(ms: number | null) {
+        if (!ms) {
+            return "";
+        }
         const minutes = Math.floor(ms / 60000);
         const seconds = Math.floor((ms % 60000) / 1000);
         const milliseconds = Math.floor((ms % 1000) / 10);
@@ -16,18 +19,15 @@ class Timer {
     };
 
     static getFilteredAvg(solves: Solve[]): number {
-        const solveTimes: number[] = [...solves.map(solve => solve.timeInMs)];
-        const max: number = Math.max(...solveTimes);
-        let index: number = solveTimes.indexOf(max);
-        if (index !== -1) solves.splice(index, 1);
-        const min = Math.min(...solveTimes);
-        index = solveTimes.indexOf(min)
-        if (index !== -1) solves.splice(index, 1);
-        return this.getAvg(solves)
+        const solveTimes: number[] = solves.map(solve => solve.duration);
+        solveTimes.sort((a, b) => a - b);
+        const relevantTimes = solveTimes.slice(1, -1);
+        const sum = relevantTimes.reduce((acc, val) => acc + val, 0);
+        return sum / relevantTimes.length;
     }
 
     static getAvg(solves: Solve[]): number {
-        const solveTimes = [...solves.map(solve => solve.timeInMs)]
+        const solveTimes = [...solves.map(solve => solve.duration)]
         const sum = solveTimes.reduce((acc, val) => acc + val, 0);
         return sum / solves.length;
     }

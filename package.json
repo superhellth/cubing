@@ -11,6 +11,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.20.0",
   "dependencies": {
+    "@mui/x-charts": "^8.18.0",
     "zod": "^4.1.12"
   }
 }

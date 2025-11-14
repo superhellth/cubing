@@ -1,20 +1,22 @@
-import type { Discipline, ISolve } from "@cubing/shared";
+import type { Discipline, ISolve, Status } from "@cubing/shared";
 
 class Solve implements ISolve {
     readonly id: number;
-    readonly username: string;
-    readonly timeInMs: number;
+    readonly uuid: string;
+    readonly duration: number;
     readonly date: Date;
     readonly scramble: string;
-    discipline: Discipline;
+    readonly discipline: Discipline;
+    readonly status: Status;
 
-    constructor(username: string, timeInMs: number, date: Date, scramble: string, discipline: Discipline) {
+    constructor(uuid: string, timeInMs: number, date: Date, scramble: string, discipline: Discipline, status: Status) {
         this.id = -1;
-        this.username = username;
-        this.timeInMs = timeInMs;
+        this.uuid = uuid;
+        this.duration = timeInMs;
         this.date = date;
         this.scramble = scramble;
         this.discipline = discipline;
+        this.status = status;
     }
 }
 

@@ -1,21 +1,51 @@
 import type Solve from "../api/solve";
 import Timer from "./timer";
 
-function TimeDisplay({ solves, deleteSolve }: { solves: Solve[], deleteSolve: Function }) {
+function TimeDisplay({ solves, deleteSolve, openSolveDetailsScreen, avg5s, avg12s }:
+    { solves: Solve[], deleteSolve: Function, openSolveDetailsScreen: Function, avg5s: (number | null)[], avg12s: (number | null)[] }) {
+    const filteredAvg5s: number[] = avg5s.filter((item): item is number => item !== null);
+    const filteredAvg12s: number[] = avg12s.filter((item): item is number => item !== null);
     return (
         <div style={{ backgroundColor: "blue", display: "flex", flexDirection: "column", height: "100%" }}>
 
             <div style={{ flex: 1 }}>
                 <h1 style={{ margin: 0 }}>Your Solves</h1>
-
-                <h3>Mean of 3: {solves.length >= 3 ? Timer.formatTime(Timer.getAvg(solves.slice(-3))) : ""} </h3>
-                <h3>Avg. of 5: {solves.length >= 5 ? Timer.formatTime(Timer.getFilteredAvg(solves.slice(-5))) : ""} </h3>
-                <h3>Avg. of 12: {solves.length >= 12 ? Timer.formatTime(Timer.getFilteredAvg(solves.slice(-12))) : ""} </h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Best</th>
+                            <th>Current</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Single</td>
+                            <td>{solves.length >= 1 ? Timer.formatTime(Math.min(...solves.map(solve => solve.duration))) : ""}</td>
+                            <td>{solves.length >= 1 ? Timer.formatTime(solves[0].duration) : ""}</td>
+                        </tr>
+                        <tr>
+                            <td>Mean of 3</td>
+                            <td>{solves.length >= 3 ? "TBI" : ""}</td>
+                            <td>{solves.length >= 3 ? Timer.formatTime(Timer.getAvg(solves.slice(-3))) : ""}</td>
+                        </tr>
+                        <tr>
+                            <td>Avg. of 5</td>
+                            <td>{solves.length >= 5 ? Timer.formatTime(Math.min(...filteredAvg5s)) : ""}</td>
+                            <td>{solves.length >= 5 ? Timer.formatTime(avg5s[0]) : ""}</td>
+                        </tr>
+                        <tr>
+                            <td>Avg. of 12</td>
+                            <td>{solves.length >= 12 ? Timer.formatTime(Math.min(...filteredAvg12s)) : ""}</td>
+                            <td>{solves.length >= 12 ? Timer.formatTime(avg12s[0]) : ""}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <div style={{ backgroundColor: "black", flex: 2, overflow: "auto" }}>
-                <table className="w-full text-left divide-y divide-gray-700">
-                    <thead className="sticky top-0 bg-gray-800 z-10">
+                <table>
+                    <thead>
                         <tr>
                             <th>
                                 #
@@ -24,28 +54,40 @@ function TimeDisplay({ solves, deleteSolve }: { solves: Solve[], deleteSolve: Fu
                                 Time
                             </th>
                             <th>
-                                Disc.
+                                Avg5
                             </th>
+                            <th>
+                                Avg12
+                            </th>
+                            {/* <th>
+                                Disc.
+                            </th> */}
                         </tr>
                     </thead>
                     <tbody>
                         {solves.map((solve, index) => (
-                            <tr key={solve.id}>
+                            <tr key={solve.id} onClick={() => openSolveDetailsScreen(solve)}>
                                 <td>
-                                    {index + 1}
+                                    {solves.length - index}
                                 </td>
                                 <td>
-                                    {Timer.formatTime(solve.timeInMs)}
+                                    {Timer.formatTime(solve.duration)}
                                 </td>
                                 {/* <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-400 truncate max-w-xs">
                                     {solve.scramble}
                                 </td> */}
                                 <td>
-                                    {solve.discipline}
+                                    {Timer.formatTime(avg5s[index])}
                                 </td>
                                 <td>
-                                    <button onClick={() => { deleteSolve(solve.id) }}>Delete</button>
+                                    {Timer.formatTime(avg12s[index])}
                                 </td>
+                                {/* <td>
+                                    {solve.discipline}
+                                </td> */}
+                                {/* <td>
+                                    <button onClick={() => { deleteSolve(solve.id) }}>Delete</button>
+                                </td> */}
                             </tr>
                         ))}
                     </tbody>

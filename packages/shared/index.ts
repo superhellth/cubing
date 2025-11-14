@@ -1,15 +1,23 @@
 export interface IUser {
     readonly username: string;
+    readonly id: string;
     readonly createdAt: Date;
 }
 
 export interface ISolve {
-    readonly username: string;
-    readonly timeInMs: number;
+    readonly uuid: string;
+    readonly duration: number;
     readonly date: Date;
     readonly scramble: string;
     readonly id: number;
-    discipline: Discipline;
+    readonly discipline: Discipline;
+    readonly status: Status;
+}
+
+export enum Status {
+    Valid = "Valid",
+    PlusTwo = "+2",
+    DNF = "DNF"
 }
 
 export enum Discipline {
@@ -19,11 +27,11 @@ export enum Discipline {
     FiveByFive = "5x5",
     SixBySix = "6x6",
     SevenBySeven = "7x7",
-    ThreeBlind = "3x3Blind",
-    FourBlind = "4x4Blind",
-    FiveBlind = "5x5Blind",
-    OneHanded = "3x3OH",
-    FewestMoves = "3x3FM",
+    ThreeBlind = "3x3 Blind",
+    FourBlind = "4x4 Blind",
+    FiveBlind = "5x5 Blind",
+    OneHanded = "3x3 OH",
+    FewestMoves = "3x3 FM",
     Clock = "Clock",
     Megaminx = "Megaminx",
     Pyraminx = "Pyraminx",
