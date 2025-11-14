@@ -5,6 +5,9 @@ class Timer {
     }
 
     static formatTime(ms: number | null) {
+        if (ms == 0) {
+            return "0.00";
+        }
         if (!ms) {
             return "";
         }

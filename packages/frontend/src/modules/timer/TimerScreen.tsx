@@ -1,4 +1,9 @@
 import { Discipline, DISCIPLINE_LABELS, Status, type ISolve } from "@cubing/shared";
+import FormControl from "@mui/material/FormControl";
+import MenuItem from "@mui/material/MenuItem";
+import Select from '@mui/material/Select';
+import { Box } from "@mui/system";
+import { LineChart } from "@mui/x-charts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DBReader from "../api/db_reader";
 import DBWriter from "../api/db_writer";
@@ -7,7 +12,6 @@ import ScrambleGenerator from "../utils/scramble_generator";
 import SolveDetailsScreen from "./SolveDetailsScreen";
 import TimeDisplay from "./TimeDisplay";
 import Timer from "./timer";
-import { LineChart } from "@mui/x-charts";
 
 function TimerScreen() {
     const [currentScramble, setCurrentScramble] = useState<string>("");
@@ -46,8 +50,21 @@ function TimerScreen() {
     const averagesOfFive: (number | null)[] = useRollingAverage(solves, 5);
     const averagesOfTwelve: (number | null)[] = useRollingAverage(solves, 12);
 
+    const cleanAverages = (averages: (number | null)[]) => {
+        return [...averages.filter(value => value !== null)].reverse().map(value => value / 1000);
+    }
+
+    const useCleaning = (averages: (number | null)[]) => {
+        return useMemo(() => {
+            return cleanAverages(averages);
+        }, [averages]);
+    }
+
+    const cleanedAvg5: number[] = useCleaning(averagesOfFive);
+    const cleanedAvg12: number[] = useCleaning(averagesOfTwelve);
+
     useEffect(() => {
-        setCurrentScramble(scrambleGenerator.generateScramble(20));
+        setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
         // Check if user has visited before
         function getOrCreateUserId(): string {
@@ -91,6 +108,7 @@ function TimerScreen() {
 
     const onDisciplineSelected = (event: any) => {
         setSelectedDiscipline(event.target.value as Discipline);
+        setCurrentScramble(scrambleGenerator.generateScramble(event.target.value));
     }
 
     const handleKeyDown = useCallback(async (event: KeyboardEvent) => {
@@ -104,7 +122,7 @@ function TimerScreen() {
                 setReleasedAfterStop(false);
                 const solve: ISolve = await dbWriter.insertSolve(new Solve(currentUUID, finalTime, new Date(), currentScramble, selectedDiscipline, Status.Valid));
                 setSolves(prevSolves => [solve, ...prevSolves]);
-                setCurrentScramble(scrambleGenerator.generateScramble(20));
+                setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
             }
         }
 
@@ -154,13 +172,6 @@ function TimerScreen() {
         };
     }, [handleKeyDown, handleKeyUp])
 
-    const divWrapper = {
-        display: "flex",
-        justifyContent: "space-between",
-        backgroundColor: "blue",
-        height: "100%",
-        width: "100%"
-    }
 
     const openSolveDetailsScreen = (solve: ISolve) => {
         setSelectedSolve(solve);
@@ -168,47 +179,56 @@ function TimerScreen() {
     };
 
     return (
-        <div style={divWrapper}>
-            <div style={{ flex: 1, backgroundColor: "green", height: "100%", margin: 0, padding: 0 }}>
+        <Box sx={{display: "flex", justifyContent: "space-between", backgroundColor: "blue", height: "100%", width: "100%"}}>
+            <Box sx={{ flex: 1, bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
                 <TimeDisplay solves={solves} deleteSolve={deleteSolve} openSolveDetailsScreen={openSolveDetailsScreen} avg5s={averagesOfFive} avg12s={averagesOfTwelve} />
-            </div>
-            <div style={{ flex: 3, backgroundColor: "red" }}>
-                <div style={{ backgroundColor: "orange", width: "100%" }}>
-                    <select id="discipline-select" value={selectedDiscipline} onChange={onDisciplineSelected}>
-                        {DISCIPLINE_LABELS.map((discipline) => (
-                            <option key={discipline.key} value={discipline.value}>
-                                {discipline.value}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
-                    <div>
+            </Box>
+            <Box sx={{ flex: 3, display: "flex", flexDirection: 'column', bgcolor: "background.default" }}>
+                <Box sx={{ bgcolor: "secondary.main", width: "100%" }}>
+                    <FormControl>
+                        {/* <InputLabel>Category</InputLabel> */}
+                        <Select sx={{ bgcolor: "primary.main" }} id="discipline-select" value={selectedDiscipline} onChange={onDisciplineSelected}>
+                            {DISCIPLINE_LABELS.map((discipline) => (
+                                <MenuItem sx={{ bgcolor: "secondary.main" }} key={discipline.key} value={discipline.value}>
+                                    {discipline.value}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
+                <Box>
+                    <Box>
                         <p>{currentScramble}</p>
-                    </div>
+                    </Box>
                     <h1>Spacebar Timer</h1>
-                    <div>
+                    <Box>
                         {Timer.formatTime(time)}
-                    </div>
+                    </Box>
                     <p>
                         Press <span className="font-semibold text-white">Spacebar</span> to{" "}
                         {running ? "pause" : "start"} the timer.
                     </p>
-                </div>
-            </div>
+                </Box>
+                <Box sx={{marginTop: 'auto'}}>
+                    {[cleanedAvg5, cleanedAvg12].map((array, index) => (
+                        <LineChart
+                            key={index}
+                            xAxis={[{ data: [...array.keys()], scaleType: "point" }]}
+                            series={[
+                                {
+                                    data: array,
+                                },
+                            ]}
+                            height={200}
+                        />
+                    ))}
+                </Box>
+            </Box>
             {selectedSolve && (
-                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} isOpen={openedSolveDetailsDialog} onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
+                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} isOpen={openedSolveDetailsDialog}
+                    onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
             )}
-            <LineChart
-                xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
-                series={[
-                    {
-                        data: [2, 5.5, 2, 8.5, 1.5, 5],
-                    },
-                ]}
-                height={300}
-            />
-        </div>
+        </Box>
 
     );
 }
