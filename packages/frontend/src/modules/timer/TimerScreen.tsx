@@ -12,13 +12,16 @@ import ScrambleGenerator from "../utils/scramble_generator";
 import SolveDetailsScreen from "./SolveDetailsScreen";
 import TimeDisplay from "./TimeDisplay";
 import Timer from "./timer";
+import "@fontsource/dseg7-classic/700.css";
+import AvgGraphs from "./AvgGraphs";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
 
 function TimerScreen({ selDis }: { selDis: Discipline }) {
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<Boolean>(false);
     const [currentUUID, setCurrentUUID] = useState<string>("");
-    const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(selDis);
     const [time, setTime] = useState<number>(0);
     const [releasedAfterStop, setReleasedAfterStop] = useState<boolean>(true);
     const [running, setRunning] = useState<boolean>(false);
@@ -64,17 +67,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
     const cleanedAvg12: number[] = useCleaning(averagesOfTwelve);
 
     useEffect(() => {
-        // This "syncs" your internal state to match the prop.
-        setSelectedDiscipline(selDis);
         setCurrentScramble(scrambleGenerator.generateScramble(selDis));
-
-        // You can also reset other things here, like the timer itself
-        // resetTimer();
-
-    }, [selDis]);
-
-    useEffect(() => {
-        setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
         // Check if user has visited before
         function getOrCreateUserId(): string {
@@ -97,7 +90,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
         async function fetchUserSolves() {
             try {
                 setLoading(true);
-                const fetchedSolves = await dbReader.getAllUserSolves(currentUUID, selectedDiscipline);
+                const fetchedSolves = await dbReader.getAllUserSolves(currentUUID, selDis);
                 setSolves(fetchedSolves);
             } catch (error) {
                 console.error("Failed to fetch solves:", error);
@@ -106,7 +99,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
             }
         }
         fetchUserSolves();
-    }, [currentUUID, selectedDiscipline]);
+    }, [currentUUID, selDis]);
 
     const deleteSolve = (solveID: number) => {
         setOpenedSolveDetailsDialog(false);
@@ -125,9 +118,9 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
                 setTime(finalTime);
                 setRunning(false);
                 setReleasedAfterStop(false);
-                const solve: ISolve = await dbWriter.insertSolve(new Solve(currentUUID, finalTime, new Date(), currentScramble, selectedDiscipline, Status.Valid));
+                const solve: ISolve = await dbWriter.insertSolve(new Solve(currentUUID, finalTime, new Date(), currentScramble, selDis, Status.Valid));
                 setSolves(prevSolves => [solve, ...prevSolves]);
-                setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
+                setCurrentScramble(scrambleGenerator.generateScramble(selDis));
             }
         }
 
@@ -137,7 +130,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
             setRunning(false);
             setTime(0);
         }
-    }, [running, dbWriter, currentScramble, selectedDiscipline]);
+    }, [running, dbWriter, currentScramble, selDis]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
         // Start solve on space up
@@ -184,37 +177,38 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
     };
 
     return (
-        <Box sx={{ display: "flex", justifyContent: "space-between", backgroundColor: "blue", height: "100%", width: "100%" }}>
-            <Box sx={{ flex: 4, display: "flex", flexDirection: 'column', bgcolor: "background.default" }}>
-                <Box>
-                    <Box>
-                        <p>{currentScramble}</p>
-                    </Box>
-                    <h1>Spacebar Timer</h1>
-                    <Box>
-                        {Timer.formatTime(time)}
-                    </Box>
-                    <p>
-                        Press <span className="font-semibold text-white">Spacebar</span> to{" "}
-                        {running ? "pause" : "start"} the timer.
-                    </p>
+        <Box sx={{ display: "flex", justifyContent: "space-between", height: "100%", width: "100%" }}>
+            <Box sx={{
+                flex: 1, display: "flex", flexDirection: 'column', justifyContent: "space-around", bgcolor: "primary.main",
+                paddingLeft: "75px", paddingRight: "75px", paddingTop: "2rem"
+            }}>
+                <Box sx={{ flex: 1 }}>
+                    <Typography sx={{ flex: 1, fontSize: "2rem", fontFamily: "Space Mono, monospace" }}>{currentScramble}</Typography>
                 </Box>
-                <Box sx={{ marginTop: 'auto' }}>
-                    {[cleanedAvg5, cleanedAvg12].map((array, index) => (
-                        <LineChart
-                            key={index}
-                            xAxis={[{ data: [...array.keys()], scaleType: "point" }]}
-                            series={[
-                                {
-                                    data: array,
-                                },
-                            ]}
-                            height={200}
-                        />
-                    ))}
+                <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
+                    <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>
+                        <Typography sx={{
+                            fontSize: "15rem", "-webkit-user-select": "none", "-moz-user-select": "none", "-ms-user-select": "none", "user-select": "none",
+                            fontFamily: "DSEG7 Classic, monospace", transform: "translateZ(0)", textAlign: "center"
+                        }}>
+                            {Timer.formatTime(time)}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
+                        <Typography sx={{fontSize: "3rem", fontFamily: "Space Mono, monospace", color: "info.light"}}>
+                            Ao5: {Timer.formatTime(averagesOfFive[0])}
+                        </Typography>
+                        <Typography sx={{fontSize: "3rem", fontFamily: "Space Mono, monospace", color: "info.dark"}}>
+                            Ao12: {Timer.formatTime(averagesOfTwelve[0])}
+                        </Typography>
+                    </Box>
+                </Box>
+                <Box sx={{ flex: 1, }}>
+                    <AvgGraphs avg5s={cleanedAvg5} avg12s={cleanedAvg12} />
                 </Box>
             </Box>
-            <Box sx={{ flex: 1, bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
+            <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
+            <Box sx={{ bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
                 <TimeDisplay solves={solves} deleteSolve={deleteSolve} openSolveDetailsScreen={openSolveDetailsScreen} avg5s={averagesOfFive} avg12s={averagesOfTwelve} />
             </Box>
             {selectedSolve && (

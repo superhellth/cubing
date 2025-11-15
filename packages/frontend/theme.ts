@@ -1,21 +1,31 @@
 import { red } from '@mui/material/colors';
 import { createTheme } from '@mui/material/styles';
 
-const primary = "#100d9b";
-const secondary = "#1f1e61ff";
-const text = "#ffffffff";
-const background = "#000000ff";
+const primary = "#222831";
+const primaryLight = "#222831";
+const secondary = "#393E46";
+const accent = "#00ADB5"
+const accentDarker = "#007980";
+const accentLighter = "#00dae6";
+const text = "#EEEEEE";
+const background = "#000000";
 
 const theme = createTheme({
     palette: {
         primary: {
             main: primary,
+            light: primaryLight
         },
         secondary: {
-            main: secondary,
+            main: secondary
         },
         text: {
             primary: text,
+        },
+        info: {
+            main: accent,
+            light: accentLighter,
+            dark: accentDarker
         },
         error: {
             main: red.A400,
@@ -50,23 +60,7 @@ const theme = createTheme({
                     color: text,
                 },
             },
-        },
-        MuiMenuItem: {
-            styleOverrides: {
-                root: {
-                    "&.Mui-selected": {
-                        backgroundColor: secondary,
-                        "&:hover": {
-                            backgroundColor: background,
-                        },
-                    },
-                    "&:hover": {
-                        backgroundColor: background,
-                    }
-                },
-            },
-        },
-
+        }
     },
 });
 
