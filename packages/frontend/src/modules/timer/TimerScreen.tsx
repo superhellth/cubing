@@ -13,12 +13,12 @@ import SolveDetailsScreen from "./SolveDetailsScreen";
 import TimeDisplay from "./TimeDisplay";
 import Timer from "./timer";
 
-function TimerScreen() {
+function TimerScreen({ selDis }: { selDis: Discipline }) {
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<Boolean>(false);
     const [currentUUID, setCurrentUUID] = useState<string>("");
-    const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
+    const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(selDis);
     const [time, setTime] = useState<number>(0);
     const [releasedAfterStop, setReleasedAfterStop] = useState<boolean>(true);
     const [running, setRunning] = useState<boolean>(false);
@@ -64,6 +64,16 @@ function TimerScreen() {
     const cleanedAvg12: number[] = useCleaning(averagesOfTwelve);
 
     useEffect(() => {
+        // This "syncs" your internal state to match the prop.
+        setSelectedDiscipline(selDis);
+        setCurrentScramble(scrambleGenerator.generateScramble(selDis));
+
+        // You can also reset other things here, like the timer itself
+        // resetTimer();
+
+    }, [selDis]);
+
+    useEffect(() => {
         setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
         // Check if user has visited before
@@ -104,11 +114,6 @@ function TimerScreen() {
         setSolves(prevSolves => {
             return prevSolves.filter(solve => solve.id !== solveID);
         });
-    }
-
-    const onDisciplineSelected = (event: any) => {
-        setSelectedDiscipline(event.target.value as Discipline);
-        setCurrentScramble(scrambleGenerator.generateScramble(event.target.value));
     }
 
     const handleKeyDown = useCallback(async (event: KeyboardEvent) => {
@@ -179,23 +184,8 @@ function TimerScreen() {
     };
 
     return (
-        <Box sx={{display: "flex", justifyContent: "space-between", backgroundColor: "blue", height: "100%", width: "100%"}}>
-            <Box sx={{ flex: 1, bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
-                <TimeDisplay solves={solves} deleteSolve={deleteSolve} openSolveDetailsScreen={openSolveDetailsScreen} avg5s={averagesOfFive} avg12s={averagesOfTwelve} />
-            </Box>
-            <Box sx={{ flex: 3, display: "flex", flexDirection: 'column', bgcolor: "background.default" }}>
-                <Box sx={{ bgcolor: "secondary.main", width: "100%" }}>
-                    <FormControl>
-                        {/* <InputLabel>Category</InputLabel> */}
-                        <Select sx={{ bgcolor: "primary.main" }} id="discipline-select" value={selectedDiscipline} onChange={onDisciplineSelected}>
-                            {DISCIPLINE_LABELS.map((discipline) => (
-                                <MenuItem sx={{ bgcolor: "secondary.main" }} key={discipline.key} value={discipline.value}>
-                                    {discipline.value}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Box>
+        <Box sx={{ display: "flex", justifyContent: "space-between", backgroundColor: "blue", height: "100%", width: "100%" }}>
+            <Box sx={{ flex: 4, display: "flex", flexDirection: 'column', bgcolor: "background.default" }}>
                 <Box>
                     <Box>
                         <p>{currentScramble}</p>
@@ -209,7 +199,7 @@ function TimerScreen() {
                         {running ? "pause" : "start"} the timer.
                     </p>
                 </Box>
-                <Box sx={{marginTop: 'auto'}}>
+                <Box sx={{ marginTop: 'auto' }}>
                     {[cleanedAvg5, cleanedAvg12].map((array, index) => (
                         <LineChart
                             key={index}
@@ -223,6 +213,9 @@ function TimerScreen() {
                         />
                     ))}
                 </Box>
+            </Box>
+            <Box sx={{ flex: 1, bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
+                <TimeDisplay solves={solves} deleteSolve={deleteSolve} openSolveDetailsScreen={openSolveDetailsScreen} avg5s={averagesOfFive} avg12s={averagesOfTwelve} />
             </Box>
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} isOpen={openedSolveDetailsDialog}
