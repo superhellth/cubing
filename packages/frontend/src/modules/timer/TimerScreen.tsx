@@ -18,6 +18,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 
 function TimerScreen({ selDis }: { selDis: Discipline }) {
+    const [timerReady, setTimerReady] = useState<boolean>(false);
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<Boolean>(false);
@@ -121,6 +122,8 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
                 const solve: ISolve = await dbWriter.insertSolve(new Solve(currentUUID, finalTime, new Date(), currentScramble, selDis, Status.Valid));
                 setSolves(prevSolves => [solve, ...prevSolves]);
                 setCurrentScramble(scrambleGenerator.generateScramble(selDis));
+            } else {
+                setTimerReady(true);
             }
         }
 
@@ -136,6 +139,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
         // Start solve on space up
         if (!running) {
             if (event.code === "Space") {
+                setTimerReady(false);
                 if (releasedAfterStop) {
                     setRunning(true);
                 } else {
@@ -189,16 +193,16 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
                     <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>
                         <Typography sx={{
                             fontSize: "15rem", "-webkit-user-select": "none", "-moz-user-select": "none", "-ms-user-select": "none", "user-select": "none",
-                            fontFamily: "DSEG7 Classic, monospace", transform: "translateZ(0)", textAlign: "center"
+                            fontFamily: "DSEG7 Classic, monospace", transform: "translateZ(0)", textAlign: "center", color: timerReady ? "info.main" : "text.main"
                         }}>
                             {Timer.formatTime(time)}
                         </Typography>
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
-                        <Typography sx={{fontSize: "3rem", fontFamily: "Space Mono, monospace", color: "info.light"}}>
+                        <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
                             Ao5: {Timer.formatTime(averagesOfFive[0])}
                         </Typography>
-                        <Typography sx={{fontSize: "3rem", fontFamily: "Space Mono, monospace", color: "info.dark"}}>
+                        <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.dark" }}>
                             Ao12: {Timer.formatTime(averagesOfTwelve[0])}
                         </Typography>
                     </Box>
