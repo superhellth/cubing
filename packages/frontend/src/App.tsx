@@ -84,7 +84,7 @@ function App() {
         </Slide >
         <Box sx={{ flex: 20, height: "100%", bgcolor: "blue" }}>
           <Routes>
-            <Route path="/" element={<TimerScreen selDis={selectedDiscipline} />} />
+            <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} />} />
             <Route path="/algs" element={<AlgorithmScreen />} />
           </Routes>
         </Box>

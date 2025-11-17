@@ -15,7 +15,7 @@ function TimeDisplay({ solves, openSolveDetailsScreen, avg5s, avg12s }:
     const filteredAvg12s: number[] = avg12s.filter((item): item is number => item !== null);
     const solveTimes: number[] = solves.map(solve => solve.duration);
     const solveIDs: number[] = solves.map(solve => solve.id);
-    const [order, setOrder] = useState<SortDirection>('desc');
+    const [order, setOrder] = useState<SortDirection>('asc');
     const [orderBy, setOrderBy] = useState('id');
     const rows = Array.from({ length: solveIDs.length }, (_, i) => {
         return { "id": solveIDs[i], "single": solveTimes[i], "avg5": avg5s[i], "avg12": avg12s[i] };

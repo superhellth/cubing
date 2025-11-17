@@ -17,7 +17,7 @@ import AvgGraphs from "./AvgGraphs";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 
-function TimerScreen({ selDis }: { selDis: Discipline }) {
+function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline }) {
     const [timerReady, setTimerReady] = useState<boolean>(false);
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
@@ -68,7 +68,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
     const cleanedAvg12: number[] = useCleaning(averagesOfTwelve);
 
     useEffect(() => {
-        setCurrentScramble(scrambleGenerator.generateScramble(selDis));
+        setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
         // Check if user has visited before
         function getOrCreateUserId(): string {
@@ -91,7 +91,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
         async function fetchUserSolves() {
             try {
                 setLoading(true);
-                const fetchedSolves = await dbReader.getAllUserSolves(currentUUID, selDis);
+                const fetchedSolves = await dbReader.getAllUserSolves(currentUUID, selectedDiscipline);
                 setSolves(fetchedSolves);
             } catch (error) {
                 console.error("Failed to fetch solves:", error);
@@ -100,7 +100,13 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
             }
         }
         fetchUserSolves();
-    }, [currentUUID, selDis]);
+        setTime(0);
+        setRunning(false);
+        setReleasedAfterStop(true);
+        setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
+
+    }, [currentUUID, selectedDiscipline]);
+
 
     const deleteSolve = (solveID: number) => {
         setOpenedSolveDetailsDialog(false);
@@ -119,9 +125,9 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
                 setTime(finalTime);
                 setRunning(false);
                 setReleasedAfterStop(false);
-                const solve: ISolve = await dbWriter.insertSolve(new Solve(currentUUID, finalTime, new Date(), currentScramble, selDis, Status.Valid));
+                const solve: ISolve = await dbWriter.insertSolve(new Solve(currentUUID, finalTime, new Date(), currentScramble, selectedDiscipline, Status.Valid, "default"));
                 setSolves(prevSolves => [solve, ...prevSolves]);
-                setCurrentScramble(scrambleGenerator.generateScramble(selDis));
+                setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
             } else {
                 setTimerReady(true);
             }
@@ -133,7 +139,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
             setRunning(false);
             setTime(0);
         }
-    }, [running, dbWriter, currentScramble, selDis]);
+    }, [running, dbWriter, currentScramble, selectedDiscipline]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
         // Start solve on space up
@@ -213,7 +219,7 @@ function TimerScreen({ selDis }: { selDis: Discipline }) {
             </Box>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
             <Box sx={{ bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
-                <TimeDisplay solves={solves} deleteSolve={deleteSolve} openSolveDetailsScreen={openSolveDetailsScreen} avg5s={averagesOfFive} avg12s={averagesOfTwelve} />
+                <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} avg5s={averagesOfFive} avg12s={averagesOfTwelve} />
             </Box>
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} isOpen={openedSolveDetailsDialog}

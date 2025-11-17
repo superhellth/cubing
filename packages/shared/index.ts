@@ -11,6 +11,7 @@ export interface ISolve {
     readonly scramble: string;
     readonly id: number;
     readonly discipline: Discipline;
+    readonly session: string;
     readonly status: Status;
 }
 

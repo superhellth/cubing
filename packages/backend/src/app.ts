@@ -77,8 +77,8 @@ app.post("/db/solves/insert", async (req: Request, res: Response) => {
     try {
         const solve: ISolve = req.body.solve as ISolve;
 
-        const queryText: string = "INSERT INTO solves(uuid, date, duration, scramble, discipline, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING *";
-        const queryValues = [solve.uuid, solve.date, solve.duration, solve.scramble, solve.discipline, solve.status];
+        const queryText: string = "INSERT INTO solves(uuid, date, duration, scramble, discipline, status, session) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *";
+        const queryValues = [solve.uuid, solve.date, solve.duration, solve.scramble, solve.discipline, solve.status, solve.session];
 
         const result = await pool.query(queryText, queryValues);
 
