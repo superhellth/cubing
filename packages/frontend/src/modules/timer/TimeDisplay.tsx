@@ -8,6 +8,8 @@ import Box from '@mui/system/Box';
 import { useState } from "react";
 import type Solve from "../api/solve";
 import Timer from "./timer";
+import Paper from '@mui/material/Paper';
+import { alpha, useTheme } from '@mui/material/styles';
 
 function TimeDisplay({ solves, openSolveDetailsScreen, avg5s, avg12s }:
     { solves: Solve[], openSolveDetailsScreen: Function, avg5s: (number | null)[], avg12s: (number | null)[] }) {
@@ -18,13 +20,13 @@ function TimeDisplay({ solves, openSolveDetailsScreen, avg5s, avg12s }:
     const [order, setOrder] = useState<SortDirection>('asc');
     const [orderBy, setOrderBy] = useState('id');
     const rows = Array.from({ length: solveIDs.length }, (_, i) => {
-        return { "id": solveIDs[i], "single": solveTimes[i], "avg5": avg5s[i], "avg12": avg12s[i] };
+        return { "solve": solves[i], "single": solveTimes[i], "avg5": avg5s[i], "avg12": avg12s[i] };
     });
     const headCells = [
-        { id: 'id', label: '#' },
-        { id: 'single', label: 'Time' },
-        { id: 'avg5', label: 'Avg5' },
-        { id: 'avg12', label: 'Avg12' }
+        { id: 'id', label: '#', color: "text.main" },
+        { id: 'single', label: 'Time', color: "text.main" },
+        { id: 'avg5', label: 'Avg5', color: "info.light" },
+        { id: 'avg12', label: 'Avg12', color: "info.dark" }
     ];
     const handleSortRequest = (property: any) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -71,46 +73,52 @@ function TimeDisplay({ solves, openSolveDetailsScreen, avg5s, avg12s }:
         return stabilizedThis.map((el: any) => el[0]);
     }
 
+    const theme = useTheme();
+
     return (
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "10px" }}>
             <Box style={{ flex: 1 }}>
                 <h1>Your Solves</h1>
-                <Table sx={{ [`& .${tableCellClasses.root}`]: { borderBottom: "none" } }}>
-                    <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.3rem', fontWeight: "bold" } }}>
-                        <TableRow>
-                            <TableCell></TableCell>
-                            <TableCell>Best</TableCell>
-                            <TableCell>Current</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' } }}>
-                        <TableRow>
-                            <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Single</TableCell>
-                            <TableCell>{solves.length >= 1 ? Timer.formatTime(Math.min(...solveTimes)) : ""}</TableCell>
-                            <TableCell>{solves.length >= 3 ? Timer.formatTime(solveTimes[0]) : ""}</TableCell>
-                        </TableRow>
-                        <TableRow sx={{ '& .MuiTableCell-root': { color: "info.light" } }}>
-                            <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 5</TableCell>
-                            <TableCell>{solves.length >= 5 ? Timer.formatTime(Math.min(...filteredAvg5s)) : ""}</TableCell>
-                            <TableCell>{solves.length >= 5 ? Timer.formatTime(avg5s[0]) : ""}</TableCell>
-                        </TableRow>
-                        <TableRow sx={{ '& .MuiTableCell-root': { color: "info.dark" } }}>
-                            <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 12</TableCell>
-                            <TableCell>{solves.length >= 12 ? Timer.formatTime(Math.min(...filteredAvg12s)) : ""}</TableCell>
-                            <TableCell>{solves.length >= 12 ? Timer.formatTime(avg12s[0]) : ""}</TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
+                <Paper elevation={10} sx={{ bgcolor: "secondary.main" }}>
+
+                    <Table sx={{ [`& .${tableCellClasses.root}`]: { borderBottom: "none" } }}>
+                        <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.3rem', fontWeight: "bold" } }} >
+                            <TableRow>
+                                <TableCell></TableCell>
+                                <TableCell>Best</TableCell>
+                                <TableCell>Current</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' } }}>
+                            <TableRow>
+                                <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Single</TableCell>
+                                <TableCell>{solves.length >= 1 ? Timer.formatTime(Math.min(...solveTimes)) : ""}</TableCell>
+                                <TableCell>{solves.length >= 3 ? Timer.formatTime(solveTimes[0]) : ""}</TableCell>
+                            </TableRow>
+                            <TableRow sx={{ '& .MuiTableCell-root': { color: "info.light" } }}>
+                                <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 5</TableCell>
+                                <TableCell>{solves.length >= 5 ? Timer.formatTime(Math.min(...filteredAvg5s)) : ""}</TableCell>
+                                <TableCell>{solves.length >= 5 ? Timer.formatTime(avg5s[0]) : ""}</TableCell>
+                            </TableRow>
+                            <TableRow sx={{ '& .MuiTableCell-root': { color: "info.dark" } }}>
+                                <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 12</TableCell>
+                                <TableCell>{solves.length >= 12 ? Timer.formatTime(Math.min(...filteredAvg12s)) : ""}</TableCell>
+                                <TableCell>{solves.length >= 12 ? Timer.formatTime(avg12s[0]) : ""}</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </Paper>
             </Box>
 
             <Box sx={{ flex: 2, overflow: "auto", marginTop: "25px", scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }, }}>
                 <Table stickyHeader >
-                    <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.3rem', paddingLeft: 0, paddingRight: 0, fontWeight: "bold", bgcolor: "secondary.main" } }}>
+                    <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.3rem', paddingLeft: 0, paddingRight: 0, fontWeight: "bold", bgcolor: theme.palette.secondary.dark} }}>
                         <TableRow>
                             {headCells.map((headCell) => (
                                 <TableCell
                                     key={headCell.id}
                                     sortDirection={orderBy === headCell.id ? order : undefined}
+                                    sx={{color: headCell.color}}
                                 >
                                     <TableSortLabel
                                         active={orderBy === headCell.id}
@@ -126,8 +134,13 @@ function TimeDisplay({ solves, openSolveDetailsScreen, avg5s, avg12s }:
                     <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' } }}>
                         {stableSort(rows, getComparator(order, orderBy))
                             .map((row: any) => (
-                                <TableRow key={row.id}>
-                                    <TableCell>{row.id}</TableCell>
+                                <TableRow key={row.solve.id} onClick={() => openSolveDetailsScreen(row.solve)} hover sx={{
+                                    cursor: 'pointer',
+                                    '&:hover .MuiTableCell-root': {
+                                        bgcolor: 'secondary.light'
+                                    }
+                                }}>
+                                    <TableCell>{row.solve.id}</TableCell>
                                     <TableCell>{Timer.formatTime(row.single)}</TableCell>
                                     <TableCell>{Timer.formatTime(row.avg5)}</TableCell>
                                     <TableCell>{Timer.formatTime(row.avg12)}</TableCell>

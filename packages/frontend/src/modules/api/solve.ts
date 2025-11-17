@@ -7,17 +7,21 @@ class Solve implements ISolve {
     readonly date: Date;
     readonly scramble: string;
     readonly discipline: Discipline;
-    readonly status: Status;
+    status: Status;
     readonly session: string;
 
-    constructor(uuid: string, timeInMs: number, date: Date, scramble: string, discipline: Discipline, status: Status, session: string) {
-        this.id = -1;
-        this.session = session;
-        this.uuid = uuid;
-        this.duration = timeInMs;
-        this.date = date;
-        this.scramble = scramble;
-        this.discipline = discipline;
+    constructor(data: any) {
+        this.id = Number(data.id);
+        this.session = data.session;
+        this.uuid = data.uuid;
+        this.duration = data.duration;
+        this.date = data.date;
+        this.scramble = data.scramble;
+        this.discipline = data.discipline;
+        this.status = data.status;
+    }
+
+    public setStatus(status: Status): void {
         this.status = status;
     }
 }

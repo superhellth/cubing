@@ -2,8 +2,11 @@ import { red } from '@mui/material/colors';
 import { createTheme } from '@mui/material/styles';
 
 const primary = "#222831";
-const primaryLight = "#222831";
+const primaryLight = "#343d4b";
+const primaryDark = "#15191e";
 const secondary = "#393E46";
+const secondaryLight = "#505762";
+const secondaryDark = "#22252a";
 const accent = "#00ADB5"
 const accentDarker = "#007980";
 const accentLighter = "#00dae6";
@@ -14,10 +17,13 @@ const theme = createTheme({
     palette: {
         primary: {
             main: primary,
-            light: primaryLight
+            light: primaryLight,
+            dark: primaryDark
         },
         secondary: {
-            main: secondary
+            main: secondary,
+            light: secondaryLight,
+            dark: secondaryDark
         },
         text: {
             primary: text,

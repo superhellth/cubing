@@ -1,5 +1,6 @@
 import type { Discipline, ISolve } from "@cubing/shared";
 import axios from "axios";
+import Solve from "./solve";
 
 class DBReader {
     private static readonly BASE_URL = 'http://localhost:3000';
@@ -17,7 +18,7 @@ class DBReader {
                 }
             });
 
-            const solves: ISolve[] = response.data as ISolve[];
+            const solves: Solve[] = response.data.map((item: any) => new Solve(item));
             return solves;
 
         } catch (error) {

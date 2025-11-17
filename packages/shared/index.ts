@@ -12,7 +12,8 @@ export interface ISolve {
     readonly id: number;
     readonly discipline: Discipline;
     readonly session: string;
-    readonly status: Status;
+    status: Status;
+    setStatus(status: Status): void;
 }
 
 export enum Status {
@@ -44,20 +45,3 @@ export const DISCIPLINE_LABELS = Object.entries(Discipline).map(([key, value]) =
     key: key,
     value: value,
 }));
-
-// SELECT
-//     id,
-//     solve_time,
-//     created_at,
-//     -- This is the magic part:
-//     AVG(solve_time) OVER (
-//         PARTITION BY user_id
-//         ORDER BY created_at
-//         ROWS BETWEEN 4 PRECEDING AND CURRENT ROW
-//     ) AS rolling_average_of_5
-// FROM
-//     solves
-// WHERE
-//     user_id = 'some_user_id'
-// ORDER BY
-//     created_at DESC;

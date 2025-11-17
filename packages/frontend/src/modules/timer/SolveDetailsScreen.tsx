@@ -1,9 +1,22 @@
 import { Status, type ISolve } from "@cubing/shared";
-import { useEffect, useRef, useState } from "react";
+import CloseIcon from '@mui/icons-material/Close';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormLabel from "@mui/material/FormLabel";
+import IconButton from "@mui/material/IconButton";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import { useEffect, useState } from "react";
+import type DBWriter from "../api/db_writer";
 
-function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve }: { solve: ISolve, isOpen: Boolean, onClose: Function, onDeleteSolve: Function }) {
-    const [selectedStatus, setSelectedStatus] = useState<Status>(solve.status);
-    const dialogRef = useRef(null);
+function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter }: {
+    solve: ISolve, isOpen: boolean, onClose: Function,
+    onDeleteSolve: Function, dbWriter: DBWriter
+}) {
+    const [status, setStatus] = useState<Status>(solve.status);
     const date: Date = new Date(solve.date);
     const longFormatter = new Intl.DateTimeFormat('en-US', {
         year: 'numeric',
@@ -12,40 +25,69 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve }: { solve: 
     });
 
     useEffect(() => {
-        const dialogNode: any = dialogRef.current;
-        if (!dialogNode) {
-            return;
-        }
+        setStatus(solve.status);
+    }, [solve]);
 
-        if (isOpen) {
-            dialogNode.showModal();
-        } else {
-            dialogNode.close();
-        }
-    }, [isOpen]);
+    const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newStatus = event.target.value as Status;
+        setStatus(newStatus);
+        solve.setStatus(newStatus);
+        dbWriter.updateSolveStatus(solve);
+    };
 
     return (
-        <dialog ref={dialogRef}>
-            <div style={{ width: "600px", height: "400px" }}>
-                <button onClick={() => onClose()}>Close</button>
-                <h1>Solve {solve.id}</h1>
+        <Dialog open={isOpen} sx={{ color: "red" }}>
+            <DialogTitle sx={{ bgcolor: "primary.main", textAlign: "center", fontSize: "3rem", fontWeight: "bold" }}>Solve {solve.id}</DialogTitle>
+            <DialogContent sx={{ bgcolor: "primary.main", textAlign: "center" }}>
+
+                <IconButton
+                    aria-label="close"
+                    onClick={() => onClose()}
+                    sx={{
+                        position: 'absolute',
+                        right: 8,
+                        top: 8, color: "secondary.light",
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
                 <p>Scramble: {solve.scramble}</p>
                 <p>Date: {longFormatter.format(date)}</p>
-                <fieldset>
-                    <legend>Solve Status:</legend>
-                    {[Status.DNF, Status.PlusTwo, Status.Valid].map((status) => (
-                        <label key={status} >
-                            <input
-                                type="radio"
-                                name="fruit"
-                                value={status}
-                                checked={selectedStatus === status}
-                                onChange={(event) => { setSelectedStatus(status) }} /> {status}
-                        </label>))}
-                </fieldset>
+                <FormControl>
+                    <FormLabel>Solve Status</FormLabel>
+                    <RadioGroup
+                        row
+                        name="position"
+                        value={status}
+                        onChange={handleStatusChange}
+                    >
+                        <FormControlLabel
+                            value={Status.Valid}
+                            control={<Radio sx={{
+                                color: "green",
+                                '&.Mui-checked': {
+                                    color: "green",
+                                },
+                            }} />}
+                            label="Valid"
+                        />
+                        <FormControlLabel value={Status.PlusTwo} control={<Radio sx={{
+                            color: "yellow",
+                            '&.Mui-checked': {
+                                color: "yellow",
+                            },
+                        }} />} label="+2" />
+                        <FormControlLabel value={Status.DNF} control={<Radio sx={{
+                            color: "red",
+                            '&.Mui-checked': {
+                                color: "red",
+                            },
+                        }} />} label="DNF" />
+                    </RadioGroup>
+                </FormControl>
                 <button onClick={() => onDeleteSolve(solve.id)}>Delete</button>
-            </div>
-        </dialog>
+            </DialogContent>
+        </Dialog>
     );
 }
 

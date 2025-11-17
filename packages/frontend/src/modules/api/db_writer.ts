@@ -1,11 +1,12 @@
 import axios from "axios";
-import type { ISolve, IUser } from "@cubing/shared";
+import type { ISolve, IUser, Status } from "@cubing/shared";
 
 class DBWriter {
     private static readonly BASE_URL = 'http://localhost:3000';
     private static readonly CREATE_USER_URL = "/db/users/create";
     private static readonly INSERT_SOLVE_URL = "/db/solves/insert";
     private static readonly DELETE_SOLVE_URL = "/db/solves/delete";
+    private static readonly UPDATE_SOLVE_URL = "/db/solves/updateStatus";
 
     constructor() {
     }
@@ -20,6 +21,20 @@ class DBWriter {
             return response.data;
         } catch (error) {
             console.error('Error creating user:', error);
+            throw error;
+        }
+    }
+
+    public async updateSolveStatus(solve: ISolve) {
+        try {
+            const response = await axios.post(DBWriter.BASE_URL + DBWriter.UPDATE_SOLVE_URL, {
+                solve: solve
+            })
+            console.log("Solve status updated:", response.data);
+            const updatedSolve: ISolve = response.data as ISolve;
+            return updatedSolve;
+        } catch (error) {
+            console.error("Error updating solve status:", error);
             throw error;
         }
     }

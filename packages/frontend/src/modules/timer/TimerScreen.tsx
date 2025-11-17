@@ -21,7 +21,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     const [timerReady, setTimerReady] = useState<boolean>(false);
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
-    const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<Boolean>(false);
+    const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const [currentUUID, setCurrentUUID] = useState<string>("");
     const [time, setTime] = useState<number>(0);
     const [releasedAfterStop, setReleasedAfterStop] = useState<boolean>(true);
@@ -125,7 +125,8 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 setTime(finalTime);
                 setRunning(false);
                 setReleasedAfterStop(false);
-                const solve: ISolve = await dbWriter.insertSolve(new Solve(currentUUID, finalTime, new Date(), currentScramble, selectedDiscipline, Status.Valid, "default"));
+                const solve: ISolve = await dbWriter.insertSolve(new Solve({uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
+                    discipline: selectedDiscipline, status: Status.Valid, session: "default", id: -1}));
                 setSolves(prevSolves => [solve, ...prevSolves]);
                 setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
             } else {
@@ -223,7 +224,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
             </Box>
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} isOpen={openedSolveDetailsDialog}
-                    onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
+                    onClose={() => { setOpenedSolveDetailsDialog(false) }} dbWriter={dbWriter}></SolveDetailsScreen>
             )}
         </Box>
 

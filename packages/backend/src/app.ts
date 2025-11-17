@@ -56,22 +56,20 @@ app.get("/db/solves/get", async (req: Request, res: Response) => {
     }
 });
 
-app.post("/db/solves/setStatus", async (req: Request, res: Response) => {
+app.post("/db/solves/updateStatus", async (req: Request, res: Response) => {
     try {
-
-        const solveID: number = req.body.solveID as number;
-        const newStatus: Status = req.body.newStatus as Status;
-
-        const queryText: string = "ALTER TABLE solves SET status = $1 WHERE id = $2";
-        const queryValues = [solveID, newStatus];
-
+        const solve: ISolve = req.body.solve as ISolve;
+        const queryText: string = "UPDATE solves SET status = $1 WHERE id = $2 AND uuid = $3 AND discipline = $4 AND session = $5 RETURNING *";
+        const queryValues = [solve.status, solve.id, solve.uuid, solve.discipline, solve.session];
         const result = await pool.query(queryText, queryValues);
-        res.status(201).json(result.rows[0]);
+
+        res.status(201).json(result.rows[0])
     } catch (error: any) {
         console.error('Error setting solve status:', error.message);
         res.status(500).json({ message: 'Failed to update solve.' });
     }
 });
+
 
 app.post("/db/solves/insert", async (req: Request, res: Response) => {
     try {
