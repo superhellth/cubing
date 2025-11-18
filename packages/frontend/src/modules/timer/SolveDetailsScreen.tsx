@@ -11,6 +11,8 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import { useEffect, useState } from "react";
 import type DBWriter from "../api/db_writer";
+import Typography from "@mui/material/Typography";
+import { Box } from "@mui/system";
 
 function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter }: {
     solve: ISolve, isOpen: boolean, onClose: Function,
@@ -53,8 +55,12 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter }:
                 </IconButton>
                 <p>Scramble: {solve.scramble}</p>
                 <p>Date: {longFormatter.format(date)}</p>
+                <Box>
+                    <Typography sx={{color: "info.light"}}>Avg5: {}</Typography>
+                    <Typography sx={{color: "info.dark"}}>Avg12: {}</Typography>
+                </Box>
                 <FormControl>
-                    <FormLabel>Solve Status</FormLabel>
+                    <FormLabel sx={{color: "text.primary"}}>Solve Status</FormLabel>
                     <RadioGroup
                         row
                         name="position"

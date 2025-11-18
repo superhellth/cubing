@@ -15,9 +15,10 @@ import AlgorithmScreen from './modules/algorithms/AlgorithmScreen';
 import TimerScreen from './modules/timer/TimerScreen';
 import { Discipline } from '@cubing/shared';
 import Slide from '@mui/material/Slide';
+import Tooltip from '@mui/material/Tooltip';
 
 function App() {
-  const [openDrawer, setOpenDrawer] = useState<boolean>(true);
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [mouseInArea, setMouseInArea] = useState<boolean>();
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
   const navigate = useNavigate();
@@ -47,9 +48,13 @@ function App() {
   }, [mouseInArea]);
 
   const DisciplineButton = ({ name, size, disc }: { name: string, size: number, disc: Discipline }) => (
-    <Button sx={{ color: "text.primary", "&:hover": { color: "info.main" } }} onClick={() => { setOpenDrawer(false); setSelectedDiscipline(disc); navigate("/") }}>
-      <i className={`cubing-icon event-${name}`} style={{ fontSize: size }} />
-    </Button>
+    <Tooltip title={disc} placement='right' sx={{ bgcolor: "red" }} arrow slotProps={{
+      tooltip: { sx: { bgcolor: 'secondary.main', fontSize: '1rem', border: '1px solid info.main' } }, arrow: { sx: { color: 'secondary.main' } }
+    }}>
+      <Button sx={{ color: "text.primary", "&:hover": { color: "info.main" } }} onClick={() => { setOpenDrawer(false); setSelectedDiscipline(disc); navigate("/") }}>
+        <i className={`cubing-icon event-${name}`} style={{ fontSize: size }} />
+      </Button>
+    </Tooltip>
   );
 
   return (
