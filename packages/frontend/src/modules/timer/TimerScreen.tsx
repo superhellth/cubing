@@ -36,36 +36,40 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
 
     const USER_ID_KEY = "userID";
 
-    const calculateAverages = (solves: ISolve[], chunkSize: number) => {
-        return solves.map((solve, index) => {
-            if (index + chunkSize > solves.length) {
-                return null;
-            }
-            const chunk = solves.slice(index, index + chunkSize);
-            const currentAvg = Timer.getFilteredAvg(chunk);
-            return currentAvg;
-        });
-    }
-    const useRollingAverage = (solves: ISolve[], chunkSize: number) => {
+    const useSolvesWithAverages = (solves: ISolve[]) => {
         return useMemo(() => {
-            return calculateAverages(solves, chunkSize);
-        }, [solves, chunkSize]);
-    }
-    const averagesOfFive: (number | null)[] = useRollingAverage(solves, 5);
-    const averagesOfTwelve: (number | null)[] = useRollingAverage(solves, 12);
+            return solves.map((solve, index) => {
+                let ao5: number | null = null;
+                if (index + 5 <= solves.length) {
+                    const chunk = solves.slice(index, index + 5);
+                    ao5 = Timer.getFilteredAvg(chunk);
+                }
 
-    const cleanAverages = (averages: (number | null)[]) => {
-        return [...averages.filter(value => value !== null)].reverse().map(value => value / 1000);
-    }
+                let ao12: number | null = null;
+                if (index + 12 <= solves.length) {
+                    const chunk = solves.slice(index, index + 12);
+                    ao12 = Timer.getFilteredAvg(chunk);
+                }
+                return {
+                    ...solve,
+                    avg5: ao5,
+                    avg12: ao12
+                };
+            });
+        }, [solves]);
+    };
 
-    const useCleaning = (averages: (number | null)[]) => {
+    const processedSolves: ISolve[] = useSolvesWithAverages(solves);
+
+    const useCleanAverages = (averages: (number | null | undefined)[]) => {
         return useMemo(() => {
-            return cleanAverages(averages);
+
+            return [...averages.filter(value => value !== null && value !== undefined)].reverse().map(value => value / 1000);
         }, [averages]);
     }
 
-    const cleanedAvg5: number[] = useCleaning(averagesOfFive);
-    const cleanedAvg12: number[] = useCleaning(averagesOfTwelve);
+    const cleanedAvg5: number[] = useCleanAverages(solves.map(solve => solve.avg5));
+    const cleanedAvg12: number[] = useCleanAverages(solves.map(solve => solve.avg12));
 
     useEffect(() => {
         setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
@@ -125,8 +129,10 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 setTime(finalTime);
                 setRunning(false);
                 setReleasedAfterStop(false);
-                const solve: ISolve = await dbWriter.insertSolve(new Solve({uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
-                    discipline: selectedDiscipline, status: Status.Valid, session: "default", id: -1}));
+                const solve: ISolve = await dbWriter.insertSolve(new Solve({
+                    uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
+                    discipline: selectedDiscipline, status: Status.Valid, session: "default"
+                }));
                 setSolves(prevSolves => [solve, ...prevSolves]);
                 setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
             } else {
@@ -207,10 +213,10 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
-                            Ao5: {Timer.formatTime(averagesOfFive[0])}
+                            Ao5: {processedSolves[0]?.avg5 ? Timer.formatTime(processedSolves[0].avg5) : "-"}
                         </Typography>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.dark" }}>
-                            Ao12: {Timer.formatTime(averagesOfTwelve[0])}
+                            Ao12: {processedSolves[0]?.avg12 ? Timer.formatTime(processedSolves[0].avg12) : "-"}
                         </Typography>
                     </Box>
                 </Box>
@@ -220,7 +226,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
             </Box>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
             <Box sx={{ bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
-                <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} avg5s={averagesOfFive} avg12s={averagesOfTwelve} />
+                <TimeDisplay solves={processedSolves} openSolveDetailsScreen={openSolveDetailsScreen} />
             </Box>
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} isOpen={openedSolveDetailsDialog}

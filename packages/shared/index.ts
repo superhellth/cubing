@@ -13,7 +13,11 @@ export interface ISolve {
     readonly discipline: Discipline;
     readonly session: string;
     status: Status;
+    avg5?: number | null;
+    avg12?: number | null;
     setStatus(status: Status): void;
+    getDisplayableAvg5(): string;
+    getDisplayableAvg12(): string;
 }
 
 export enum Status {

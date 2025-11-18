@@ -1,15 +1,16 @@
+import type { ISolve } from "@cubing/shared";
 import type Solve from "../api/solve";
 
 class Timer {
     constructor() {
     }
 
-    static formatTime(ms: number | null) {
-        if (ms == 0) {
-            return "0.00";
-        }
+    static formatTime(ms: number | null | undefined) {
         if (!ms) {
             return "";
+        }
+        if (ms == 0) {
+            return "0.00";
         }
         const minutes = Math.floor(ms / 60000);
         const seconds = Math.floor((ms % 60000) / 1000);
@@ -21,7 +22,7 @@ class Timer {
         return `${seconds}.${String(milliseconds).padStart(2, "0")}`;
     };
 
-    static getFilteredAvg(solves: Solve[]): number {
+    static getFilteredAvg(solves: ISolve[]): number {
         const solveTimes: number[] = solves.map(solve => solve.duration);
         solveTimes.sort((a, b) => a - b);
         const relevantTimes = solveTimes.slice(1, -1);

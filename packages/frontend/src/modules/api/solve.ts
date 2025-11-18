@@ -1,4 +1,5 @@
 import type { Discipline, ISolve, Status } from "@cubing/shared";
+import Timer from "../timer/timer";
 
 class Solve implements ISolve {
     readonly id: number;
@@ -7,11 +8,13 @@ class Solve implements ISolve {
     readonly date: Date;
     readonly scramble: string;
     readonly discipline: Discipline;
-    status: Status;
     readonly session: string;
+    status: Status;
+    avg5?: number | null;
+    avg12?: number | null;
 
     constructor(data: any) {
-        this.id = Number(data.id);
+        this.id = Number(data.id) ?? null;
         this.session = data.session;
         this.uuid = data.uuid;
         this.duration = data.duration;
@@ -19,10 +22,19 @@ class Solve implements ISolve {
         this.scramble = data.scramble;
         this.discipline = data.discipline;
         this.status = data.status;
+        this.avg5 = data.avg5 ?? null;
+        this.avg12 = data.avg12 ?? null;
     }
 
     public setStatus(status: Status): void {
         this.status = status;
+    }
+
+    public getDisplayableAvg5() {
+        return Timer.formatTime(this.avg5)
+    }
+    public getDisplayableAvg12() {
+        return Timer.formatTime(this.avg12)
     }
 }
 
