@@ -14,6 +14,18 @@ export function getDisplayableAvg12(solve: ISolve) {
     }
     return Timer.formatTime(solve.avg12);
 }
+export function getDisplayableAvg100(solve: ISolve) {
+    if (solve.avg100 == -1) {
+        return "DNF";
+    }
+    return Timer.formatTime(solve.avg100);
+}
+export function getDisplayableAvg1000(solve: ISolve) {
+    if (solve.avg1000 == -1) {
+        return "DNF";
+    }
+    return Timer.formatTime(solve.avg1000);
+}
 
 export function getDisplayTime(solve: ISolve) {
     let solveDuration: number = solve.duration;

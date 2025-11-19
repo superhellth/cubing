@@ -10,29 +10,22 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import Box from '@mui/system/Box';
 import { useState } from "react";
 import Timer from "./timer";
-import { getDisplayableAvg12, getDisplayableAvg5, getDisplayTime } from '../api/solveUtils';
+import { getDisplayableAvg100, getDisplayableAvg1000, getDisplayableAvg12, getDisplayableAvg5, getDisplayTime } from '../api/solveUtils';
 
 function TimeDisplay({ solves, openSolveDetailsScreen }:
     { solves: ISolve[], openSolveDetailsScreen: Function }) {
-    const avg5s: (number | undefined | null)[] = solves.map(solve => solve.avg5);
-    const avg12s: (number | undefined | null)[] = solves.map(solve => solve.avg12);
-    const solveTimes: number[] = solves.map(solve => solve.duration);
     const [order, setOrder] = useState<SortDirection>('asc');
     const [orderBy, setOrderBy] = useState('id');
-    const rows = solves.map(solve => ({
-        id: solve.id,
-        solve: solve,
-        single: solve.duration,
-        avg5: solve.avg5,
-        avg12: solve.avg12
-    }));
     const headCells = [
-        { id: 'id', label: '#', color: "text.main" },
-        { id: 'single', label: 'Time', color: "text.main" },
-        { id: 'avg5', label: 'Avg5', color: "info.light" },
-        { id: 'avg12', label: 'Avg12', color: "info.dark" }
+        { id: 'id', label: '#', color: "text.primary", minSolves: 0 },
+        { id: 'single', label: 'Time', color: "text.primary", minSolves: 0 },
+        { id: 'avg5', label: 'Avg5', color: "info.light", minSolves: 0 },
+        { id: 'avg12', label: 'Avg12', color: "info.dark", minSolves: 0 },
+        { id: 'avg100', label: 'Avg100', color: "info.dark", minSolves: 100 },
+        { id: 'avg1000', label: 'Avg1000', color: "info.dark", minSolves: 1000 }
     ];
     const getBest = (key: keyof ISolve) => {
+        console.log("Best")
         const validTimes = solves
             .map(s => s[key])
             .filter((t): t is number => typeof t === 'number' && t > 0);
@@ -87,6 +80,8 @@ function TimeDisplay({ solves, openSolveDetailsScreen }:
 
     const bestAvg5 = getBest("avg5");
     const bestAvg12 = getBest("avg12");
+    const bestAvg100 = getBest("avg100");
+    const bestAvg1000 = getBest("avg1000");
     const bestSingle = getBest("duration");
     const theme = useTheme();
 
@@ -108,18 +103,32 @@ function TimeDisplay({ solves, openSolveDetailsScreen }:
                             <TableRow>
                                 <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Single</TableCell>
                                 <TableCell>{solves.length >= 1 ? Timer.formatTime(getBest("duration")) : ""}</TableCell>
-                                <TableCell>{solves.length >= 3 ? getDisplayTime(solves[0]) : ""}</TableCell>
+                                <TableCell>{solves.length >= 1 ? getDisplayTime(solves[0]) : ""}</TableCell>
                             </TableRow>
-                            <TableRow sx={{ '& .MuiTableCell-root': { color: "info.light" } }}>
-                                <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 5</TableCell>
-                                <TableCell>{solves.length >= 5 ? Timer.formatTime(getBest("avg5")) : ""}</TableCell>
-                                <TableCell>{solves.length >= 5 ? getDisplayableAvg5(solves[0]) : ""}</TableCell>
-                            </TableRow>
-                            <TableRow sx={{ '& .MuiTableCell-root': { color: "info.dark" } }}>
-                                <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 12</TableCell>
-                                <TableCell>{solves.length >= 12 ? Timer.formatTime(getBest("avg12")) : ""}</TableCell>
-                                <TableCell>{solves.length >= 12 ? getDisplayableAvg12(solves[0]) : ""}</TableCell>
-                            </TableRow>
+                            {solves.length >= 5 &&
+                                <TableRow sx={{ '& .MuiTableCell-root': { color: "info.light" } }}>
+                                    <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 5</TableCell>
+                                    <TableCell>{Timer.formatTime(getBest("avg5"))}</TableCell>
+                                    <TableCell>{getDisplayableAvg5(solves[0])}</TableCell>
+                                </TableRow>}
+                            {solves.length >= 12 &&
+                                <TableRow sx={{ '& .MuiTableCell-root': { color: "info.dark" } }}>
+                                    <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 12</TableCell>
+                                    <TableCell>{Timer.formatTime(getBest("avg12"))}</TableCell>
+                                    <TableCell>{getDisplayableAvg12(solves[0])}</TableCell>
+                                </TableRow>}
+                            {solves.length >= 100 &&
+                                <TableRow sx={{ '& .MuiTableCell-root': { color: "info.dark" } }}>
+                                    <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 100</TableCell>
+                                    <TableCell>{Timer.formatTime(getBest("avg100"))}</TableCell>
+                                    <TableCell>{getDisplayableAvg12(solves[0])}</TableCell>
+                                </TableRow>}
+                            {solves.length >= 1000 &&
+                                <TableRow sx={{ '& .MuiTableCell-root': { color: "info.dark" } }}>
+                                    <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 1000</TableCell>
+                                    <TableCell>{Timer.formatTime(getBest("avg1000"))}</TableCell>
+                                    <TableCell>{getDisplayableAvg12(solves[0])}</TableCell>
+                                </TableRow>}
                         </TableBody>
                     </Table>
                 </Paper>
@@ -127,53 +136,94 @@ function TimeDisplay({ solves, openSolveDetailsScreen }:
 
             <Box sx={{ flex: 2, overflow: "auto", marginTop: "25px", scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }, }}>
                 <Table stickyHeader >
-                    <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.3rem', paddingLeft: 0, paddingRight: 0, fontWeight: "bold", bgcolor: theme.palette.secondary.dark } }}>
+                    <TableHead sx={{
+                        '& .MuiTableCell-root': {
+                            textAlign: 'center', fontSize: '1.3rem', paddingLeft: 0, paddingRight: 0, fontWeight: "bold",
+                            bgcolor: theme.palette.secondary.dark
+                        }
+                    }}>
                         <TableRow>
                             {headCells.map((headCell) => (
                                 <TableCell
                                     key={headCell.id}
                                     sortDirection={orderBy === headCell.id ? order : undefined}
-                                    sx={{ color: headCell.color }}
                                 >
-                                    <TableSortLabel
-                                        active={orderBy === headCell.id}
-                                        direction={orderBy === headCell.id ? order : 'asc'}
-                                        onClick={() => handleSortRequest(headCell.id)}
-                                    >
-                                        {headCell.label}
-                                    </TableSortLabel>
+                                    {solves.length >= headCell.minSolves &&
+                                        <TableSortLabel
+                                            active={orderBy === headCell.id}
+                                            direction={orderBy === headCell.id ? order : 'asc'}
+                                            onClick={() => handleSortRequest(headCell.id)}
+                                            sx={{
+                                                color: headCell.color,
+                                                '&.Mui-active': {
+                                                    color: headCell.color,
+                                                },
+                                                '&:hover': {
+                                                    color: headCell.color,
+                                                    opacity: 0.3
+                                                },
+                                                '&.Mui-active .MuiTableSortLabel-icon': {
+                                                    color: headCell.color
+                                                },
+                                                '&:hover .Mui-active': {
+                                                    color: headCell.color,
+                                                },
+                                                '&.MuiTableSortLabel-icon': {
+                                                    color: `${headCell.color} !important`,
+                                                }
+                                            }}
+                                        >
+                                            {headCell.label}
+                                        </TableSortLabel>
+                                    }
                                 </TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
                     <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' } }}>
-                        {stableSort(rows, getComparator(order, orderBy))
-                            .map((row: any) => (
-                                <TableRow key={row.solve.id} onClick={() => openSolveDetailsScreen(row.solve)} hover sx={{
+                        {stableSort(solves, getComparator(order, orderBy))
+                            .map((solve: ISolve) => (
+                                <TableRow key={solve.id} onClick={() => openSolveDetailsScreen(solve)} hover sx={{
                                     cursor: 'pointer',
                                     '&:hover .MuiTableCell-root': {
                                         bgcolor: 'secondary.light'
                                     }
                                 }}>
-                                    <TableCell>{row.solve.id}</TableCell>
+                                    <TableCell>{solve.id}</TableCell>
                                     <TableCell sx={{
-                                        color: row.solve.status === Status.DNF ? "error.main" : row.solve.status === Status.PlusTwo ? "warning.main" : "text.primary",
-                                        fontWeight: (bestSingle !== null && row.solve.duration === bestSingle) ? "bold" : "normal"
+                                        color: solve.status === Status.DNF ? "error.main" : solve.status === Status.PlusTwo ? "warning.main" : "text.primary",
+                                        fontWeight: (bestSingle !== null && solve.duration === bestSingle) ? "bold" : "normal"
                                     }}>
-                                        {getDisplayTime(row.solve)}
+                                        {getDisplayTime(solve)}
                                     </TableCell>
                                     <TableCell sx={{
-                                        color: row.solve.avg5 === -1 ? "error.main" : "text.primary",
-                                        fontWeight: (bestAvg5 !== null && row.avg5 === bestAvg5) ? "bold" : "normal"
+                                        color: solve.avg5 === -1 ? "error.main" : "text.primary",
+                                        fontWeight: (bestAvg5 !== null && solve.avg5 === bestAvg5) ? "bold" : "normal"
                                     }}>
-                                        {getDisplayableAvg5(row.solve)}
+                                        {getDisplayableAvg5(solve)}
                                     </TableCell>
                                     <TableCell sx={{
-                                        color: row.solve.avg12 === -1 ? "error.main" : "text.primary",
-                                        fontWeight: (bestAvg12 !== null && row.avg12 === bestAvg12) ? "bold" : "normal"
+                                        color: solve.avg12 === -1 ? "error.main" : "text.primary",
+                                        fontWeight: (bestAvg12 !== null && solve.avg12 === bestAvg12) ? "bold" : "normal"
                                     }}>
-                                        {getDisplayableAvg12(row.solve)}
+                                        {getDisplayableAvg12(solve)}
                                     </TableCell>
+                                    {solves.length >= 100 &&
+                                        <TableCell sx={{
+                                            color: solve.avg100 === -1 ? "error.main" : "text.primary",
+                                            fontWeight: (bestAvg100 !== null && solve.avg100 === bestAvg100) ? "bold" : "normal"
+                                        }}>
+                                            {getDisplayableAvg100(solve)}
+                                        </TableCell>
+                                    }
+                                    {solves.length >= 1000 &&
+                                        <TableCell sx={{
+                                            color: solve.avg1000 === -1 ? "error.main" : "text.primary",
+                                            fontWeight: (bestAvg1000 !== null && solve.avg1000 === bestAvg1000) ? "bold" : "normal"
+                                        }}>
+                                            {getDisplayableAvg1000(solve)}
+                                        </TableCell>
+                                    }
                                 </TableRow>
                             ))}
                     </TableBody>

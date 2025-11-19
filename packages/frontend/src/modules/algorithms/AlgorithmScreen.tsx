@@ -1,8 +1,10 @@
+import { Box } from "@mui/system";
+
 function AlgorithmScreen() {
     return (
-        <div>
-            <p>Hi</p>
-        </div>
+        <Box sx={{height: "100%", bgcolor: "primary.main"}}>
+            Coming soon...
+        </Box>
 
     );
 }

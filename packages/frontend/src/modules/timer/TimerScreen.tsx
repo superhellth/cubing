@@ -89,7 +89,9 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     ...solves[i],
                     // Calculate both in the same pass without creating temp arrays
                     avg5: calcAvg(i, 5),
-                    avg12: calcAvg(i, 12)
+                    avg12: calcAvg(i, 12),
+                    avg100: calcAvg(i, 100),
+                    avg1000: calcAvg(i, 1000)
                 };
             }
 
@@ -227,6 +229,18 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         setSelectedSolve(solve);
         setOpenedSolveDetailsDialog(true);
     };
+    const getScrambleFontSize = (scramble: string) => {
+        const len = scramble.split(" ").length;
+        // 2x2, 3x3, Skewb, Pyraminx (Short)
+        if (len < 40) return "2rem";
+
+        // 4x4, 5x5 (Medium)
+        if (len < 80) return "1.6rem";
+
+        // 6x6, 7x7, Megaminx (Long)
+        // These are massive text blocks, so we need small text
+        return "1.3rem";
+    };
 
     return (
         <Box sx={{ display: "flex", justifyContent: "space-between", height: "100%", width: "100%" }}>
@@ -235,7 +249,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 paddingLeft: "75px", paddingRight: "75px", paddingTop: "2rem"
             }}>
                 <Box sx={{ flex: 1 }}>
-                    <Typography sx={{ flex: 1, fontSize: "2rem", fontFamily: "Space Mono, monospace" }}>{currentScramble}</Typography>
+                    <Typography sx={{ flex: 1, fontSize: getScrambleFontSize(currentScramble), fontFamily: "Space Mono, monospace" }}>{currentScramble}</Typography>
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                     <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>

@@ -13,11 +13,13 @@ import { useEffect, useState } from "react";
 import type DBWriter from "../api/db_writer";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
-import { getDisplayableAvg12, getDisplayableAvg5, solveWithUpdatedStatus } from "../api/solveUtils";
+import { getDisplayableAvg12, getDisplayableAvg5, getDisplayTime, solveWithUpdatedStatus } from "../api/solveUtils";
 import Button from "@mui/material/Button";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 
 function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter, onUpdateStatus }: {
     solve: ISolve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
@@ -30,6 +32,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter, o
         month: 'long',
         day: 'numeric'
     });
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
     useEffect(() => {
         setStatus(solve.status);
@@ -59,6 +62,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter, o
                 <p>Scramble: {solve.scramble}</p>
                 <p>Date: {longFormatter.format(date)}</p>
                 <Box>
+                    <Typography sx={{ color: "text.primary" }}>Single: {getDisplayTime(solve)}</Typography>
                     <Typography sx={{ color: "info.light" }}>Avg5: {getDisplayableAvg5(solve)}</Typography>
                     <Typography sx={{ color: "info.dark" }}>Avg12: {getDisplayableAvg12(solve)}</Typography>
                 </Box>
@@ -77,20 +81,38 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter, o
                             width: '100%'
                         }}
                     >
-                        <ToggleButton value={Status.Valid} sx={{ '&.Mui-selected': { backgroundColor: '#e8f5e9', color: 'green' } }}>
+                        <ToggleButton value={Status.Valid} sx={{
+                            '&.Mui-selected': {
+                                backgroundColor: '#e8f5e9', color: 'green', '&:hover': {
+                                    backgroundColor: '#e8f5e9',
+                                }
+                            }
+                        }}>
                             Valid
                         </ToggleButton>
-                        <ToggleButton value={Status.PlusTwo} sx={{ '&.Mui-selected': { backgroundColor: '#fffde7', color: '#fbc02d' } }}>
+                        <ToggleButton value={Status.PlusTwo} sx={{
+                            '&.Mui-selected': {
+                                backgroundColor: '#fffde7', color: 'warning.main', '&:hover': {
+                                    backgroundColor: '#e8f5e9',
+                                }
+                            }
+                        }}>
                             +2
                         </ToggleButton>
-                        <ToggleButton value={Status.DNF} sx={{ '&.Mui-selected': { backgroundColor: '#ffebee', color: 'red' } }}>
+                        <ToggleButton value={Status.DNF} sx={{
+                            '&.Mui-selected': {
+                                backgroundColor: '#ffebee', color: 'error.main', '&:hover': {
+                                    backgroundColor: '#e8f5e9',
+                                }
+                            }
+                        }}>
                             DNF
                         </ToggleButton>
                     </ToggleButtonGroup>
                 </FormControl>
                 <Button
                     sx={{ marginTop: "1rem" }}
-                    onClick={() => onDeleteSolve(solve.id)}
+                    onClick={() => setOpenDeleteDialog(true)}
                     variant="outlined"
                     color="error"
                     startIcon={<DeleteIcon />}
@@ -98,6 +120,32 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter, o
                     Delete
                 </Button>
             </DialogContent>
+            <Dialog
+                open={openDeleteDialog}
+                onClose={() => setOpenDeleteDialog(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle sx={{color: "error.main"}}>
+                    Delete this solve?
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to delete this solve? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenDeleteDialog(false)} color="primary" autoFocus>
+                        Cancel
+                    </Button>
+                    <Button onClick={() => {
+                        onDeleteSolve(solve.id);
+                        setOpenDeleteDialog(false)
+                    }} color="error">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Dialog>
     );
 }

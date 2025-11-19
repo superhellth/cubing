@@ -41,6 +41,8 @@ export interface ISolve {
     readonly status: Status;
     readonly avg5?: number | null;
     readonly avg12?: number | null;
+    readonly avg100?: number | null;
+    readonly avg1000?: number | null;
 }
 export type INewSolve = Omit<ISolve, 'id'>;
 
@@ -55,5 +57,7 @@ export const SolveSchema = z.object({
     status: z.enum(Status),
     avg5: z.number().nullable().optional(),
     avg12: z.number().nullable().optional(),
+    avg100: z.number().nullable().optional(),
+    avg1000: z.number().nullable().optional()
 });
 export const NewSolveSchema = SolveSchema.omit({ id: true });
