@@ -6,11 +6,11 @@ class Timer {
     }
 
     static formatTime(ms: number | null | undefined) {
-        if (!ms) {
-            return "";
-        }
         if (ms == 0) {
             return "0.00";
+        }
+        if (!ms) {
+            return "";
         }
         const minutes = Math.floor(ms / 60000);
         const seconds = Math.floor((ms % 60000) / 1000);

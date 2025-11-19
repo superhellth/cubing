@@ -1,28 +1,37 @@
-import { Discipline, DISCIPLINE_LABELS, Status, type ISolve } from "@cubing/shared";
-import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
-import Select from '@mui/material/Select';
+import { Discipline, Status, type ISolve } from "@cubing/shared";
+import "@fontsource/dseg7-classic/700.css";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
-import { LineChart } from "@mui/x-charts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DBReader from "../api/db_reader";
 import DBWriter from "../api/db_writer";
 import Solve from "../api/solve";
 import ScrambleGenerator from "../utils/scramble_generator";
+import AvgGraphs from "./AvgGraphs";
 import SolveDetailsScreen from "./SolveDetailsScreen";
 import TimeDisplay from "./TimeDisplay";
 import Timer from "./timer";
-import "@fontsource/dseg7-classic/700.css";
-import AvgGraphs from "./AvgGraphs";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
+import TimerDisplay from "./TimerDisplay";
+
+const dbWriter: DBWriter = new DBWriter();
+const dbReader: DBReader = new DBReader();
+const scrambleGenerator: ScrambleGenerator = new ScrambleGenerator();
 
 function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline }) {
     const [timerReady, setTimerReady] = useState<boolean>(false);
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
-    const [currentUUID, setCurrentUUID] = useState<string>("");
+    const [currentUUID, setCurrentUUID] = useState<string>(() => {
+        const USER_ID_KEY = "userID";
+        let uID = localStorage.getItem(USER_ID_KEY);
+        if (!uID) {
+            uID = crypto.randomUUID();
+            localStorage.setItem(USER_ID_KEY, uID);
+        }
+        return uID;
+    });
     const [time, setTime] = useState<number>(0);
     const [releasedAfterStop, setReleasedAfterStop] = useState<boolean>(true);
     const [running, setRunning] = useState<boolean>(false);
@@ -30,63 +39,61 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     const [loading, setLoading] = useState<boolean>(false);
     const timerRef = useRef(0);
     const startTimeRef = useRef<number>(0);
-    const dbWriter: DBWriter = new DBWriter();
-    const dbReader: DBReader = new DBReader();
-    const scrambleGenerator: ScrambleGenerator = new ScrambleGenerator();
-
-    const USER_ID_KEY = "userID";
 
     const useSolvesWithAverages = (solves: ISolve[]) => {
         return useMemo(() => {
-            return solves.map((solve, index) => {
-                let ao5: number | null = null;
-                if (index + 5 <= solves.length) {
-                    const chunk = solves.slice(index, index + 5);
-                    ao5 = Timer.getFilteredAvg(chunk);
+            // 1. Pre-allocate the array size. This prevents the array from 
+            // resizing dynamically as we push to it, which is faster.
+            const processed = new Array(solves.length);
+
+            // 2. Define a lightweight helper specifically for this loop
+            // This avoids creating a new array like .slice() does.
+            const calcAvg = (startIndex: number, length: number): number | null => {
+                // Boundary check: Do we have enough solves remaining?
+                if (startIndex + length > solves.length) return null;
+
+                let sum = 0;
+                let min = Infinity;
+                let max = -Infinity;
+                let validCount = 0;
+
+                // 3. Iterate strictly through the indices we need
+                for (let i = 0; i < length; i++) {
+                    const s = solves[startIndex + i];
+
+                    // Handle DNF or other non-valid statuses if necessary
+                    // Assuming s.duration is the time in ms
+                    const time = s.duration;
+
+                    if (time < min) min = time;
+                    if (time > max) max = time;
+                    sum += time;
+                    validCount++;
                 }
 
-                let ao12: number | null = null;
-                if (index + 12 <= solves.length) {
-                    const chunk = solves.slice(index, index + 12);
-                    ao12 = Timer.getFilteredAvg(chunk);
-                }
-                return {
-                    ...solve,
-                    avg5: ao5,
-                    avg12: ao12
+                // Standard Cubing Logic: Remove Best and Worst, average the rest
+                // Note: This logic assumes standard Ao5/Ao12 rules. 
+                // You might need to adapt if handling DNFs (usually DNF counts as worst).
+                if (validCount < length) return null; // Safety
+
+                return (sum - min - max) / (length - 2);
+            };
+
+            // 4. The Main Loop (Single Pass)
+            for (let i = 0; i < solves.length; i++) {
+                processed[i] = {
+                    ...solves[i],
+                    // Calculate both in the same pass without creating temp arrays
+                    avg5: calcAvg(i, 5),
+                    avg12: calcAvg(i, 12)
                 };
-            });
+            }
+
+            return processed;
         }, [solves]);
     };
 
     const processedSolves: ISolve[] = useSolvesWithAverages(solves);
-
-    const useCleanAverages = (averages: (number | null | undefined)[]) => {
-        return useMemo(() => {
-
-            return [...averages.filter(value => value !== null && value !== undefined)].reverse().map(value => value / 1000);
-        }, [averages]);
-    }
-
-    const cleanedAvg5: number[] = useCleanAverages(solves.map(solve => solve.avg5));
-    const cleanedAvg12: number[] = useCleanAverages(solves.map(solve => solve.avg12));
-
-    useEffect(() => {
-        setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
-
-        // Check if user has visited before
-        function getOrCreateUserId(): string {
-            let uID: string | null = localStorage.getItem(USER_ID_KEY);
-            if (!uID) {
-                uID = crypto.randomUUID();
-                localStorage.setItem(USER_ID_KEY, uID);
-            }
-            return uID;
-        }
-
-        const uID: string = getOrCreateUserId();
-        setCurrentUUID(uID);
-    }, []);
 
     useEffect(() => {
         if (!currentUUID) {
@@ -164,17 +171,18 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
 
     // Timer logic
     useEffect(() => {
+        let animationFrameId: number;
+
         if (running) {
-            setTime(0);
             startTimeRef.current = Date.now();
-            timerRef.current = setInterval(() => {
+            const tick = () => {
                 setTime(Date.now() - startTimeRef.current);
-            }, 10);
-        } else {
-            clearInterval(timerRef.current);
+                animationFrameId = requestAnimationFrame(tick);
+            }
+            tick();
         }
 
-        return () => clearInterval(timerRef.current);
+        return () => cancelAnimationFrame(animationFrameId);
     }, [running]);
 
     // Register keyboard listeners
@@ -204,12 +212,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                     <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>
-                        <Typography sx={{
-                            fontSize: "15rem", "-webkit-user-select": "none", "-moz-user-select": "none", "-ms-user-select": "none", "user-select": "none",
-                            fontFamily: "DSEG7 Classic, monospace", transform: "translateZ(0)", textAlign: "center", color: timerReady ? "info.main" : "text.main"
-                        }}>
-                            {Timer.formatTime(time)}
-                        </Typography>
+                        <TimerDisplay time={time} timerReady={timerReady} />
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
@@ -221,7 +224,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </Box>
                 </Box>
                 <Box sx={{ flex: 1, }}>
-                    <AvgGraphs avg5s={cleanedAvg5} avg12s={cleanedAvg12} />
+                    <AvgGraphs solves={processedSolves} />
                 </Box>
             </Box>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />

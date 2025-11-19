@@ -4,7 +4,7 @@ import express, { Request, Response } from 'express';
 import process from "node:process";
 import { exit, loadEnvFile } from 'node:process';
 import { Pool } from "pg";
-import { duration } from "zod/v4/classic/iso.cjs";
+import { z } from "zod";
 
 const app = express();
 const port = 3000;
@@ -27,6 +27,12 @@ const pool = new Pool({
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: Number(process.env.DB_PORT),
+});
+
+const SolveSchema = z.object({
+  id: z.number(),
+  status: z.enum(["pending", "completed"]),
+  time: z.number()
 });
 
 app.get('/', (req, res) => {

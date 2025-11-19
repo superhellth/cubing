@@ -1,7 +1,18 @@
+import type { ISolve } from "@cubing/shared";
 import { Box, useTheme } from "@mui/system";
 import { LineChart } from "@mui/x-charts";
+import { memo, useMemo } from "react";
 
-function AvgGraphs({ avg5s, avg12s }: { avg5s: number[], avg12s: number[] }) {
+const AvgGraphs = memo(({ solves }: { solves: ISolve[] }) => {
+    const useCleanAverages = (averages: (number | null | undefined)[]) => {
+        return useMemo(() => {
+
+            return [...averages.filter(value => value !== null && value !== undefined)].reverse().map(value => value / 1000);
+        }, [averages]);
+    }
+
+    const avg5s: number[] = useCleanAverages(solves.map(solve => solve.avg5));
+    const avg12s: number[] = useCleanAverages(solves.map(solve => solve.avg12));
     const diff = avg5s.length - avg12s.length;
     const avg12sPadded = [...Array(diff).fill(null), ...avg12s];
     const theme = useTheme();
@@ -33,6 +44,6 @@ function AvgGraphs({ avg5s, avg12s }: { avg5s: number[], avg12s: number[] }) {
             />
         </Box>
     );
-}
+});
 
 export default AvgGraphs;
