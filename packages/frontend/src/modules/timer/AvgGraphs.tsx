@@ -7,7 +7,7 @@ const AvgGraphs = memo(({ solves }: { solves: ISolve[] }) => {
     const useCleanAverages = (averages: (number | null | undefined)[]) => {
         return useMemo(() => {
 
-            return [...averages.filter(value => value !== null && value !== undefined)].reverse().map(value => value / 1000);
+            return [...averages.filter(value => value !== null && value !== undefined && value !== -1)].reverse().map(value => value / 1000);
         }, [averages]);
     }
 

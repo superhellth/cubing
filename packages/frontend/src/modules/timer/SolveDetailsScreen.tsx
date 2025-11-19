@@ -13,9 +13,14 @@ import { useEffect, useState } from "react";
 import type DBWriter from "../api/db_writer";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
+import { getDisplayableAvg12, getDisplayableAvg5, solveWithUpdatedStatus } from "../api/solveUtils";
+import Button from "@mui/material/Button";
+import DeleteIcon from '@mui/icons-material/Delete';
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import ToggleButton from "@mui/material/ToggleButton";
 
-function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter }: {
-    solve: ISolve, isOpen: boolean, onClose: Function,
+function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter, onUpdateStatus }: {
+    solve: ISolve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
     onDeleteSolve: Function, dbWriter: DBWriter
 }) {
     const [status, setStatus] = useState<Status>(solve.status);
@@ -30,17 +35,15 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter }:
         setStatus(solve.status);
     }, [solve]);
 
-    const handleStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newStatus = event.target.value as Status;
+    const handleStatusChange = (event: React.MouseEvent<HTMLElement>, newStatus: Status) => {
         setStatus(newStatus);
-        solve.setStatus(newStatus);
-        dbWriter.updateSolveStatus(solve);
+        onUpdateStatus(solve, newStatus);
     };
 
     return (
         <Dialog open={isOpen} sx={{ color: "red" }}>
             <DialogTitle sx={{ bgcolor: "primary.main", textAlign: "center", fontSize: "3rem", fontWeight: "bold" }}>Solve {solve.id}</DialogTitle>
-            <DialogContent sx={{ bgcolor: "primary.main", textAlign: "center" }}>
+            <DialogContent sx={{ bgcolor: "primary.main", textAlign: "center", display: "flex", flexDirection: "column" }}>
 
                 <IconButton
                     aria-label="close"
@@ -56,42 +59,44 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter }:
                 <p>Scramble: {solve.scramble}</p>
                 <p>Date: {longFormatter.format(date)}</p>
                 <Box>
-                    <Typography sx={{color: "info.light"}}>Avg5: {}</Typography>
-                    <Typography sx={{color: "info.dark"}}>Avg12: {}</Typography>
+                    <Typography sx={{ color: "info.light" }}>Avg5: {getDisplayableAvg5(solve)}</Typography>
+                    <Typography sx={{ color: "info.dark" }}>Avg12: {getDisplayableAvg12(solve)}</Typography>
                 </Box>
-                <FormControl>
-                    <FormLabel sx={{color: "text.primary"}}>Solve Status</FormLabel>
-                    <RadioGroup
-                        row
-                        name="position"
+                <FormControl sx={{
+                    width: '100%',
+                    alignItems: 'center',
+                    marginTop: "1rem"
+                }}>
+                    <FormLabel sx={{ color: "text.primary", fontWeight: 'bold' }}>Solve Status</FormLabel>
+                    <ToggleButtonGroup
                         value={status}
+                        exclusive
                         onChange={handleStatusChange}
+                        sx={{
+                            justifyContent: 'center',
+                            width: '100%'
+                        }}
                     >
-                        <FormControlLabel
-                            value={Status.Valid}
-                            control={<Radio sx={{
-                                color: "green",
-                                '&.Mui-checked': {
-                                    color: "green",
-                                },
-                            }} />}
-                            label="Valid"
-                        />
-                        <FormControlLabel value={Status.PlusTwo} control={<Radio sx={{
-                            color: "yellow",
-                            '&.Mui-checked': {
-                                color: "yellow",
-                            },
-                        }} />} label="+2" />
-                        <FormControlLabel value={Status.DNF} control={<Radio sx={{
-                            color: "red",
-                            '&.Mui-checked': {
-                                color: "red",
-                            },
-                        }} />} label="DNF" />
-                    </RadioGroup>
+                        <ToggleButton value={Status.Valid} sx={{ '&.Mui-selected': { backgroundColor: '#e8f5e9', color: 'green' } }}>
+                            Valid
+                        </ToggleButton>
+                        <ToggleButton value={Status.PlusTwo} sx={{ '&.Mui-selected': { backgroundColor: '#fffde7', color: '#fbc02d' } }}>
+                            +2
+                        </ToggleButton>
+                        <ToggleButton value={Status.DNF} sx={{ '&.Mui-selected': { backgroundColor: '#ffebee', color: 'red' } }}>
+                            DNF
+                        </ToggleButton>
+                    </ToggleButtonGroup>
                 </FormControl>
-                <button onClick={() => onDeleteSolve(solve.id)}>Delete</button>
+                <Button
+                    sx={{ marginTop: "1rem" }}
+                    onClick={() => onDeleteSolve(solve.id)}
+                    variant="outlined"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                >
+                    Delete
+                </Button>
             </DialogContent>
         </Dialog>
     );

@@ -1,24 +1,4 @@
-export interface IUser {
-    readonly username: string;
-    readonly id: string;
-    readonly createdAt: Date;
-}
-
-export interface ISolve {
-    readonly uuid: string;
-    readonly duration: number;
-    readonly date: Date;
-    readonly scramble: string;
-    readonly id: number;
-    readonly discipline: Discipline;
-    readonly session: string;
-    readonly status: Status;
-    readonly avg5?: number | null;
-    readonly avg12?: number | null;
-    // setStatus(status: Status): void;
-    // getDisplayableAvg5(): string;
-    // getDisplayableAvg12(): string;
-}
+import { z } from "zod";
 
 export enum Status {
     Valid = "Valid",
@@ -49,3 +29,31 @@ export const DISCIPLINE_LABELS = Object.entries(Discipline).map(([key, value]) =
     key: key,
     value: value,
 }));
+
+export interface ISolve {
+    readonly id: number;
+    readonly uuid: string;
+    readonly discipline: Discipline;
+    readonly session: string;
+    readonly duration: number;
+    readonly date: Date;
+    readonly scramble: string;
+    readonly status: Status;
+    readonly avg5?: number | null;
+    readonly avg12?: number | null;
+}
+export type INewSolve = Omit<ISolve, 'id'>;
+
+export const SolveSchema = z.object({
+    id: z.coerce.number().int(),
+    uuid: z.uuid(),
+    discipline: z.enum(Discipline),
+    session: z.string(),
+    duration: z.number(),
+    date: z.coerce.date(),
+    scramble: z.string(),
+    status: z.enum(Status),
+    avg5: z.number().nullable().optional(),
+    avg12: z.number().nullable().optional(),
+});
+export const NewSolveSchema = SolveSchema.omit({ id: true });

@@ -1,6 +1,6 @@
-import type { Discipline, ISolve } from "@cubing/shared";
+import { SolveSchema, type Discipline, type ISolve } from "@cubing/shared";
 import axios from "axios";
-import Solve from "./solve";
+import z from "zod";
 
 class DBReader {
     private static readonly BASE_URL = 'http://localhost:3000';
@@ -11,6 +11,7 @@ class DBReader {
 
     public async getAllUserSolves(uuid: string, discipline: Discipline) {
         try {
+            const SolvesArraySchema = z.array(SolveSchema);
             const response = await axios.get(DBReader.BASE_URL + DBReader.READ_SOLVES_URL, {
                 params: {
                     uuid: uuid,
@@ -18,7 +19,7 @@ class DBReader {
                 }
             });
 
-            const solves: Solve[] = response.data.map((item: any) => new Solve(item));
+            const solves: ISolve[] = SolvesArraySchema.parse(response.data);
             return solves;
 
         } catch (error) {

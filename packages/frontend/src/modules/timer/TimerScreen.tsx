@@ -6,13 +6,13 @@ import { Box } from "@mui/system";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DBReader from "../api/db_reader";
 import DBWriter from "../api/db_writer";
-import Solve from "../api/solve";
 import ScrambleGenerator from "../utils/scramble_generator";
 import AvgGraphs from "./AvgGraphs";
 import SolveDetailsScreen from "./SolveDetailsScreen";
 import TimeDisplay from "./TimeDisplay";
 import Timer from "./timer";
 import TimerDisplay from "./TimerDisplay";
+import { getDisplayableAvg12, getDisplayableAvg5, solveWithUpdatedStatus } from "../api/solveUtils";
 
 const dbWriter: DBWriter = new DBWriter();
 const dbReader: DBReader = new DBReader();
@@ -37,7 +37,6 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     const [running, setRunning] = useState<boolean>(false);
     const [solves, setSolves] = useState<ISolve[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const timerRef = useRef(0);
     const startTimeRef = useRef<number>(0);
 
     const useSolvesWithAverages = (solves: ISolve[]) => {
@@ -55,26 +54,31 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 let sum = 0;
                 let min = Infinity;
                 let max = -Infinity;
-                let validCount = 0;
+                let dnfCount = 0;
 
-                // 3. Iterate strictly through the indices we need
                 for (let i = 0; i < length; i++) {
                     const s = solves[startIndex + i];
+                    if (s.status === Status.DNF) {
+                        dnfCount++;
+                        continue;
+                    }
 
-                    // Handle DNF or other non-valid statuses if necessary
-                    // Assuming s.duration is the time in ms
-                    const time = s.duration;
+                    let time = s.duration;
+                    if (s.status === Status.PlusTwo) {
+                        time += 2000;
+                    }
 
                     if (time < min) min = time;
                     if (time > max) max = time;
                     sum += time;
-                    validCount++;
                 }
 
-                // Standard Cubing Logic: Remove Best and Worst, average the rest
-                // Note: This logic assumes standard Ao5/Ao12 rules. 
-                // You might need to adapt if handling DNFs (usually DNF counts as worst).
-                if (validCount < length) return null; // Safety
+                if (dnfCount > 1) {
+                    return -1;
+                }
+                if (dnfCount === 1) {
+                    return (sum - min) / (length - 2);
+                }
 
                 return (sum - min - max) / (length - 2);
             };
@@ -95,6 +99,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
 
     const processedSolves: ISolve[] = useSolvesWithAverages(solves);
 
+    // Fetch user solves
     useEffect(() => {
         if (!currentUUID) {
             return;
@@ -118,12 +123,24 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
 
     }, [currentUUID, selectedDiscipline]);
 
-
     const deleteSolve = (solveID: number) => {
         setOpenedSolveDetailsDialog(false);
         dbWriter.deleteSolve(solveID);
         setSolves(prevSolves => {
             return prevSolves.filter(solve => solve.id !== solveID);
+        });
+    }
+
+    const handleUpdateSolveStatus = (oldSolve: ISolve, newStatus: Status) => {
+        const updatedSolve: ISolve = solveWithUpdatedStatus(oldSolve, newStatus);
+        dbWriter.updateSolveStatus(updatedSolve);
+        setSolves(prevSolves => {
+            return prevSolves.map(solve => {
+                if (solve.id === updatedSolve.id) {
+                    return updatedSolve;
+                }
+                return solve;
+            });
         });
     }
 
@@ -136,10 +153,10 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 setTime(finalTime);
                 setRunning(false);
                 setReleasedAfterStop(false);
-                const solve: ISolve = await dbWriter.insertSolve(new Solve({
+                const solve: ISolve = await dbWriter.insertSolve({
                     uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
                     discipline: selectedDiscipline, status: Status.Valid, session: "default"
-                }));
+                });
                 setSolves(prevSolves => [solve, ...prevSolves]);
                 setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
             } else {
@@ -149,9 +166,19 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
 
         // Cancel solve on esc
         if (event.key === 'Escape') {
-            event.preventDefault();
-            setRunning(false);
-            setTime(0);
+            if (running) {
+                event.preventDefault();
+                const finalTime = Date.now() - startTimeRef.current;
+                setTime(finalTime);
+                setRunning(false);
+                setReleasedAfterStop(false);
+                const solve: ISolve = await dbWriter.insertSolve({
+                    uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
+                    discipline: selectedDiscipline, status: Status.DNF, session: "default"
+                });
+                setSolves(prevSolves => [solve, ...prevSolves]);
+                setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
+            }
         }
     }, [running, dbWriter, currentScramble, selectedDiscipline]);
 
@@ -216,10 +243,10 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
-                            Ao5: {processedSolves[0]?.avg5 ? Timer.formatTime(processedSolves[0].avg5) : "-"}
+                            Ao5: {processedSolves[0]?.avg5 ? getDisplayableAvg5(processedSolves[0]) : "-"}
                         </Typography>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.dark" }}>
-                            Ao12: {processedSolves[0]?.avg12 ? Timer.formatTime(processedSolves[0].avg12) : "-"}
+                            Ao12: {processedSolves[0]?.avg12 ? getDisplayableAvg12(processedSolves[0]) : "-"}
                         </Typography>
                     </Box>
                 </Box>
@@ -232,7 +259,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 <TimeDisplay solves={processedSolves} openSolveDetailsScreen={openSolveDetailsScreen} />
             </Box>
             {selectedSolve && (
-                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} isOpen={openedSolveDetailsDialog}
+                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} onUpdateStatus={handleUpdateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }} dbWriter={dbWriter}></SolveDetailsScreen>
             )}
         </Box>

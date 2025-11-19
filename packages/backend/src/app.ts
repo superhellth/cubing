@@ -1,10 +1,10 @@
-import { Discipline, ISolve, IUser, Status } from "@cubing/shared";
+import { Discipline, INewSolve, ISolve, NewSolveSchema, SolveSchema } from "@cubing/shared";
 import cors from "cors";
 import express, { Request, Response } from 'express';
 import process from "node:process";
 import { exit, loadEnvFile } from 'node:process';
 import { Pool } from "pg";
-import { z } from "zod";
+import z from "zod";
 
 const app = express();
 const port = 3000;
@@ -29,30 +29,24 @@ const pool = new Pool({
     port: Number(process.env.DB_PORT),
 });
 
-const SolveSchema = z.object({
-  id: z.number(),
-  status: z.enum(["pending", "completed"]),
-  time: z.number()
-});
-
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
+const GetSolvesQuerySchema = z.object({
+    uuid: z.uuid(),
+    discipline: z.enum(Discipline)
+});
+
 app.get("/db/solves/get", async (req: Request, res: Response) => {
     try {
-        const uuid: string = req.query.uuid as string;
-        const discipline: Discipline = req.query.discipline as Discipline;
-        if (!uuid) {
-            console.log('No user data found in query parameters.');
-            return res.status(400).json({ error: 'User data is required in query parameters.' });
-        }
+        const queryParams = GetSolvesQuerySchema.parse(req.query);
 
-        const queryText = `SELECT id, scramble, uuid, date, duration, discipline, status
+        const queryText = `SELECT id, scramble, uuid, date, duration, discipline, status, session
                 FROM solves
                 WHERE uuid = $1 AND discipline = $2
                 ORDER BY date DESC`;
-        const queryValues = [uuid, discipline];
+        const queryValues = [queryParams.uuid, queryParams.discipline];
 
         const result = await pool.query(queryText, queryValues);
         res.status(201).json(result.rows);
@@ -64,7 +58,7 @@ app.get("/db/solves/get", async (req: Request, res: Response) => {
 
 app.post("/db/solves/updateStatus", async (req: Request, res: Response) => {
     try {
-        const solve: ISolve = req.body.solve as ISolve;
+        const solve: ISolve = SolveSchema.parse(req.body.solve);
         const queryText: string = "UPDATE solves SET status = $1 WHERE id = $2 AND uuid = $3 AND discipline = $4 AND session = $5 RETURNING *";
         const queryValues = [solve.status, solve.id, solve.uuid, solve.discipline, solve.session];
         const result = await pool.query(queryText, queryValues);
@@ -79,7 +73,7 @@ app.post("/db/solves/updateStatus", async (req: Request, res: Response) => {
 
 app.post("/db/solves/insert", async (req: Request, res: Response) => {
     try {
-        const solve: ISolve = req.body.solve as ISolve;
+        const solve: INewSolve = NewSolveSchema.parse(req.body.solve);
 
         const queryText: string = "INSERT INTO solves(uuid, date, duration, scramble, discipline, status, session) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *";
         const queryValues = [solve.uuid, solve.date, solve.duration, solve.scramble, solve.discipline, solve.status, solve.session];
@@ -105,22 +99,6 @@ app.post("/db/solves/delete", async (req: Request, res: Response) => {
     } catch (error: any) {
         console.error('Error deleting solve:', error.message);
         res.status(500).json({ message: 'Failed to delete solve.' });
-    }
-});
-
-app.post('/db/users/create', async (req: Request, res: Response) => {
-    try {
-        const user: IUser = req.body.user as IUser;
-
-        const queryText = 'INSERT INTO users(username, created_at) VALUES($1, $2) RETURNING *';
-        const queryValues = [user.username, user.createdAt];
-
-        const result = await pool.query(queryText, queryValues);
-
-        res.status(201).json(result.rows[0]);
-    } catch (error: any) {
-        console.error('Error creating user:', error.message);
-        res.status(500).json({ message: 'Failed to create user.' });
     }
 });
 

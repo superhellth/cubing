@@ -1,6 +1,6 @@
-import type { ISolve } from '@cubing/shared';
+import { Status, type ISolve } from '@cubing/shared';
 import Paper from '@mui/material/Paper';
-import { duration, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses, type SortDirection } from "@mui/material/TableCell";
@@ -10,6 +10,7 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import Box from '@mui/system/Box';
 import { useState } from "react";
 import Timer from "./timer";
+import { getDisplayableAvg12, getDisplayableAvg5, getDisplayTime } from '../api/solveUtils';
 
 function TimeDisplay({ solves, openSolveDetailsScreen }:
     { solves: ISolve[], openSolveDetailsScreen: Function }) {
@@ -34,7 +35,7 @@ function TimeDisplay({ solves, openSolveDetailsScreen }:
     const getBest = (key: keyof ISolve) => {
         const validTimes = solves
             .map(s => s[key])
-            .filter((t): t is number => typeof t === 'number');
+            .filter((t): t is number => typeof t === 'number' && t > 0);
 
         return validTimes.length > 0 ? Math.min(...validTimes) : null;
     };
@@ -84,6 +85,9 @@ function TimeDisplay({ solves, openSolveDetailsScreen }:
         return stabilizedThis.map((el: any) => el[0]);
     }
 
+    const bestAvg5 = getBest("avg5");
+    const bestAvg12 = getBest("avg12");
+    const bestSingle = getBest("duration");
     const theme = useTheme();
 
     return (
@@ -104,17 +108,17 @@ function TimeDisplay({ solves, openSolveDetailsScreen }:
                             <TableRow>
                                 <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Single</TableCell>
                                 <TableCell>{solves.length >= 1 ? Timer.formatTime(getBest("duration")) : ""}</TableCell>
-                                <TableCell>{solves.length >= 3 ? Timer.formatTime(solveTimes[0]) : ""}</TableCell>
+                                <TableCell>{solves.length >= 3 ? getDisplayTime(solves[0]) : ""}</TableCell>
                             </TableRow>
                             <TableRow sx={{ '& .MuiTableCell-root': { color: "info.light" } }}>
                                 <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 5</TableCell>
                                 <TableCell>{solves.length >= 5 ? Timer.formatTime(getBest("avg5")) : ""}</TableCell>
-                                <TableCell>{solves.length >= 5 ? Timer.formatTime(avg5s[0]) : ""}</TableCell>
+                                <TableCell>{solves.length >= 5 ? getDisplayableAvg5(solves[0]) : ""}</TableCell>
                             </TableRow>
                             <TableRow sx={{ '& .MuiTableCell-root': { color: "info.dark" } }}>
                                 <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>Avg. of 12</TableCell>
                                 <TableCell>{solves.length >= 12 ? Timer.formatTime(getBest("avg12")) : ""}</TableCell>
-                                <TableCell>{solves.length >= 12 ? Timer.formatTime(avg12s[0]) : ""}</TableCell>
+                                <TableCell>{solves.length >= 12 ? getDisplayableAvg12(solves[0]) : ""}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
@@ -152,9 +156,24 @@ function TimeDisplay({ solves, openSolveDetailsScreen }:
                                     }
                                 }}>
                                     <TableCell>{row.solve.id}</TableCell>
-                                    <TableCell>{Timer.formatTime(row.single)}</TableCell>
-                                    <TableCell>{Timer.formatTime(row.avg5)}</TableCell>
-                                    <TableCell>{Timer.formatTime(row.avg12)}</TableCell>
+                                    <TableCell sx={{
+                                        color: row.solve.status === Status.DNF ? "error.main" : row.solve.status === Status.PlusTwo ? "warning.main" : "text.primary",
+                                        fontWeight: (bestSingle !== null && row.solve.duration === bestSingle) ? "bold" : "normal"
+                                    }}>
+                                        {getDisplayTime(row.solve)}
+                                    </TableCell>
+                                    <TableCell sx={{
+                                        color: row.solve.avg5 === -1 ? "error.main" : "text.primary",
+                                        fontWeight: (bestAvg5 !== null && row.avg5 === bestAvg5) ? "bold" : "normal"
+                                    }}>
+                                        {getDisplayableAvg5(row.solve)}
+                                    </TableCell>
+                                    <TableCell sx={{
+                                        color: row.solve.avg12 === -1 ? "error.main" : "text.primary",
+                                        fontWeight: (bestAvg12 !== null && row.avg12 === bestAvg12) ? "bold" : "normal"
+                                    }}>
+                                        {getDisplayableAvg12(row.solve)}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                     </TableBody>
