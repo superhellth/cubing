@@ -1,6 +1,8 @@
 import { Discipline, Status, type ISolve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
+import SettingsIcon from "@mui/icons-material/Settings";
 import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -17,6 +19,7 @@ const dbWriter: DBWriter = new DBWriter();
 const dbReader: DBReader = new DBReader();
 const scrambleGenerator: ScrambleGenerator = new ScrambleGenerator();
 const assumeReadyAfter: number = 200;
+const inspectionEnabled: boolean = true;
 
 function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline }) {
     const [timerStatus, setTimerStatus] = useState<TimerStatus>(TimerStatus.Idle);
@@ -117,7 +120,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         setSolves(prevSolves => {
             return prevSolves.filter(solve => solve.id !== solveID);
         });
-        setTimerStatus(TimerStatus.Idle);    
+        setTimerStatus(TimerStatus.Idle);
     }
 
     const handleUpdateSolveStatus = (oldSolve: ISolve, newStatus: Status) => {
@@ -139,28 +142,47 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
             event.preventDefault();
             if (timerStatus === TimerStatus.Running) {
                 setTimerStatus(TimerStatus.Idle)
-
-            } else if (timerStatus === TimerStatus.Idle || timerStatus === TimerStatus.Cancelled) {
+            } else if (timerStatus === TimerStatus.Idle || timerStatus === TimerStatus.Cancelled || timerStatus === TimerStatus.InspectionCancelled) {
+                if (inspectionEnabled) {
+                    setTimerStatus(TimerStatus.ReadyForInspection);
+                } else {
+                    setTimerStatus(TimerStatus.Ready);
+                }
+                setReadySince(Date.now());
+            } else if (timerStatus === TimerStatus.Inspecting) {
                 setTimerStatus(TimerStatus.Ready);
                 setReadySince(Date.now());
             }
         }
 
         // Cancel solve on esc
-        if (event.key === 'Escape' && timerStatus === TimerStatus.Running) {
-            event.preventDefault();
-            setTimerStatus(TimerStatus.Cancelled)
+        if (event.key === 'Escape') {
+            if (timerStatus === TimerStatus.Running) {
+                event.preventDefault();
+                setTimerStatus(TimerStatus.Cancelled)
+            } else if (timerStatus === TimerStatus.Inspecting) {
+                event.preventDefault();
+                setTimerStatus(TimerStatus.InspectionCancelled);
+            }
         }
     }, [timerStatus, dbWriter, currentScramble, selectedDiscipline]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
         // Start solve on space up
-        if (timerStatus !== TimerStatus.Running) {
-            if (event.code === "Space") {
-                event.preventDefault();
+        if (event.code === "Space") {
+            if (timerStatus !== TimerStatus.Running) {
                 if (timerStatus === TimerStatus.Ready) {
+                    event.preventDefault();
                     if (Date.now() - readySince > assumeReadyAfter) {
                         setTimerStatus(TimerStatus.Running);
+                    } else {
+                        setTimerStatus(TimerStatus.Inspecting);
+                        setReadySince(-1);
+                    }
+                } else if (timerStatus === TimerStatus.ReadyForInspection) {
+                    event.preventDefault();
+                    if (Date.now() - readySince > assumeReadyAfter) {
+                        setTimerStatus(TimerStatus.Inspecting);
                     } else {
                         setTimerStatus(TimerStatus.Idle);
                         setReadySince(-1);
@@ -218,14 +240,25 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         <Box sx={{ display: "flex", justifyContent: "space-between", height: "100%", width: "100%" }}>
             <Box sx={{
                 flex: 1, display: "flex", flexDirection: 'column', justifyContent: "space-around", bgcolor: "primary.main",
-                paddingLeft: "75px", paddingRight: "75px", paddingTop: "2rem"
+                paddingLeft: "75px", paddingRight: "75px", paddingTop: "2rem", position: "relative"
             }}>
+                <IconButton
+                    sx={{ position: "absolute", right: 25, top: 25 }}
+                    color="inherit"
+                    onClick={() => { }}
+                >
+                    <SettingsIcon sx={{
+                        fontSize: "2rem", color: "info.main", '&:hover': {
+                            opacity: 0.8
+                        },
+                    }} />
+                </IconButton>
                 <Box sx={{ flex: 1 }}>
                     <Typography sx={{ flex: 1, fontSize: getScrambleFontSize(currentScramble), fontFamily: "Space Mono, monospace" }}>{currentScramble}</Typography>
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                     <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>
-                        <TimerDisplay timerStatus={timerStatus} onSolveComplete={handleSolveComplete} />
+                        <TimerDisplay timerStatus={timerStatus} onSolveComplete={handleSolveComplete} inspectionEnabled={inspectionEnabled} />
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
