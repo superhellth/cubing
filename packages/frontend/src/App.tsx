@@ -8,7 +8,7 @@ import Slide from '@mui/material/Slide';
 import { ThemeProvider } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 import { Box } from '@mui/system';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import theme from '../theme';
 import './App.css';
@@ -19,6 +19,7 @@ function App() {
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [mouseInArea, setMouseInArea] = useState<boolean>(false);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
+  const ignoreMouseRef = useRef<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,9 +31,11 @@ function App() {
   ["clock", Discipline.Clock], ["pyram", Discipline.Pyraminx], ["minx", Discipline.Megaminx], ["skewb", Discipline.Skewb], ["sq1", Discipline.Square1]];
 
   const onMouseLeave = () => {
+    ignoreMouseRef.current = false;
     setMouseInArea(false);
   }
   const onMouseEnter = () => {
+    if (ignoreMouseRef.current) return;
     setMouseInArea(true);
     setOpenDrawer(true);
   }
@@ -51,8 +54,8 @@ function App() {
     <Tooltip title={disc} placement='right' sx={{ bgcolor: "red" }} arrow slotProps={{
       tooltip: { sx: { bgcolor: 'secondary.main', fontSize: '1rem', border: '1px solid info.main' } }, arrow: { sx: { color: 'secondary.main' } }
     }}>
-      <Button sx={{ color: selectedDiscipline === disc ? "info.light" : "text.primary", "&:hover": { color: "info.dark" } }}
-        onClick={() => { setOpenDrawer(false); setMouseInArea(false); setSelectedDiscipline(disc); navigate("/"); }}>
+      <Button sx={{ color: selectedDiscipline === disc && currentPath === "/" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" } }}
+        onClick={() => { ignoreMouseRef.current = true; navigate("/"); setOpenDrawer(false); setMouseInArea(false); setSelectedDiscipline(disc); }}>
         <i className={`cubing-icon event-${name}`} style={{ fontSize: size }} />
       </Button>
     </Tooltip>
@@ -72,14 +75,17 @@ function App() {
           </Box>
           <Button sx={{
             color: currentPath === "/algs" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
-          }} onClick={() => navigate("/algs")}>
+          }} onClick={() => { navigate("/algs"); setMouseInArea(false); setOpenDrawer(false); }}>
             <QueryStatsOutlinedIcon sx={{ fontSize: 40 }} />
           </Button>
         </Box>
         <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
         <Slide in={openDrawer} direction='right' >
           <Box sx={{ display: "flex", flexDirection: "row", zIndex: 1, height: "100%", bgcolor: "secondary.main", position: "absolute", left: "100px" }}>
-            <Box sx={{ overflowY: "auto", scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }, width: "100px", height: "100vh", bgcolor: "primary.main", display: "flex", flexDirection: "column", justifyContent: "space-around" }}
+            <Box sx={{
+              overflowY: "auto", scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }, width: "100px", height: "100vh",
+              bgcolor: "primary.main", display: "flex", flexDirection: "column", justifyContent: "space-around"
+            }}
               onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
               {eventsAndDisciplines.map(([event, disc], index) =>
                 <DisciplineButton key={event} name={event} size={40} disc={disc as Discipline} />

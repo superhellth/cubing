@@ -39,10 +39,10 @@ export interface ISolve {
     readonly date: Date;
     readonly scramble: string;
     readonly status: Status;
-    readonly avg5?: number | null;
-    readonly avg12?: number | null;
-    readonly avg100?: number | null;
-    readonly avg1000?: number | null;
+    readonly avg5?: number;
+    readonly avg12?: number;
+    readonly avg100?: number;
+    readonly avg1000?: number;
 }
 export type INewSolve = Omit<ISolve, 'id'>;
 

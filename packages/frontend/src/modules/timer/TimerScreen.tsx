@@ -3,23 +3,24 @@ import "@fontsource/dseg7-classic/700.css";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DBReader from "../api/db_reader";
 import DBWriter from "../api/db_writer";
+import { getDisplayableTime, solveWithUpdatedStatus } from "../api/solveUtils";
 import ScrambleGenerator from "../utils/scramble_generator";
 import AvgGraphs from "./AvgGraphs";
 import SolveDetailsScreen from "./SolveDetailsScreen";
 import TimeDisplay from "./TimeDisplay";
-import Timer from "./timer";
-import TimerDisplay from "./TimerDisplay";
-import { getDisplayableAvg12, getDisplayableAvg5, solveWithUpdatedStatus } from "../api/solveUtils";
+import TimerDisplay, { TimerStatus } from "./TimerDisplay";
 
 const dbWriter: DBWriter = new DBWriter();
 const dbReader: DBReader = new DBReader();
 const scrambleGenerator: ScrambleGenerator = new ScrambleGenerator();
+const assumeReadyAfter: number = 200;
 
 function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline }) {
-    const [timerReady, setTimerReady] = useState<boolean>(false);
+    const [timerStatus, setTimerStatus] = useState<TimerStatus>(TimerStatus.Idle);
+    const [readySince, setReadySince] = useState<number>(-1);
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
@@ -32,23 +33,13 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         }
         return uID;
     });
-    const [time, setTime] = useState<number>(0);
-    const [releasedAfterStop, setReleasedAfterStop] = useState<boolean>(true);
-    const [running, setRunning] = useState<boolean>(false);
     const [solves, setSolves] = useState<ISolve[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const startTimeRef = useRef<number>(0);
 
     const useSolvesWithAverages = (solves: ISolve[]) => {
         return useMemo(() => {
-            // 1. Pre-allocate the array size. This prevents the array from 
-            // resizing dynamically as we push to it, which is faster.
             const processed = new Array(solves.length);
-
-            // 2. Define a lightweight helper specifically for this loop
-            // This avoids creating a new array like .slice() does.
             const calcAvg = (startIndex: number, length: number): number | null => {
-                // Boundary check: Do we have enough solves remaining?
                 if (startIndex + length > solves.length) return null;
 
                 let sum = 0;
@@ -83,11 +74,9 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 return (sum - min - max) / (length - 2);
             };
 
-            // 4. The Main Loop (Single Pass)
             for (let i = 0; i < solves.length; i++) {
                 processed[i] = {
                     ...solves[i],
-                    // Calculate both in the same pass without creating temp arrays
                     avg5: calcAvg(i, 5),
                     avg12: calcAvg(i, 12),
                     avg100: calcAvg(i, 100),
@@ -118,9 +107,6 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
             }
         }
         fetchUserSolves();
-        setTime(0);
-        setRunning(false);
-        setReleasedAfterStop(true);
         setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
     }, [currentUUID, selectedDiscipline]);
@@ -131,6 +117,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         setSolves(prevSolves => {
             return prevSolves.filter(solve => solve.id !== solveID);
         });
+        setTimerStatus(TimerStatus.Idle);    
     }
 
     const handleUpdateSolveStatus = (oldSolve: ISolve, newStatus: Status) => {
@@ -150,69 +137,59 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         // Stop timer on space down
         if (event.code === 'Space') {
             event.preventDefault();
-            if (running) {
-                const finalTime = Date.now() - startTimeRef.current;
-                setTime(finalTime);
-                setRunning(false);
-                setReleasedAfterStop(false);
-                const solve: ISolve = await dbWriter.insertSolve({
-                    uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
-                    discipline: selectedDiscipline, status: Status.Valid, session: "default"
-                });
-                setSolves(prevSolves => [solve, ...prevSolves]);
-                setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
-            } else {
-                setTimerReady(true);
+            if (timerStatus === TimerStatus.Running) {
+                setTimerStatus(TimerStatus.Idle)
+
+            } else if (timerStatus === TimerStatus.Idle || timerStatus === TimerStatus.Cancelled) {
+                setTimerStatus(TimerStatus.Ready);
+                setReadySince(Date.now());
             }
         }
 
         // Cancel solve on esc
-        if (event.key === 'Escape') {
-            if (running) {
-                event.preventDefault();
-                const finalTime = Date.now() - startTimeRef.current;
-                setTime(finalTime);
-                setRunning(false);
-                setReleasedAfterStop(false);
-                const solve: ISolve = await dbWriter.insertSolve({
-                    uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
-                    discipline: selectedDiscipline, status: Status.DNF, session: "default"
-                });
-                setSolves(prevSolves => [solve, ...prevSolves]);
-                setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
-            }
+        if (event.key === 'Escape' && timerStatus === TimerStatus.Running) {
+            event.preventDefault();
+            setTimerStatus(TimerStatus.Cancelled)
         }
-    }, [running, dbWriter, currentScramble, selectedDiscipline]);
+    }, [timerStatus, dbWriter, currentScramble, selectedDiscipline]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
         // Start solve on space up
-        if (!running) {
+        if (timerStatus !== TimerStatus.Running) {
             if (event.code === "Space") {
-                setTimerReady(false);
-                if (releasedAfterStop) {
-                    setRunning(true);
-                } else {
-                    setReleasedAfterStop(true);
+                event.preventDefault();
+                if (timerStatus === TimerStatus.Ready) {
+                    if (Date.now() - readySince > assumeReadyAfter) {
+                        setTimerStatus(TimerStatus.Running);
+                    } else {
+                        setTimerStatus(TimerStatus.Idle);
+                        setReadySince(-1);
+                    }
                 }
             }
         }
-    }, [running, releasedAfterStop]);
+    }, [timerStatus]);
 
-    // Timer logic
-    useEffect(() => {
-        let animationFrameId: number;
+    const handleSolveComplete = async (finalTime: number, dnf: boolean) => {
+        const solveStatus: Status = dnf ? Status.DNF : Status.Valid;
 
-        if (running) {
-            startTimeRef.current = Date.now();
-            const tick = () => {
-                setTime(Date.now() - startTimeRef.current);
-                animationFrameId = requestAnimationFrame(tick);
-            }
-            tick();
-        }
+        const solve: ISolve = await dbWriter.insertSolve({
+            uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
+            discipline: selectedDiscipline, status: solveStatus, session: "default"
+        });
+        setSolves(prev => [solve, ...prev]);
+        setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [running]);
+        // const tempSolve: ISolve = {
+        //     id: -1, uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
+        //     discipline: selectedDiscipline, status: solveStatus, session: "default"
+        // };
+        // setSolves(prevSolves => [tempSolve, ...prevSolves]);
+        // setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
+        // dbWriter.insertSolve(tempSolve).then((realSolve) => {
+        //     setSolves(prev => prev.map(s => s.id === -1 ? realSolve : s));
+        // });
+    }
 
     // Register keyboard listeners
     useEffect(() => {
@@ -225,20 +202,15 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     }, [handleKeyDown, handleKeyUp])
 
 
-    const openSolveDetailsScreen = (solve: ISolve) => {
+    const openSolveDetailsScreen = useCallback((solve: ISolve) => {
         setSelectedSolve(solve);
         setOpenedSolveDetailsDialog(true);
-    };
+    }, []);
+
     const getScrambleFontSize = (scramble: string) => {
         const len = scramble.split(" ").length;
-        // 2x2, 3x3, Skewb, Pyraminx (Short)
         if (len < 40) return "2rem";
-
-        // 4x4, 5x5 (Medium)
         if (len < 80) return "1.6rem";
-
-        // 6x6, 7x7, Megaminx (Long)
-        // These are massive text blocks, so we need small text
         return "1.3rem";
     };
 
@@ -253,19 +225,19 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                     <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>
-                        <TimerDisplay time={time} timerReady={timerReady} />
+                        <TimerDisplay timerStatus={timerStatus} onSolveComplete={handleSolveComplete} />
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
-                            Ao5: {processedSolves[0]?.avg5 ? getDisplayableAvg5(processedSolves[0]) : "-"}
+                            Ao5: {processedSolves[0]?.avg5 ? getDisplayableTime(processedSolves[0], "avg5") : "-"}
                         </Typography>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.dark" }}>
-                            Ao12: {processedSolves[0]?.avg12 ? getDisplayableAvg12(processedSolves[0]) : "-"}
+                            Ao12: {processedSolves[0]?.avg12 ? getDisplayableTime(processedSolves[0], "avg12") : "-"}
                         </Typography>
                     </Box>
                 </Box>
                 <Box sx={{ flex: 1, }}>
-                    <AvgGraphs solves={processedSolves} />
+                    <AvgGraphs solves={processedSolves} xByDate={false} />
                 </Box>
             </Box>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />

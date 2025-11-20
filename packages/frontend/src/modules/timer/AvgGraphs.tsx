@@ -1,30 +1,73 @@
 import type { ISolve } from "@cubing/shared";
 import { Box, useTheme } from "@mui/system";
-import { LineChart } from "@mui/x-charts";
+import { LineChart, type XAxis } from "@mui/x-charts";
 import { memo, useMemo } from "react";
+import Timer from "./timer";
 
-const AvgGraphs = memo(({ solves }: { solves: ISolve[] }) => {
-    const useCleanAverages = (averages: (number | null | undefined)[]) => {
-        return useMemo(() => {
-            return [...averages.filter(value => value !== null && value !== undefined && value !== -1)].reverse().map(value => value / 1000);
-        }, [averages]);
-    }
+const cleanVal = (val: number | undefined | null) => {
+    if (val === undefined || val === null || val === -1) return null;
+    return val; // Convert ms to seconds
+};
 
-    const avg5s: number[] = useCleanAverages(solves.map(solve => solve.avg5));
-    const avg12s: number[] = useCleanAverages(solves.map(solve => solve.avg12));
-    const avg100s: number[] = useCleanAverages(solves.map(solve => solve.avg100));
-    const avg1000s: number[] = useCleanAverages(solves.map(solve => solve.avg1000));
-    const diffTo12 = avg5s.length - avg12s.length;
-    const diffTo100 = avg5s.length - avg100s.length;
-    const diffTo1000 = avg5s.length - avg1000s.length;
-    const avg12sPadded = [...Array(diffTo12).fill(null), ...avg12s];
-    const avg100sPadded = [...Array(diffTo100).fill(null), ...avg100s];
-    const avg1000sPadded = [...Array(diffTo1000).fill(null), ...avg1000s];
-    const theme = useTheme();
+const AvgGraphs = memo(({ solves, xByDate }: { solves: ISolve[], xByDate: boolean }) => {
+    const chartData = useMemo(() => {
+        const chronologicalSolves = [...solves].reverse();
+
+        return chronologicalSolves.map((solve, i) => ({
+            index: i + 1,
+            id: solve.id,
+            date: new Date(solve.date),
+            avg5: cleanVal(solve.avg5),
+            avg12: cleanVal(solve.avg12),
+            avg100: cleanVal(solve.avg100),
+            avg1000: cleanVal(solve.avg1000),
+        }));
+    }, [solves]);
+
+    const series = [
+        {
+            id: "avg5",
+            label: "Average of 5",
+            dataKey: 'avg5',
+            showMark: false,
+            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
+        },
+        {
+            id: 'avg12',
+            label: 'Average of 12',
+            dataKey: "avg12",
+            showMark: false,
+            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
+        },
+        {
+            id: "avg100",
+            label: "Average of 100",
+            dataKey: 'avg100',
+            showMark: false,
+            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
+        },
+        {
+            id: "avg1000",
+            label: "Average of 1000",
+            dataKey: 'avg1000',
+            showMark: false,
+            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
+        },
+    ];
+
     return (
         <Box>
             <LineChart
-                xAxis={[{ data: [...avg5s.keys()] }]}
+                // experimentalFeatures={{ preferStrictDomainInLineCharts: true }}
+                dataset={chartData}
+                xAxis={[{
+                    label: xByDate ? "Date" : "ID",
+                    dataKey: xByDate ? "date" : "id",
+                    scaleType: xByDate ? 'time' : 'linear',
+                    valueFormatter: xByDate
+                        ? (date: Date) => date.toLocaleDateString()
+                        : (v: number) => v.toString()
+                }]}
                 slotProps={{
                     legend: {
                         position: {
@@ -32,29 +75,10 @@ const AvgGraphs = memo(({ solves }: { solves: ISolve[] }) => {
                         },
                     },
                 }}
+                grid={{ horizontal: true }}
+                yAxis={[{ label: 'Seconds' }]}
                 hideLegend={true}
-                series={[
-                    {
-                        data: avg5s,
-                        color: theme.palette.info.light,
-                        label: "Average of 5"
-                    },
-                    {
-                        data: avg12sPadded,
-                        color: theme.palette.info.dark,
-                        label: "Average of 12"
-                    },
-                    {
-                        data: avg100sPadded,
-                        color: theme.palette.primary.main,
-                        label: "Average of 100"
-                    },
-                    {
-                        data: avg1000sPadded,
-                        color: theme.palette.secondary.main,
-                        label: "Average of 1000"
-                    },
-                ]}
+                series={series}
                 height={200}
             />
         </Box>

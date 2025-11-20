@@ -1,4 +1,3 @@
-import type { ISolve } from "@cubing/shared";
 
 class Timer {
     constructor() {
@@ -20,20 +19,6 @@ class Timer {
 
         return `${seconds}.${String(milliseconds).padStart(2, "0")}`;
     };
-
-    // static getFilteredAvg(solves: ISolve[]): number {
-    //     const solveTimes: number[] = solves.map(solve => solve.duration);
-    //     solveTimes.sort((a, b) => a - b);
-    //     const relevantTimes = solveTimes.slice(1, -1);
-    //     const sum = relevantTimes.reduce((acc, val) => acc + val, 0);
-    //     return sum / relevantTimes.length;
-    // }
-
-    // static getAvg(solves: ISolve[]): number {
-    //     const solveTimes = [...solves.map(solve => solve.duration)]
-    //     const sum = solveTimes.reduce((acc, val) => acc + val, 0);
-    //     return sum / solves.length;
-    // }
 }
 
 export default Timer;

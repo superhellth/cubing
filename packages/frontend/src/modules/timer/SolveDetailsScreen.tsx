@@ -1,27 +1,24 @@
 import { Status, type ISolve } from "@cubing/shared";
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Button from "@mui/material/Button";
 import Dialog from '@mui/material/Dialog';
+import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import FormLabel from "@mui/material/FormLabel";
 import IconButton from "@mui/material/IconButton";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import { useEffect, useState } from "react";
-import type DBWriter from "../api/db_writer";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
-import { getDisplayableAvg12, getDisplayableAvg5, getDisplayTime, solveWithUpdatedStatus } from "../api/solveUtils";
-import Button from "@mui/material/Button";
-import DeleteIcon from '@mui/icons-material/Delete';
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import ToggleButton from "@mui/material/ToggleButton";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogActions from "@mui/material/DialogActions";
+import { useEffect, useState } from "react";
+import type DBWriter from "../api/db_writer";
+import { getDisplayableTime, getDisplayTime } from "../api/solveUtils";
 
-function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter, onUpdateStatus }: {
+function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateStatus }: {
     solve: ISolve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
     onDeleteSolve: Function, dbWriter: DBWriter
 }) {
@@ -63,8 +60,8 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, dbWriter, o
                 <p>Date: {longFormatter.format(date)}</p>
                 <Box>
                     <Typography sx={{ color: "text.primary" }}>Single: {getDisplayTime(solve)}</Typography>
-                    <Typography sx={{ color: "info.light" }}>Avg5: {getDisplayableAvg5(solve)}</Typography>
-                    <Typography sx={{ color: "info.dark" }}>Avg12: {getDisplayableAvg12(solve)}</Typography>
+                    <Typography sx={{ color: "info.light" }}>Avg5: {getDisplayableTime(solve, "avg5")}</Typography>
+                    <Typography sx={{ color: "info.dark" }}>Avg12: {getDisplayableTime(solve, "avg12")}</Typography>
                 </Box>
                 <FormControl sx={{
                     width: '100%',

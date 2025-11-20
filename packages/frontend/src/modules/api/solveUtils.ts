@@ -1,30 +1,15 @@
 import { Status, type ISolve } from "@cubing/shared";
 import Timer from "../timer/timer";
 
-export function getDisplayableAvg5(solve: ISolve) {
-    if (solve.avg5 == -1) {
-        return "DNF";
-    }
-    return Timer.formatTime(solve.avg5);
-}
+type TimeKey = 'duration' | 'avg5' | 'avg12' | 'avg100' | 'avg1000';
 
-export function getDisplayableAvg12(solve: ISolve) {
-    if (solve.avg12 == -1) {
+export function getDisplayableTime(solve: ISolve, key: TimeKey) {
+    if (key == "duration") return getDisplayTime(solve);
+    const time = solve[key];
+    if (time === -1) {
         return "DNF";
     }
-    return Timer.formatTime(solve.avg12);
-}
-export function getDisplayableAvg100(solve: ISolve) {
-    if (solve.avg100 == -1) {
-        return "DNF";
-    }
-    return Timer.formatTime(solve.avg100);
-}
-export function getDisplayableAvg1000(solve: ISolve) {
-    if (solve.avg1000 == -1) {
-        return "DNF";
-    }
-    return Timer.formatTime(solve.avg1000);
+    return Timer.formatTime(time as number);
 }
 
 export function getDisplayTime(solve: ISolve) {
