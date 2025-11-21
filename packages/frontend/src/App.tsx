@@ -14,11 +14,16 @@ import theme from '../theme';
 import './App.css';
 import AlgorithmScreen from './modules/algorithms/AlgorithmScreen';
 import TimerScreen from './modules/timer/TimerScreen';
+import { useLocalStorage } from './modules/utils/timer_utils';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Licenses from './Licenses';
+import { IconButton } from '@mui/material';
 
 function App() {
+  const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [mouseInArea, setMouseInArea] = useState<boolean>(false);
-  const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
+  const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(lastSelectedDiscipline);
   const ignoreMouseRef = useRef<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,7 +60,14 @@ function App() {
       tooltip: { sx: { bgcolor: 'secondary.main', fontSize: '1rem', border: '1px solid info.main' } }, arrow: { sx: { color: 'secondary.main' } }
     }}>
       <Button sx={{ color: selectedDiscipline === disc && currentPath === "/" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" } }}
-        onClick={() => { ignoreMouseRef.current = true; navigate("/"); setOpenDrawer(false); setMouseInArea(false); setSelectedDiscipline(disc); }}>
+        onClick={() => {
+          ignoreMouseRef.current = true;
+          navigate("/");
+          setOpenDrawer(false);
+          setMouseInArea(false);
+          setSelectedDiscipline(disc);
+          setLastSelectedDiscipline(disc);
+        }}>
         <i className={`cubing-icon event-${name}`} style={{ fontSize: size }} />
       </Button>
     </Tooltip>
@@ -77,6 +89,11 @@ function App() {
             color: currentPath === "/algs" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
           }} onClick={() => { navigate("/algs"); setMouseInArea(false); setOpenDrawer(false); }}>
             <QueryStatsOutlinedIcon sx={{ fontSize: 40 }} />
+          </Button>
+          <Button onClick={() => navigate("/licenses")} sx={{
+            color: currentPath === "/licenses" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
+          }}>
+            <InfoOutlinedIcon sx={{ fontSize: 30 }} />
           </Button>
         </Box>
         <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
@@ -107,6 +124,7 @@ function App() {
           <Routes>
             <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} />} />
             <Route path="/algs" element={<AlgorithmScreen />} />
+            <Route path="/licenses" element={<Licenses />} />
           </Routes>
         </Box>
       </Box>

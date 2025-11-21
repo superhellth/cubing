@@ -1,32 +1,39 @@
-import { Discipline, Status, type ISolve } from "@cubing/shared";
+import { Discipline, inspectionLessDisciplines, Status, type ISolve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DBReader from "../api/db_reader";
 import DBWriter from "../api/db_writer";
 import { getDisplayableTime, solveWithUpdatedStatus } from "../api/solveUtils";
-import ScrambleGenerator from "../utils/scramble_generator";
 import AvgGraphs from "./AvgGraphs";
-import SolveDetailsScreen from "./SolveDetailsScreen";
+import SolveDetailsScreen from "./SolveDetails";
 import TimeDisplay from "./TimeDisplay";
-import TimerDisplay, { TimerStatus } from "./TimerDisplay";
+import TimerDisplay, { TimerStatus } from "./TimerText";
+import TimerSettings from "./TimerSettings";
+import { useLocalStorage, useSolvesWithAverages } from "../utils/timer_utils";
+import Scrambler from "../scrambling/Scrambler";
 
 const dbWriter: DBWriter = new DBWriter();
 const dbReader: DBReader = new DBReader();
-const scrambleGenerator: ScrambleGenerator = new ScrambleGenerator();
-const assumeReadyAfter: number = 200;
-const inspectionEnabled: boolean = true;
+const scrambleGenerator: Scrambler = new Scrambler();
+
+const defaultSettings = {
+    inspection: false,
+    readyAfter: 200,
+    averageGraphXAxis: 'date'
+};
 
 function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline }) {
-    const [timerStatus, setTimerStatus] = useState<TimerStatus>(TimerStatus.Idle);
-    const [readySince, setReadySince] = useState<number>(-1);
-    const [currentScramble, setCurrentScramble] = useState<string>("");
-    const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
-    const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
+    // Settings
+    const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+    const [settings, setSettings] = useLocalStorage('appSettings', defaultSettings);
+    const updateSetting = (key: string, value: any) => {
+        setSettings(prev => ({ ...prev, [key]: value }));
+    };
     const [currentUUID, setCurrentUUID] = useState<string>(() => {
         const USER_ID_KEY = "userID";
         let uID = localStorage.getItem(USER_ID_KEY);
@@ -36,62 +43,18 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         }
         return uID;
     });
+
+    // Timer logic
+    const [timerStatus, setTimerStatus] = useState<TimerStatus>(TimerStatus.Idle);
+    const [readySince, setReadySince] = useState<number>(-1);
+
+    // Else
+    const [currentScramble, setCurrentScramble] = useState<string>("");
+    const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
+    const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const [solves, setSolves] = useState<ISolve[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-
-    const useSolvesWithAverages = (solves: ISolve[]) => {
-        return useMemo(() => {
-            const processed = new Array(solves.length);
-            const calcAvg = (startIndex: number, length: number): number | null => {
-                if (startIndex + length > solves.length) return null;
-
-                let sum = 0;
-                let min = Infinity;
-                let max = -Infinity;
-                let dnfCount = 0;
-
-                for (let i = 0; i < length; i++) {
-                    const s = solves[startIndex + i];
-                    if (s.status === Status.DNF) {
-                        dnfCount++;
-                        continue;
-                    }
-
-                    let time = s.duration;
-                    if (s.status === Status.PlusTwo) {
-                        time += 2000;
-                    }
-
-                    if (time < min) min = time;
-                    if (time > max) max = time;
-                    sum += time;
-                }
-
-                if (dnfCount > 1) {
-                    return -1;
-                }
-                if (dnfCount === 1) {
-                    return (sum - min) / (length - 2);
-                }
-
-                return (sum - min - max) / (length - 2);
-            };
-
-            for (let i = 0; i < solves.length; i++) {
-                processed[i] = {
-                    ...solves[i],
-                    avg5: calcAvg(i, 5),
-                    avg12: calcAvg(i, 12),
-                    avg100: calcAvg(i, 100),
-                    avg1000: calcAvg(i, 1000)
-                };
-            }
-
-            return processed;
-        }, [solves]);
-    };
-
     const processedSolves: ISolve[] = useSolvesWithAverages(solves);
+    const [loading, setLoading] = useState<boolean>(false);
 
     // Fetch user solves
     useEffect(() => {
@@ -143,7 +106,8 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
             if (timerStatus === TimerStatus.Running) {
                 setTimerStatus(TimerStatus.Idle)
             } else if (timerStatus === TimerStatus.Idle || timerStatus === TimerStatus.Cancelled || timerStatus === TimerStatus.InspectionCancelled) {
-                if (inspectionEnabled) {
+                if (settings.inspection &&
+                    !inspectionLessDisciplines.includes(selectedDiscipline)) {
                     setTimerStatus(TimerStatus.ReadyForInspection);
                 } else {
                     setTimerStatus(TimerStatus.Ready);
@@ -159,13 +123,13 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         if (event.key === 'Escape') {
             if (timerStatus === TimerStatus.Running) {
                 event.preventDefault();
-                setTimerStatus(TimerStatus.Cancelled)
+                setTimerStatus(TimerStatus.Cancelled);
             } else if (timerStatus === TimerStatus.Inspecting) {
                 event.preventDefault();
                 setTimerStatus(TimerStatus.InspectionCancelled);
             }
         }
-    }, [timerStatus, dbWriter, currentScramble, selectedDiscipline]);
+    }, [timerStatus, dbWriter, currentScramble, selectedDiscipline, settings]);
 
     const handleKeyUp = useCallback((event: KeyboardEvent) => {
         // Start solve on space up
@@ -173,7 +137,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
             if (timerStatus !== TimerStatus.Running) {
                 if (timerStatus === TimerStatus.Ready) {
                     event.preventDefault();
-                    if (Date.now() - readySince > assumeReadyAfter) {
+                    if (Date.now() - readySince > settings.readyAfter) {
                         setTimerStatus(TimerStatus.Running);
                     } else {
                         setTimerStatus(TimerStatus.Inspecting);
@@ -181,7 +145,8 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     }
                 } else if (timerStatus === TimerStatus.ReadyForInspection) {
                     event.preventDefault();
-                    if (Date.now() - readySince > assumeReadyAfter) {
+                    console.log(settings.readyAfter)
+                    if (Date.now() - readySince > settings.readyAfter) {
                         setTimerStatus(TimerStatus.Inspecting);
                     } else {
                         setTimerStatus(TimerStatus.Idle);
@@ -190,9 +155,12 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 }
             }
         }
-    }, [timerStatus]);
+    }, [timerStatus, settings]);
 
     const handleSolveComplete = async (finalTime: number, dnf: boolean) => {
+        if (dnf) {
+            setTimerStatus(TimerStatus.Cancelled);
+        }
         const solveStatus: Status = dnf ? Status.DNF : Status.Valid;
 
         const solve: ISolve = await dbWriter.insertSolve({
@@ -230,9 +198,9 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     }, []);
 
     const getScrambleFontSize = (scramble: string) => {
-        const len = scramble.split(" ").length;
-        if (len < 40) return "2rem";
-        if (len < 80) return "1.6rem";
+        const len = scramble.length;
+        if (len < 70) return "2rem";
+        if (len < 130) return "1.6rem";
         return "1.3rem";
     };
 
@@ -243,9 +211,12 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 paddingLeft: "75px", paddingRight: "75px", paddingTop: "2rem", position: "relative"
             }}>
                 <IconButton
-                    sx={{ position: "absolute", right: 25, top: 25 }}
+                    sx={{
+                        position: "absolute", right: 25, top: 25,
+                        userSelect: "none"
+                    }}
                     color="inherit"
-                    onClick={() => { }}
+                    onClick={() => { setSettingsOpen(true) }}
                 >
                     <SettingsIcon sx={{
                         fontSize: "2rem", color: "info.main", '&:hover': {
@@ -258,7 +229,8 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                     <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>
-                        <TimerDisplay timerStatus={timerStatus} onSolveComplete={handleSolveComplete} inspectionEnabled={inspectionEnabled} />
+                        <TimerDisplay timerStatus={timerStatus} onSolveComplete={handleSolveComplete} inspectionEnabled={settings.inspection &&
+                            !inspectionLessDisciplines.includes(selectedDiscipline)} />
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
@@ -270,7 +242,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </Box>
                 </Box>
                 <Box sx={{ flex: 1, }}>
-                    <AvgGraphs solves={processedSolves} xByDate={false} />
+                    <AvgGraphs solves={processedSolves} xByDate={settings.averageGraphXAxis == "date"} />
                 </Box>
             </Box>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
@@ -281,6 +253,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={deleteSolve} onUpdateStatus={handleUpdateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }} dbWriter={dbWriter}></SolveDetailsScreen>
             )}
+            <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} settings={settings} updateSetting={updateSetting} />
         </Box>
 
     );

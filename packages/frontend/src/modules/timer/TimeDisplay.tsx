@@ -138,7 +138,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
                     '& .MuiTableCell-root': {
                         paddingLeft: '6px',
                         paddingRight: '6px'
-                    }
+                    }, userSelect: "none"
                 }}>
                     <TableHead sx={{
                         '& .MuiTableCell-root': {

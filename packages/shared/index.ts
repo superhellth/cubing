@@ -24,6 +24,7 @@ export enum Discipline {
     Skewb = "Skewb",
     Square1 = "Square-1",
 }
+export const inspectionLessDisciplines: Discipline[] = [Discipline.ThreeBlind, Discipline.FourBlind, Discipline.FiveBlind, Discipline.FewestMoves];
 
 export const DISCIPLINE_LABELS = Object.entries(Discipline).map(([key, value]) => ({
     key: key,

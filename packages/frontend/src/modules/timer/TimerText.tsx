@@ -19,47 +19,73 @@ interface Props {
     inspectionEnabled: boolean;
 }
 
-const inspectionTimer: number = 15000;
+const inspectionTime: number = 15000;
 
 function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props) {
     const [time, setTime] = useState<number>(0);
     const startTimeRef = useRef<number>(0);
     const requestRef = useRef<number>(undefined);
+    const checkerRef = useRef<number>(undefined);
 
     useEffect(() => {
+        const stopTicker = () => {
+            if (requestRef.current) {
+                cancelAnimationFrame(requestRef.current);
+                requestRef.current = undefined;
+            }
+        };
+
+        const stopInspectionCheck = () => {
+            if (checkerRef.current) {
+                clearTimeout(checkerRef.current);
+                checkerRef.current = undefined;
+            }
+        };
+
         switch (timerStatus) {
             case TimerStatus.Running:
+                stopInspectionCheck();
                 startTimeRef.current = Date.now();
-                const tick1 = () => {
+
+                const runTick = () => {
                     setTime(Date.now() - startTimeRef.current);
-                    requestRef.current = requestAnimationFrame(tick1);
+                    requestRef.current = requestAnimationFrame(runTick);
                 };
-                requestRef.current = requestAnimationFrame(tick1);
+                runTick();
                 break;
+
             case TimerStatus.Inspecting:
                 if (!startTimeRef.current) {
                     startTimeRef.current = Date.now();
                 }
-                const tick = () => {
-                    setTime(inspectionTimer - (Date.now() - startTimeRef.current));
-                    requestRef.current = requestAnimationFrame(tick);
+
+                const inspectionTick = () => {
+                    const elapsed = Date.now() - startTimeRef.current;
+                    const remaining = inspectionTime - elapsed;
+                    const displayTime = Math.max(0, remaining);
+                    setTime(displayTime);
+
+                    if (displayTime <= 0) {
+                        stopTicker();
+                        stopInspectionCheck();
+                        startTimeRef.current = 0;
+                        onSolveComplete(0, true);
+                    } else {
+                        requestRef.current = requestAnimationFrame(inspectionTick);
+                    }
                 };
-                requestRef.current = requestAnimationFrame(tick);
+                inspectionTick();
                 break;
+
             case TimerStatus.InspectionCancelled:
-                if (requestRef.current) {
-                    cancelAnimationFrame(requestRef.current);
-                    requestRef.current = undefined;
-                }
+                stopTicker();
+                stopInspectionCheck();
                 setTime(0);
                 startTimeRef.current = 0;
                 break;
+
             case TimerStatus.Idle:
             case TimerStatus.Cancelled:
-                if (requestRef.current) {
-                    cancelAnimationFrame(requestRef.current);
-                    requestRef.current = undefined;
-                }
 
                 if (startTimeRef.current > 0) {
                     const finalTime = Date.now() - startTimeRef.current;
@@ -68,23 +94,30 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                     startTimeRef.current = 0;
                 }
                 break;
+
             case TimerStatus.Ready:
+                stopTicker();
+
                 if (inspectionEnabled) {
-                    const tick = () => {
-                        setTime(inspectionTimer - (Date.now() - startTimeRef.current));
-                        requestRef.current = requestAnimationFrame(tick);
+                    const readyTick = () => {
+                        const elapsed = Date.now() - startTimeRef.current;
+                        const remaining = Math.max(0, inspectionTime - elapsed);
+                        setTime(remaining);
+                        requestRef.current = requestAnimationFrame(readyTick);
                     };
-                    requestRef.current = requestAnimationFrame(tick);
+                    readyTick();
                 } else {
                     setTime(0);
                 }
                 break;
+
             default:
                 break;
         }
 
         return () => {
-            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+            stopTicker();
+            stopInspectionCheck();
         };
     }, [timerStatus, onSolveComplete]);
 
