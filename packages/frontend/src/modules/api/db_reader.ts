@@ -3,9 +3,8 @@ import axios from "axios";
 import z from "zod";
 
 class DBReader {
-    private static readonly BASE_URL = 'http://localhost:3000';
-    private static readonly READ_SOLVES_URL = "/db/solves/get";
-    private static readonly CHECK_HEALTH_URL = "/health";
+    private static readonly READ_SOLVES_URL = "/api/db/solves/get";
+    private static readonly CHECK_HEALTH_URL = "api/health";
 
     constructor() {
     }
@@ -13,7 +12,7 @@ class DBReader {
     public async getAllUserSolves(uuid: string, discipline: Discipline) {
         try {
             const SolvesArraySchema = z.array(SolveSchema);
-            const response = await axios.get(DBReader.BASE_URL + DBReader.READ_SOLVES_URL, {
+            const response = await axios.get(DBReader.READ_SOLVES_URL, {
                 params: {
                     uuid: uuid,
                     discipline: discipline,
@@ -34,7 +33,7 @@ class DBReader {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-            await fetch(DBReader.BASE_URL + DBReader.CHECK_HEALTH_URL, {
+            await fetch(DBReader.CHECK_HEALTH_URL, {
                 signal: controller.signal
             });
 

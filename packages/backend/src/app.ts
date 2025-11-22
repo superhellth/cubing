@@ -46,7 +46,7 @@ const updateLimit = rateLimit({
     legacyHeaders: false,
 });
 
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date() });
 })
 
@@ -55,7 +55,7 @@ const GetSolvesQuerySchema = z.object({
     discipline: z.enum(Discipline)
 });
 
-app.get("/db/solves/get", updateLimit, async (req: Request, res: Response) => {
+app.get("/api/db/solves/get", updateLimit, async (req: Request, res: Response) => {
     try {
         const queryParams = GetSolvesQuerySchema.parse(req.query);
 
@@ -73,7 +73,7 @@ app.get("/db/solves/get", updateLimit, async (req: Request, res: Response) => {
     }
 });
 
-app.post("/db/solves/updateStatus", updateLimit, async (req: Request, res: Response) => {
+app.post("/api/db/solves/updateStatus", updateLimit, async (req: Request, res: Response) => {
     try {
         const solve: ISolve = SolveSchema.parse(req.body.solve);
         const queryText: string = "UPDATE solves SET status = $1 WHERE id = $2 AND uuid = $3 AND discipline = $4 AND session = $5 RETURNING *";
@@ -88,7 +88,7 @@ app.post("/db/solves/updateStatus", updateLimit, async (req: Request, res: Respo
 });
 
 
-app.post("/db/solves/insert", updateLimit, async (req: Request, res: Response) => {
+app.post("/api/db/solves/insert", updateLimit, async (req: Request, res: Response) => {
     try {
         const solve: INewSolve = NewSolveSchema.parse(req.body.solve);
 
@@ -110,7 +110,7 @@ app.post("/db/solves/insert", updateLimit, async (req: Request, res: Response) =
     }
 });
 
-app.post("/db/solves/delete", updateLimit, async (req: Request, res: Response) => {
+app.post("/api/db/solves/delete", updateLimit, async (req: Request, res: Response) => {
     try {
         const solveID: number = req.body.solveID as number;
         const queryText = "DELETE FROM solves WHERE id = $1";

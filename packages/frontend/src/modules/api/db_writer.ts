@@ -2,17 +2,16 @@ import axios from "axios";
 import type { INewSolve, ISolve } from "@cubing/shared";
 
 class DBWriter {
-    private static readonly BASE_URL = 'http://localhost:3000';
-    private static readonly INSERT_SOLVE_URL = "/db/solves/insert";
-    private static readonly DELETE_SOLVE_URL = "/db/solves/delete";
-    private static readonly UPDATE_SOLVE_URL = "/db/solves/updateStatus";
+    private static readonly INSERT_SOLVE_URL = "/api/db/solves/insert";
+    private static readonly DELETE_SOLVE_URL = "/api/db/solves/delete";
+    private static readonly UPDATE_SOLVE_URL = "/api/db/solves/updateStatus";
 
     constructor() {
     }
 
     public async updateSolveStatus(solve: ISolve) {
         try {
-            const response = await axios.post(DBWriter.BASE_URL + DBWriter.UPDATE_SOLVE_URL, {
+            const response = await axios.post(DBWriter.UPDATE_SOLVE_URL, {
                 solve: solve
             })
             // console.log("Solve status updated:", response.data);
@@ -26,7 +25,7 @@ class DBWriter {
 
     public async insertSolve(solve: INewSolve): Promise<ISolve> {
         try {
-            const response = await axios.post(DBWriter.BASE_URL + DBWriter.INSERT_SOLVE_URL, {
+            const response = await axios.post(DBWriter.INSERT_SOLVE_URL, {
                 solve: solve
             });
 
@@ -47,7 +46,7 @@ class DBWriter {
 
     public async deleteSolve(solveID: number) {
         try {
-            const response = await axios.post(DBWriter.BASE_URL + DBWriter.DELETE_SOLVE_URL, {
+            const response = await axios.post(DBWriter.DELETE_SOLVE_URL, {
                 solveID: solveID
             });
 

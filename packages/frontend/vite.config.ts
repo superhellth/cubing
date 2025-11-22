@@ -12,6 +12,12 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    proxy: {
+      // String shorthand: http://localhost:5173/api -> http://localhost:3000/api
+      '/api': 'http://localhost:3000',
+    }
+  },
   optimizeDeps: {
     exclude: ['caniuse-lite'],
   },
