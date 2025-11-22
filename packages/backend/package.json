@@ -8,8 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/app.ts"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "superhellth",
+  "license": "UNLICENSED",
   "dependencies": {
     "@cubing/shared": "workspace:*",
     "axios": "^1.13.2",

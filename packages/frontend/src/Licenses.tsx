@@ -80,7 +80,7 @@ const Licenses = () => {
 
                             Sync your solve history across multiple devices.
 
-                            Calculate statistics (Average of 5, Average of 12, Global Average).
+                            Calculate statistics (Average of 5, Average of 12, ...).
                         </ListItemText>
                     </ListItem>
                     <ListItem>
@@ -112,7 +112,7 @@ const Licenses = () => {
                     </ListItem>
                     <ListItem>
                         <ListItemText>
-                            Contact Us If you have questions or wish to exercise your data rights, please contact us at: [highpercube@gmail.com].
+                            Contact Us: If you have questions or wish to exercise your data rights, please contact us at: [highpercube@gmail.com].
                         </ListItemText>
                     </ListItem>
                 </List>

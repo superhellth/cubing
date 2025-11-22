@@ -5,6 +5,7 @@ import z from "zod";
 class DBReader {
     private static readonly BASE_URL = 'http://localhost:3000';
     private static readonly READ_SOLVES_URL = "/db/solves/get";
+    private static readonly CHECK_HEALTH_URL = "/health";
 
     constructor() {
     }
@@ -27,6 +28,22 @@ class DBReader {
             throw error;
         }
     }
+
+    public async checkHealth() {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            const res = await fetch(DBReader.BASE_URL + DBReader.CHECK_HEALTH_URL, {
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    };
 }
 
 export default DBReader;

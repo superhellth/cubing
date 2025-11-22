@@ -24,8 +24,7 @@ body {
 }
 
 @font-face {
-  font-family: 'DSEG7 Modern';
-  /* Note: format() depends on your file: 'truetype' for .ttf, 'opentype' for .otf, 'woff2' for .woff2 */
+  font-family: 'DSEG7 Classic';
   src: url('./fonts/DSEG7Classic-Bold.ttf') format('truetype'); 
   font-weight: normal;
   font-style: normal;

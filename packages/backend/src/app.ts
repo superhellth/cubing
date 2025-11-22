@@ -10,7 +10,13 @@ import rateLimit from 'express-rate-limit';
 const app = express();
 const port = 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://highpercube.com'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
 app.use(express.json());
 
 try {
@@ -40,8 +46,8 @@ const updateLimit = rateLimit({
     legacyHeaders: false,
 });
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date() });
 })
 
 const GetSolvesQuerySchema = z.object({

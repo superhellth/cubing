@@ -138,7 +138,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                 MozOsxFontSmoothing: "none",
                 fontSmooth: "antialiased",
                 fontSize: "15rem",
-                fontFamily: "DSEG7 Modern, monospaced",
+                fontFamily: "'DSEG7 Classic', monospace",
                 width: "100%",
                 display: "block",
                 textAlign: "center",

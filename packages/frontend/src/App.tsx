@@ -17,11 +17,15 @@ import Licenses from './Licenses';
 import AlgorithmScreen from './modules/algorithms/AlgorithmScreen';
 import TimerScreen from './modules/timer/TimerScreen';
 import { useLocalStorage } from './modules/utils/timer_utils';
+import DBReader from './modules/api/db_reader';
+
+const dbReader: DBReader = new DBReader();
 
 function App() {
   const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [mouseInArea, setMouseInArea] = useState<boolean>(false);
+  const [backendOnline, setBackendOnline] = useState(true);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(lastSelectedDiscipline);
   const ignoreMouseRef = useRef<boolean>(false);
   const navigate = useNavigate();
@@ -44,6 +48,17 @@ function App() {
     setMouseInArea(true);
     setOpenDrawer(true);
   }
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      const status = await dbReader.checkHealth();
+      setBackendOnline(status);
+    };
+    checkStatus();
+
+    const interval = setInterval(checkStatus, 20000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (mouseInArea) return;
@@ -76,58 +91,61 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ width: "100%", height: "100%", margin: "0 auto", bgcolor: "secondary.main", display: "flex" }}>
-        <Box sx={{ width: "100px", bgcolor: "secondary.main", zIndex: 5, display: "flex", flexDirection: "column", justifyContent: "space-around", alignItems: "stretch" }}>
-          <Box onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+      {backendOnline ? (
+        <Box sx={{ width: "100%", height: "100%", margin: "0 auto", bgcolor: "secondary.main", display: "flex" }}>
+          <Box sx={{ width: "100px", bgcolor: "secondary.main", zIndex: 5, display: "flex", flexDirection: "column", justifyContent: "space-around", alignItems: "stretch" }}>
+            <Box onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+              <Button sx={{
+                color: currentPath === "/" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
+              }} onClick={() => { navigate("/"); setOpenDrawer(false); setMouseInArea(false); }}>
+                <AlarmFilledIcon sx={{ fontSize: 40 }} />
+              </Button>
+            </Box>
             <Button sx={{
-              color: currentPath === "/" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
-            }} onClick={() => { navigate("/"); setOpenDrawer(false); setMouseInArea(false); }}>
-              <AlarmFilledIcon sx={{ fontSize: 40 }} />
+              color: currentPath === "/algs" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
+            }} onClick={() => { navigate("/algs"); setMouseInArea(false); setOpenDrawer(false); }}>
+              <QueryStatsOutlinedIcon sx={{ fontSize: 40 }} />
+            </Button>
+            <Button onClick={() => navigate("/licenses")} sx={{
+              color: currentPath === "/licenses" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
+            }}>
+              <InfoOutlinedIcon sx={{ fontSize: 30 }} />
             </Button>
           </Box>
-          <Button sx={{
-            color: currentPath === "/algs" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
-          }} onClick={() => { navigate("/algs"); setMouseInArea(false); setOpenDrawer(false); }}>
-            <QueryStatsOutlinedIcon sx={{ fontSize: 40 }} />
-          </Button>
-          <Button onClick={() => navigate("/licenses")} sx={{
-            color: currentPath === "/licenses" ? "info.light" : "text.primary", "&:hover": { color: "info.dark" }
-          }}>
-            <InfoOutlinedIcon sx={{ fontSize: 30 }} />
-          </Button>
-        </Box>
-        <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
-        <Slide in={openDrawer} direction='right' >
-          <Box sx={{ display: "flex", flexDirection: "row", zIndex: 1, height: "100%", bgcolor: "secondary.main", position: "absolute", left: "100px" }}>
-            <Box sx={{
-              overflowY: "auto", scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }, width: "100px", height: "100vh",
-              bgcolor: "primary.main", display: "flex", flexDirection: "column", justifyContent: "space-around"
-            }}
-              onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-              {eventsAndDisciplines.map(([event, disc], index) =>
-                <DisciplineButton key={event} name={event} size={40} disc={disc as Discipline} />
-              )}
+          <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
+          <Slide in={openDrawer} direction='right' >
+            <Box sx={{ display: "flex", flexDirection: "row", zIndex: 1, height: "100%", bgcolor: "secondary.main", position: "absolute", left: "100px" }}>
+              <Box sx={{
+                overflowY: "auto", scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }, width: "100px", height: "100vh",
+                bgcolor: "primary.main", display: "flex", flexDirection: "column", justifyContent: "space-around"
+              }}
+                onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                {eventsAndDisciplines.map(([event, disc], index) =>
+                  <DisciplineButton key={event} name={event} size={40} disc={disc as Discipline} />
+                )}
+              </Box>
+              <Box sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '50px',
+                background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))',
+                pointerEvents: 'none'
+              }} />
+              <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
             </Box>
-            <Box sx={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: '50px',
-              background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))',
-              pointerEvents: 'none'
-            }} />
-            <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
+          </Slide >
+
+          <Box sx={{ flex: 20, height: "100%", bgcolor: "blue" }}>
+            <Routes>
+              <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} />} />
+              <Route path="/algs" element={<AlgorithmScreen />} />
+              <Route path="/licenses" element={<Licenses />} />
+            </Routes>
           </Box>
-        </Slide >
-        <Box sx={{ flex: 20, height: "100%", bgcolor: "blue" }}>
-          <Routes>
-            <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} />} />
-            <Route path="/algs" element={<AlgorithmScreen />} />
-            <Route path="/licenses" element={<Licenses />} />
-          </Routes>
         </Box>
-      </Box>
+      ) : (<h1>There seems to be something wrong</h1>)}
     </ThemeProvider >
   )
 }
