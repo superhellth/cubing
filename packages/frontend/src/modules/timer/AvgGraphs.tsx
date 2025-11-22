@@ -1,6 +1,6 @@
 import type { ISolve } from "@cubing/shared";
-import { Box, useTheme } from "@mui/system";
-import { LineChart, type XAxis } from "@mui/x-charts";
+import { Box } from "@mui/system";
+import { LineChart } from "@mui/x-charts";
 import { memo, useMemo } from "react";
 import Timer from "./timer";
 

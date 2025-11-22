@@ -1,4 +1,6 @@
 switch to postgres user: sudo -i -u postgres
-ALTER TYPE solve_status ADD VALUE 'review';
 postgres command-line: psql
 start backend: node app.js
+
+NGINX Webserver config:
+sudo nano /etc/nginx/sites-available/my-react-app

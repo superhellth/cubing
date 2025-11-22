@@ -1,13 +1,10 @@
 import licenseData from './licenses.json';
-
-// MUI Components
 import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
     Box,
     Chip,
-    Container,
     Link,
     List,
     ListItem,
@@ -15,17 +12,23 @@ import {
     Paper,
     Typography
 } from '@mui/material';
-
-// MUI Icons
 import CodeIcon from '@mui/icons-material/Code';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LinkIcon from '@mui/icons-material/Link';
 
+interface LicensePackage {
+  licenses: string;
+  repository: string;
+  publisher?: string;
+  licenseText: string;
+  name?: string;
+}
+
 const Licenses = () => {
     // Transform the data object into an array
-    const licenses = Object.keys(licenseData).map((key) => ({
+    const licenses = Object.keys(licenseData).map((key: any) => ({
         name: key,
-        ...licenseData[key],
+        ...licenseData[key as keyof typeof licenseData],
     }));
 
     return (
@@ -130,7 +133,7 @@ const Licenses = () => {
 
             {/* List of Licenses */}
             <Box component={Paper} elevation={0} variant="outlined" sx={{ width: "50%" }}>
-                {licenses.map((pkg, index) => (
+                {(Object.values(licenseData) as LicensePackage[]).map((pkg, index) => (
                     <Accordion
                         key={pkg.name}
                         disableGutters

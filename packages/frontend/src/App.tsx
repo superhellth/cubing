@@ -120,7 +120,7 @@ function App() {
                 bgcolor: "primary.main", display: "flex", flexDirection: "column", justifyContent: "space-around"
               }}
                 onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-                {eventsAndDisciplines.map(([event, disc], index) =>
+                {eventsAndDisciplines.map(([event, disc]) =>
                   <DisciplineButton key={event} name={event} size={40} disc={disc as Discipline} />
                 )}
               </Box>

@@ -34,7 +34,7 @@ class DBReader {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-            const res = await fetch(DBReader.BASE_URL + DBReader.CHECK_HEALTH_URL, {
+            await fetch(DBReader.BASE_URL + DBReader.CHECK_HEALTH_URL, {
                 signal: controller.signal
             });
 

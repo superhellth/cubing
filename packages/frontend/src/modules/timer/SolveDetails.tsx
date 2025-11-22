@@ -35,7 +35,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
         setStatus(solve.status);
     }, [solve]);
 
-    const handleStatusChange = (event: React.MouseEvent<HTMLElement>, newStatus: Status) => {
+    const handleStatusChange = (_event: React.MouseEvent<HTMLElement>, newStatus: Status) => {
         setStatus(newStatus);
         onUpdateStatus(solve, newStatus);
     };

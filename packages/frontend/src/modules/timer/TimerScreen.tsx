@@ -5,18 +5,18 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DBReader from "../api/db_reader";
 import DBWriter from "../api/db_writer";
 import { getDisplayableTime, solveWithUpdatedStatus } from "../api/solveUtils";
+import Scrambler from "../scrambling/scrambler";
+import { useLocalStorage, useSolvesWithAverages } from "../utils/timer_utils";
 import AvgGraphs from "./AvgGraphs";
+import LimitReachedDialog from "./LimitReachedDialog";
 import SolveDetailsScreen from "./SolveDetails";
 import TimeDisplay from "./TimeDisplay";
-import TimerDisplay, { TimerStatus } from "./TimerText";
 import TimerSettings from "./TimerSettings";
-import { useLocalStorage, useSolvesWithAverages } from "../utils/timer_utils";
-import Scrambler from "../scrambling/scrambler";
-import LimitReachedDialog from "./LimitReachedDialog";
+import TimerDisplay, { TimerStatus } from "./TimerText";
 
 const dbWriter: DBWriter = new DBWriter();
 const dbReader: DBReader = new DBReader();
@@ -33,9 +33,9 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const [settings, setSettings] = useLocalStorage('appSettings', defaultSettings);
     const updateSetting = (key: string, value: any) => {
-        setSettings(prev => ({ ...prev, [key]: value }));
+        setSettings((prev: any) => ({ ...prev, [key]: value }));
     };
-    const [currentUUID, setCurrentUUID] = useState<string>(() => {
+    const [currentUUID] = useState<string>(() => {
         const USER_ID_KEY = "userID";
         let uID = localStorage.getItem(USER_ID_KEY);
         if (!uID) {
@@ -56,7 +56,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const [solves, setSolves] = useState<ISolve[]>([]);
     const processedSolves: ISolve[] = useSolvesWithAverages(solves);
-    const [loading, setLoading] = useState<boolean>(false);
+    // const [, setLoading] = useState<boolean>(false);
 
     // Fetch user solves
     useEffect(() => {
@@ -65,13 +65,10 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         }
         async function fetchUserSolves() {
             try {
-                setLoading(true);
                 const fetchedSolves = await dbReader.getAllUserSolves(currentUUID, selectedDiscipline);
                 setSolves(fetchedSolves);
             } catch (error) {
                 console.error("Failed to fetch solves:", error);
-            } finally {
-                setLoading(false);
             }
         }
         fetchUserSolves();

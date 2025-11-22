@@ -9,9 +9,13 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Box from '@mui/system/Box';
 import { memo, useMemo, useState } from "react";
-import { getDisplayableTime } from '../api/solveUtils';
+import { getDisplayableTime, type TimeKey } from '../api/solveUtils';
 import { SolveRow } from './SolveRow';
 import Timer from "./timer";
+
+interface Stats {
+    [key: string]: number | null;
+}
 
 const HEAD_CELLS = [
     { id: 'id', label: '#', color: "text.primary", minSolves: 0 },
@@ -64,7 +68,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
     };
 
     const bestStats: any = useMemo(() => {
-        const stats = { duration: null, avg5: null, avg12: null, avg100: null, avg1000: null };
+        const stats: Stats = { duration: null, avg5: null, avg12: null, avg100: null, avg1000: null };
         if (!solves.length) return stats;
 
         const updateBest = (key: keyof typeof stats, val: number | undefined | null) => {
@@ -122,7 +126,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
 
                                         {/* Current Stat */}
                                         <TableCell>
-                                            {latestSolve ? getDisplayableTime(latestSolve, row.id) : "-"}
+                                            {latestSolve ? getDisplayableTime(latestSolve, row.id as TimeKey) : "-"}
                                         </TableCell>
                                     </TableRow>
                                 );
@@ -157,7 +161,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
                                     >
                                         <TableSortLabel
                                             active={orderBy === headCell.id}
-                                            direction={orderBy === headCell.id ? order : 'asc'}
+                                            direction={orderBy === headCell.id ? order === 'desc' ? 'desc' : 'asc' : "asc"}
                                             onClick={() => handleSortRequest(headCell.id)}
                                             sx={{
                                                 color: headCell.color,
