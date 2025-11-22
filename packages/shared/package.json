@@ -1,14 +1,15 @@
 {
   "name": "@cubing/shared",
   "version": "1.0.0",
+  "license": "UNLICENSED",
+  "private": true,
   "description": "",
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "superhellth",
   "packageManager": "pnpm@10.20.0",
   "devDependencies": {
     "typescript": "~5.9.3"

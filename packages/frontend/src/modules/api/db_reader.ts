@@ -23,7 +23,7 @@ class DBReader {
             return solves;
 
         } catch (error) {
-            console.error('Error creating user:', error);
+            console.error('Error fetching user solves:', error);
             throw error;
         }
     }

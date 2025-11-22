@@ -5,6 +5,7 @@ import process from "node:process";
 import { exit, loadEnvFile } from 'node:process';
 import { Pool } from "pg";
 import z from "zod";
+import rateLimit from 'express-rate-limit';
 
 const app = express();
 const port = 3000;
@@ -29,6 +30,16 @@ const pool = new Pool({
     port: Number(process.env.DB_PORT),
 });
 
+const updateLimit = rateLimit({
+    windowMs: 1000,
+    max: 2,
+    message: {
+        message: "Too many requests."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
@@ -38,7 +49,7 @@ const GetSolvesQuerySchema = z.object({
     discipline: z.enum(Discipline)
 });
 
-app.get("/db/solves/get", async (req: Request, res: Response) => {
+app.get("/db/solves/get", updateLimit, async (req: Request, res: Response) => {
     try {
         const queryParams = GetSolvesQuerySchema.parse(req.query);
 
@@ -56,7 +67,7 @@ app.get("/db/solves/get", async (req: Request, res: Response) => {
     }
 });
 
-app.post("/db/solves/updateStatus", async (req: Request, res: Response) => {
+app.post("/db/solves/updateStatus", updateLimit, async (req: Request, res: Response) => {
     try {
         const solve: ISolve = SolveSchema.parse(req.body.solve);
         const queryText: string = "UPDATE solves SET status = $1 WHERE id = $2 AND uuid = $3 AND discipline = $4 AND session = $5 RETURNING *";
@@ -71,7 +82,7 @@ app.post("/db/solves/updateStatus", async (req: Request, res: Response) => {
 });
 
 
-app.post("/db/solves/insert", async (req: Request, res: Response) => {
+app.post("/db/solves/insert", updateLimit, async (req: Request, res: Response) => {
     try {
         const solve: INewSolve = NewSolveSchema.parse(req.body.solve);
 
@@ -81,13 +92,19 @@ app.post("/db/solves/insert", async (req: Request, res: Response) => {
         const result = await pool.query(queryText, queryValues);
 
         res.status(201).json(result.rows[0]);
+
     } catch (error: any) {
+        if (error.code === '23505' && error.message.includes('User limit')) {
+            return res.status(403).json({
+                message: 'Limit reached. Please delete old solves to add new ones.'
+            });
+        }
         console.error('Error inserting solve:', error.message);
         res.status(500).json({ message: 'Failed to insert solve.' });
     }
 });
 
-app.post("/db/solves/delete", async (req: Request, res: Response) => {
+app.post("/db/solves/delete", updateLimit, async (req: Request, res: Response) => {
     try {
         const solveID: number = req.body.solveID as number;
         const queryText = "DELETE FROM solves WHERE id = $1";

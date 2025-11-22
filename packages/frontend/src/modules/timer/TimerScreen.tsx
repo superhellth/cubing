@@ -15,7 +15,8 @@ import TimeDisplay from "./TimeDisplay";
 import TimerDisplay, { TimerStatus } from "./TimerText";
 import TimerSettings from "./TimerSettings";
 import { useLocalStorage, useSolvesWithAverages } from "../utils/timer_utils";
-import Scrambler from "../scrambling/Scrambler";
+import Scrambler from "../scrambling/scrambler";
+import LimitReachedDialog from "./LimitReachedDialog";
 
 const dbWriter: DBWriter = new DBWriter();
 const dbReader: DBReader = new DBReader();
@@ -50,6 +51,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
 
     // Else
     const [currentScramble, setCurrentScramble] = useState<string>("");
+    const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const [solves, setSolves] = useState<ISolve[]>([]);
@@ -140,7 +142,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     if (Date.now() - readySince > settings.readyAfter) {
                         setTimerStatus(TimerStatus.Running);
                     } else {
-                        setTimerStatus(TimerStatus.Inspecting);
+                        setTimerStatus(TimerStatus.Idle);
                         setReadySince(-1);
                     }
                 } else if (timerStatus === TimerStatus.ReadyForInspection) {
@@ -163,11 +165,18 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         }
         const solveStatus: Status = dnf ? Status.DNF : Status.Valid;
 
-        const solve: ISolve = await dbWriter.insertSolve({
-            uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
-            discipline: selectedDiscipline, status: solveStatus, session: "default"
-        });
-        setSolves(prev => [solve, ...prev]);
+        try {
+
+            const solve: ISolve = await dbWriter.insertSolve({
+                uuid: currentUUID, duration: finalTime, date: new Date(), scramble: currentScramble,
+                discipline: selectedDiscipline, status: solveStatus, session: "default"
+            });
+            setSolves(prev => [solve, ...prev]);
+        } catch (error: any) {
+            if (error.message === 'LIMIT_REACHED') {
+                setIsLimitDialogOpen(true);
+            }
+        }
         setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
         // const tempSolve: ISolve = {
@@ -254,6 +263,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     onClose={() => { setOpenedSolveDetailsDialog(false) }} dbWriter={dbWriter}></SolveDetailsScreen>
             )}
             <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} settings={settings} updateSetting={updateSetting} />
+                <LimitReachedDialog isOpen={isLimitDialogOpen} handleClose={() => setIsLimitDialogOpen(false)} />
         </Box>
 
     );

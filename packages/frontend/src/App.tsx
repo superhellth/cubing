@@ -1,5 +1,6 @@
 import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,12 +13,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import theme from '../theme';
 import './App.css';
+import Licenses from './Licenses';
 import AlgorithmScreen from './modules/algorithms/AlgorithmScreen';
 import TimerScreen from './modules/timer/TimerScreen';
 import { useLocalStorage } from './modules/utils/timer_utils';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import Licenses from './Licenses';
-import { IconButton } from '@mui/material';
 
 function App() {
   const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);
@@ -30,9 +29,10 @@ function App() {
 
   const currentPath = location.pathname;
 
+  //, ["333fm", Discipline.FewestMoves]
   const eventsAndDisciplines = [["222", Discipline.TwoByTwo], ["333", Discipline.ThreeByThree], ["444", Discipline.FourByFour], ["555", Discipline.FiveByFive],
   ["666", Discipline.SixBySix], ["777", Discipline.SevenBySeven], ["333oh", Discipline.OneHanded],
-  ["333bf", Discipline.ThreeBlind], ["444bf", Discipline.FourBlind], ["555bf", Discipline.FiveBlind], ["333fm", Discipline.FewestMoves],
+  ["333bf", Discipline.ThreeBlind], ["444bf", Discipline.FourBlind], ["555bf", Discipline.FiveBlind],
   ["clock", Discipline.Clock], ["pyram", Discipline.Pyraminx], ["minx", Discipline.Megaminx], ["skewb", Discipline.Skewb], ["sq1", Discipline.Square1]];
 
   const onMouseLeave = () => {

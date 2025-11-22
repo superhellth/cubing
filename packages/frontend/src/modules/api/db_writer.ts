@@ -3,7 +3,6 @@ import type { INewSolve, ISolve } from "@cubing/shared";
 
 class DBWriter {
     private static readonly BASE_URL = 'http://localhost:3000';
-    private static readonly CREATE_USER_URL = "/db/users/create";
     private static readonly INSERT_SOLVE_URL = "/db/solves/insert";
     private static readonly DELETE_SOLVE_URL = "/db/solves/delete";
     private static readonly UPDATE_SOLVE_URL = "/db/solves/updateStatus";
@@ -16,7 +15,7 @@ class DBWriter {
             const response = await axios.post(DBWriter.BASE_URL + DBWriter.UPDATE_SOLVE_URL, {
                 solve: solve
             })
-            console.log("Solve status updated:", response.data);
+            // console.log("Solve status updated:", response.data);
             const updatedSolve: ISolve = response.data as ISolve;
             return updatedSolve;
         } catch (error) {
@@ -31,10 +30,16 @@ class DBWriter {
                 solve: solve
             });
 
-            console.log('Solve inserted:', response.data);
+            // console.log('Solve inserted:', response.data);
             const fullSolve: ISolve = response.data as ISolve;
             return fullSolve;
         } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                if (error.response.status === 403) {
+                    console.warn('User limit reached:', error.response.data.message);
+                    throw new Error('LIMIT_REACHED');
+                }
+            }
             console.error('Error inserting solve:', error);
             throw error;
         }
@@ -46,7 +51,7 @@ class DBWriter {
                 solveID: solveID
             });
 
-            console.log('Solve deleted:', response.data);
+            // console.log('Solve deleted:', response.data);
             return response.data;
         } catch (error: any) {
             console.error("Error deleting solve:", error);

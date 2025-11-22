@@ -17,7 +17,7 @@ checker.init({
 
     const formattedPackages = {};
 
-    Object.keys(packages).forEach(key => {
+    Object.keys(packages).filter(key => key !== "cubing@1.0.0").forEach(key => {
         const pkg = packages[key];
 
         // 1. Read the license content from the file system
