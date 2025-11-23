@@ -4,22 +4,25 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import { Box } from "@mui/system";
+import { Box, styled } from "@mui/system";
 import { useCallback, useEffect, useState } from "react";
-import DBReader from "../api/db_reader";
-import DBWriter from "../api/db_writer";
-import { getDisplayableTime, solveWithUpdatedStatus } from "../api/solveUtils";
-import Scrambler from "../scrambling/scrambler";
+import DBReader from "../services/db_reader";
+import DBWriter from "../services/db_writer";
+import { getDisplayableTime, solveWithUpdatedStatus } from "../utils/solveUtils";
+import Scrambler from "../utils/scrambling/scrambler";
 import { useLocalStorage, useSolvesWithAverages } from "../utils/timer_utils";
-import AvgGraphs from "./AvgGraphs";
-import LimitReachedDialog from "./LimitReachedDialog";
-import SolveDetailsScreen from "./SolveDetails";
-import TimeDisplay from "./TimeDisplay";
-import TimerSettings from "./TimerSettings";
-import TimerDisplay, { TimerStatus } from "./TimerText";
+import AvgGraphs from "../components/timer/AvgGraphs";
+import LimitReachedDialog from "../components/timer/LimitReachedDialog";
+import SolveDetailsScreen from "../components/timer/SolveDetails";
+import TimeDisplay from "../components/timer/TimeDisplay";
+import TimerSettings from "../components/timer/TimerSettings";
+import TimerDisplay, { TimerStatus } from "../components/timer/TimerText";
+import { useTimerLogic } from "../hooks/useTimerLogic";
+import HCButton from "../components/HCButton";
+import { tr } from "zod/v4/locales";
 
-const dbWriter: DBWriter = new DBWriter();
-const dbReader: DBReader = new DBReader();
+const dbWriter: DBWriter = DBWriter.instance;
+const dbReader: DBReader = DBReader.instance;
 const scrambleGenerator: Scrambler = new Scrambler();
 
 const defaultSettings = {
@@ -27,6 +30,50 @@ const defaultSettings = {
     readyAfter: 200,
     averageGraphXAxis: 'date'
 };
+
+export const ScreenContainer = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    height: '100%',
+    width: '100%',
+    overflow: 'hidden', // Prevent scrollbars from appearing unexpectedly
+}));
+
+export const TimerPanel = styled(Box)(({ theme }) => ({
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between', // Better than 'space-around' usually
+    backgroundColor: theme.palette.primary.main,
+    padding: theme.spacing(4, 9), // Use theme spacing (approx 32px, 72px)
+    position: 'relative',
+}));
+
+export const HistoryPanel = styled(Box)(({ theme }) => ({
+    height: '100%',
+    backgroundColor: theme.palette.secondary.main,
+    // No need for margin/padding 0, that's default
+}));
+
+export const ScrambleText = styled(Typography, {
+    shouldForwardProp: (prop) => prop !== 'charCount',
+})<{ charCount: number }>(({ theme, charCount }) => {
+    let fontSize = '2rem';
+    if (charCount > 130) fontSize = '1.3rem';
+    else if (charCount > 70) fontSize = '1.6rem';
+
+    return {
+        fontSize,
+        fontFamily: '"Space Mono", monospace',
+        textAlign: 'center',
+        width: '100%',
+    };
+});
+
+export const StatText = styled(Typography)(({ theme }) => ({
+    fontSize: '3rem',
+    fontFamily: '"Space Mono", monospace',
+    lineHeight: 1.2,
+}));
 
 function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline }) {
     // Settings
@@ -46,8 +93,11 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     });
 
     // Timer logic
-    const [timerStatus, setTimerStatus] = useState<TimerStatus>(TimerStatus.Idle);
-    const [readySince, setReadySince] = useState<number>(-1);
+    // const [timerStatus, setTimerStatus] = useState<TimerStatus>(TimerStatus.Idle);
+    const { timerStatus, setTimerStatus } = useTimerLogic(
+        settings,
+        selectedDiscipline
+    );
 
     // Else
     const [currentScramble, setCurrentScramble] = useState<string>("");
@@ -98,64 +148,6 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         });
     }
 
-    const handleKeyDown = useCallback(async (event: KeyboardEvent) => {
-        // Stop timer on space down
-        if (event.code === 'Space') {
-            event.preventDefault();
-            if (timerStatus === TimerStatus.Running) {
-                setTimerStatus(TimerStatus.Idle)
-            } else if (timerStatus === TimerStatus.Idle || timerStatus === TimerStatus.Cancelled || timerStatus === TimerStatus.InspectionCancelled) {
-                if (settings.inspection &&
-                    !inspectionLessDisciplines.includes(selectedDiscipline)) {
-                    setTimerStatus(TimerStatus.ReadyForInspection);
-                } else {
-                    setTimerStatus(TimerStatus.Ready);
-                }
-                setReadySince(Date.now());
-            } else if (timerStatus === TimerStatus.Inspecting) {
-                setTimerStatus(TimerStatus.Ready);
-                setReadySince(Date.now());
-            }
-        }
-
-        // Cancel solve on esc
-        if (event.key === 'Escape') {
-            if (timerStatus === TimerStatus.Running) {
-                event.preventDefault();
-                setTimerStatus(TimerStatus.Cancelled);
-            } else if (timerStatus === TimerStatus.Inspecting) {
-                event.preventDefault();
-                setTimerStatus(TimerStatus.InspectionCancelled);
-            }
-        }
-    }, [timerStatus, dbWriter, currentScramble, selectedDiscipline, settings]);
-
-    const handleKeyUp = useCallback((event: KeyboardEvent) => {
-        // Start solve on space up
-        if (event.code === "Space") {
-            if (timerStatus !== TimerStatus.Running) {
-                if (timerStatus === TimerStatus.Ready) {
-                    event.preventDefault();
-                    if (Date.now() - readySince > settings.readyAfter) {
-                        setTimerStatus(TimerStatus.Running);
-                    } else {
-                        setTimerStatus(TimerStatus.Idle);
-                        setReadySince(-1);
-                    }
-                } else if (timerStatus === TimerStatus.ReadyForInspection) {
-                    event.preventDefault();
-                    console.log(settings.readyAfter)
-                    if (Date.now() - readySince > settings.readyAfter) {
-                        setTimerStatus(TimerStatus.Inspecting);
-                    } else {
-                        setTimerStatus(TimerStatus.Idle);
-                        setReadySince(-1);
-                    }
-                }
-            }
-        }
-    }, [timerStatus, settings]);
-
     const handleSolveComplete = async (finalTime: number, dnf: boolean) => {
         if (dnf) {
             setTimerStatus(TimerStatus.Cancelled);
@@ -187,51 +179,26 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         // });
     }
 
-    // Register keyboard listeners
-    useEffect(() => {
-        window.addEventListener("keyup", handleKeyUp);
-        window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            window.removeEventListener("keyup", handleKeyUp);
-            window.removeEventListener("keydown", handleKeyDown)
-        };
-    }, [handleKeyDown, handleKeyUp])
-
-
     const openSolveDetailsScreen = useCallback((solve: ISolve) => {
         setSelectedSolve(solve);
         setOpenedSolveDetailsDialog(true);
     }, []);
 
-    const getScrambleFontSize = (scramble: string) => {
-        const len = scramble.length;
-        if (len < 70) return "2rem";
-        if (len < 130) return "1.6rem";
-        return "1.3rem";
-    };
-
     return (
-        <Box sx={{ display: "flex", justifyContent: "space-between", height: "100%", width: "100%" }}>
-            <Box sx={{
-                flex: 1, display: "flex", flexDirection: 'column', justifyContent: "space-around", bgcolor: "primary.main",
-                paddingLeft: "75px", paddingRight: "75px", paddingTop: "2rem", position: "relative"
-            }}>
-                <IconButton
+        <ScreenContainer>
+            <TimerPanel>
+                <HCButton
                     sx={{
                         position: "absolute", right: 25, top: 25,
                         userSelect: "none"
                     }}
-                    color="inherit"
-                    onClick={() => { setSettingsOpen(true) }}
-                >
-                    <SettingsIcon sx={{
-                        fontSize: "2rem", color: "info.main", '&:hover': {
-                            opacity: 0.8
-                        },
-                    }} />
-                </IconButton>
+                    onClick={() => { setSettingsOpen(true); }} isSelected={true}                >
+                    <SettingsIcon />
+                </HCButton>
                 <Box sx={{ flex: 1 }}>
-                    <Typography sx={{ flex: 1, fontSize: getScrambleFontSize(currentScramble), fontFamily: "Space Mono, monospace" }}>{currentScramble}</Typography>
+                    <ScrambleText charCount={currentScramble.length}>
+                        {currentScramble}
+                    </ScrambleText>
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                     <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>
@@ -250,7 +217,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 <Box sx={{ flex: 1, }}>
                     <AvgGraphs solves={processedSolves} xByDate={settings.averageGraphXAxis == "date"} />
                 </Box>
-            </Box>
+            </TimerPanel>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
             <Box sx={{ bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
                 <TimeDisplay solves={processedSolves} openSolveDetailsScreen={openSolveDetailsScreen} />
@@ -260,8 +227,8 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     onClose={() => { setOpenedSolveDetailsDialog(false) }} dbWriter={dbWriter}></SolveDetailsScreen>
             )}
             <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} settings={settings} updateSetting={updateSetting} />
-                <LimitReachedDialog isOpen={isLimitDialogOpen} handleClose={() => setIsLimitDialogOpen(false)} />
-        </Box>
+            <LimitReachedDialog isOpen={isLimitDialogOpen} handleClose={() => setIsLimitDialogOpen(false)} />
+        </ScreenContainer>
 
     );
 }

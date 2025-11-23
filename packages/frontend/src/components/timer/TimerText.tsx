@@ -1,6 +1,6 @@
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
-import Timer from "./timer";
+import Timer from "../../utils/timer";
 import { Box } from "@mui/system";
 
 export enum TimerStatus {
@@ -28,6 +28,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
     const checkerRef = useRef<number>(undefined);
 
     useEffect(() => {
+
         const stopTicker = () => {
             if (requestRef.current) {
                 cancelAnimationFrame(requestRef.current);

@@ -3,7 +3,7 @@ const checker = require('license-checker');
 const fs = require('fs');
 const path = require('path');
 
-const OUTPUT_PATH = path.join(__dirname, './packages/frontend/src/licenses.json'); // Adjust path as needed
+const OUTPUT_PATH = path.join(__dirname, './packages/frontend/src/assets/licenses.json'); // Adjust path as needed
 
 checker.init({
     start: path.join(__dirname, './'), // Project root

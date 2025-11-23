@@ -9,9 +9,9 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Box from '@mui/system/Box';
 import { memo, useMemo, useState } from "react";
-import { getDisplayableTime, type TimeKey } from '../api/solveUtils';
+import { getDisplayableTime, type TimeKey } from '../../utils/solveUtils';
 import { SolveRow } from './SolveRow';
-import Timer from "./timer";
+import Timer from "../../utils/timer";
 
 interface Stats {
     [key: string]: number | null;

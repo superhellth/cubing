@@ -2,7 +2,7 @@ import type { ISolve } from "@cubing/shared";
 import { Box } from "@mui/system";
 import { LineChart } from "@mui/x-charts";
 import { memo, useMemo } from "react";
-import Timer from "./timer";
+import Timer from "../../utils/timer";
 
 const cleanVal = (val: number | undefined | null) => {
     if (val === undefined || val === null || val === -1) return null;

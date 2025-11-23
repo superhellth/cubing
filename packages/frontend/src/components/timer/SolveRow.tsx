@@ -2,7 +2,7 @@ import { Status } from "@cubing/shared";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { memo } from "react";
-import { getDisplayableTime, getDisplayTime } from "../api/solveUtils";
+import { getDisplayableTime, getDisplayTime } from "../../utils/solveUtils";
 
 export const SolveRow = memo(({ solve, bestStats, openSolveDetailsScreen }: any) => {
     const isBestSingle = bestStats.single !== null && solve.duration === bestStats.single;

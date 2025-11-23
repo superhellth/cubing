@@ -1,4 +1,4 @@
-import licenseData from './licenses.json';
+import licenseData from '../assets/licenses.json';
 import {
     Accordion,
     AccordionDetails,

@@ -1,5 +1,5 @@
 import { Status, type ISolve } from "@cubing/shared";
-import Timer from "../timer/timer";
+import Timer from "./timer";
 
 export type TimeKey = 'duration' | 'avg5' | 'avg12' | 'avg100' | 'avg1000';
 

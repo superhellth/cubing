@@ -3,10 +3,20 @@ import axios from "axios";
 import z from "zod";
 
 class DBReader {
+
     private static readonly READ_SOLVES_URL = "/api/db/solves/get";
     private static readonly CHECK_HEALTH_URL = "api/health";
+    static #instance: DBReader;
 
-    constructor() {
+    private constructor() {
+    }
+
+    public static get instance(): DBReader {
+        if (!DBReader.#instance) {
+            DBReader.#instance = new DBReader();
+        }
+
+        return DBReader.#instance;
     }
 
     public async getAllUserSolves(uuid: string, discipline: Discipline) {

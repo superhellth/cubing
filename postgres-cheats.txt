@@ -4,3 +4,4 @@ start backend: node app.js
 
 NGINX Webserver config:
 sudo nano /etc/nginx/sites-available/my-react-app
+pm2 for running backend

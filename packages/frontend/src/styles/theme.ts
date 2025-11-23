@@ -63,11 +63,22 @@ const theme = createTheme({
     components: {
         MuiChartsTooltip: {
             styleOverrides: {
-                paper: {
-                    backgroundColor: secondary,
-                    color: text,
-                },
+                paper: ({theme}) => ({
+                    backgroundColor: theme.palette.secondary.main,
+                    color: theme.palette.text.primary,
+                }),
             },
+        },
+        MuiTooltip: {
+            styleOverrides: {
+                tooltip: ({theme}) => ({
+                    backgroundColor: theme.palette.secondary.main,
+                    fontSize: "1rem"
+                }),
+                arrow: ({theme}) => ({
+                    color: theme.palette.secondary.main
+                })
+            }
         }
     },
 });

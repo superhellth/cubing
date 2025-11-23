@@ -1,12 +1,21 @@
-import axios from "axios";
 import type { INewSolve, ISolve } from "@cubing/shared";
+import axios from "axios";
 
 class DBWriter {
     private static readonly INSERT_SOLVE_URL = "/api/db/solves/insert";
     private static readonly DELETE_SOLVE_URL = "/api/db/solves/delete";
     private static readonly UPDATE_SOLVE_URL = "/api/db/solves/updateStatus";
+    static #instance: DBWriter;
 
-    constructor() {
+    private constructor() {
+    }
+
+    public static get instance(): DBWriter {
+        if (!DBWriter.#instance) {
+            DBWriter.#instance = new DBWriter();
+        }
+
+        return DBWriter.#instance;
     }
 
     public async updateSolveStatus(solve: ISolve) {
@@ -14,7 +23,6 @@ class DBWriter {
             const response = await axios.post(DBWriter.UPDATE_SOLVE_URL, {
                 solve: solve
             })
-            // console.log("Solve status updated:", response.data);
             const updatedSolve: ISolve = response.data as ISolve;
             return updatedSolve;
         } catch (error) {
@@ -29,7 +37,6 @@ class DBWriter {
                 solve: solve
             });
 
-            // console.log('Solve inserted:', response.data);
             const fullSolve: ISolve = response.data as ISolve;
             return fullSolve;
         } catch (error) {
@@ -50,7 +57,6 @@ class DBWriter {
                 solveID: solveID
             });
 
-            // console.log('Solve deleted:', response.data);
             return response.data;
         } catch (error: any) {
             console.error("Error deleting solve:", error);
