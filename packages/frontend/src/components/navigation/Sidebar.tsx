@@ -5,8 +5,8 @@ import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
 import { Box, Divider, Slide } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import HCButton from './HCButton';
-import { EVENTS_AND_DISCIPLINES } from './timer/constants';
+import HCButton from '../HCButton';
+import { EVENTS_AND_DISCIPLINES } from '../../utils/constants';
 import DisciplineButton from './DisciplineButton';
 
 interface SidebarProps {

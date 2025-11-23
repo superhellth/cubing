@@ -1,0 +1,102 @@
+import { useState, useEffect, useCallback } from 'react';
+import { Discipline, Status, type ISolve } from "@cubing/shared";
+import { useSolvesWithAverages } from "../utils/timer_utils";
+import DBWriter from '../services/db_writer';
+import DBReader from '../services/db_reader';
+import Scrambler from '../utils/scrambling/scrambler';
+import { solveWithUpdatedStatus } from '../utils/solveUtils';
+
+// Instantiate singletons outside the hook to avoid recreation
+const dbWriter = DBWriter.instance;
+const dbReader = DBReader.instance;
+const scrambleGenerator = new Scrambler();
+
+export const useSolveManager = (selectedDiscipline: Discipline) => {
+    const [solves, setSolves] = useState<ISolve[]>([]);
+    const [currentScramble, setCurrentScramble] = useState<string>("");
+    const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
+
+    const [userID] = useState<string>(() => {
+        const USER_ID_KEY = "userID";
+        let uID = localStorage.getItem(USER_ID_KEY);
+        if (!uID) {
+            uID = crypto.randomUUID();
+            localStorage.setItem(USER_ID_KEY, uID);
+        }
+        return uID;
+    });
+    const processedSolves = useSolvesWithAverages(solves);
+
+    useEffect(() => {
+        let mounted = true;
+
+        const initData = async () => {
+            try {
+                const fetchedSolves = await dbReader.getAllUserSolves(userID, selectedDiscipline);
+                if (mounted) {
+                    setSolves(fetchedSolves);
+                    setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
+                }
+            } catch (error) {
+                console.error("Failed to fetch solves:", error);
+            }
+        };
+
+        initData();
+
+        return () => { mounted = false; };
+    }, [userID, selectedDiscipline]);
+
+    const addSolve = useCallback(async (finalTime: number, dnf: boolean) => {
+        const solveStatus: Status = dnf ? Status.DNF : Status.Valid;
+
+        try {
+            const newSolve = await dbWriter.insertSolve({
+                uuid: userID,
+                duration: finalTime,
+                date: new Date(),
+                scramble: currentScramble,
+                discipline: selectedDiscipline,
+                status: solveStatus,
+                session: "default"
+            });
+
+            setSolves(prev => [newSolve, ...prev]);
+
+            setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
+
+        } catch (error: any) {
+            if (error.message === 'LIMIT_REACHED') {
+                setIsLimitDialogOpen(true);
+            } else {
+                console.error("Failed to save solve", error);
+            }
+        }
+    }, [userID, currentScramble, selectedDiscipline]);
+
+    // 5. Action: Delete Solve
+    const deleteSolve = useCallback((solveID: number) => {
+        dbWriter.deleteSolve(solveID); // Fire and forget (or await if you want strict consistency)
+        setSolves(prev => prev.filter(s => s.id !== solveID));
+    }, []);
+
+    // 6. Action: Update Status (+2, DNF, OK)
+    const updateSolveStatus = useCallback((oldSolve: ISolve, newStatus: Status) => {
+        const updatedSolve = solveWithUpdatedStatus(oldSolve, newStatus);
+        dbWriter.updateSolveStatus(updatedSolve);
+        setSolves(prev => prev.map(s =>
+            s.id === updatedSolve.id ? updatedSolve : s
+        ));
+    }, []);
+
+    return {
+        solves,
+        processedSolves,
+        currentScramble,
+        isLimitDialogOpen,
+        setIsLimitDialogOpen,
+        addSolve,
+        deleteSolve,
+        updateSolveStatus,
+    };
+};

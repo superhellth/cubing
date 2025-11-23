@@ -8,7 +8,7 @@ import theme from './styles/theme';
 import './App.css';
 import Licenses from './pages/Licenses';
 import DBReader from './services/db_reader';
-import Sidebar from './components/Sidebar';
+import Sidebar from './components/navigation/Sidebar';
 import TimerScreen from './pages/TimerScreen';
 import { useLocalStorage } from './utils/timer_utils';
 import StatisticsScreen from './pages/StatisticsScreen';
