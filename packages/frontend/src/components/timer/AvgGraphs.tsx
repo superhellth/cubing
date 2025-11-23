@@ -6,7 +6,7 @@ import Timer from "../../utils/timer";
 
 const cleanVal = (val: number | undefined | null) => {
     if (val === undefined || val === null || val === -1) return null;
-    return val; // Convert ms to seconds
+    return val;
 };
 
 const AvgGraphs = memo(({ solves, xByDate }: { solves: ISolve[], xByDate: boolean }) => {
@@ -24,36 +24,13 @@ const AvgGraphs = memo(({ solves, xByDate }: { solves: ISolve[], xByDate: boolea
         }));
     }, [solves]);
 
-    const series = [
-        {
-            id: "avg5",
-            label: "Average of 5",
-            dataKey: 'avg5',
-            showMark: false,
-            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
-        },
-        {
-            id: 'avg12',
-            label: 'Average of 12',
-            dataKey: "avg12",
-            showMark: false,
-            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
-        },
-        {
-            id: "avg100",
-            label: "Average of 100",
-            dataKey: 'avg100',
-            showMark: false,
-            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
-        },
-        {
-            id: "avg1000",
-            label: "Average of 1000",
-            dataKey: 'avg1000',
-            showMark: false,
-            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
-        },
-    ];
+    const series = [["avg5", "Average of 5"], ["avg12", "Average of 12"], ["avg100", "Average of 100"], ["avg1000", "Average of 1000"]].map((value: string[]) => ({
+        id: value[0],
+        label: value[1],
+        dataKey: value[0],
+        showMark: false,
+        valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
+    }));
 
     return (
         <Box>

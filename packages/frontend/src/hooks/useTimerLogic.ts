@@ -82,5 +82,5 @@ export const useTimerLogic = (settings: any, selectedDiscipline: Discipline) => 
         };
     }, [handleKeyDown, handleKeyUp]);
 
-    return { timerStatus, setTimerStatus };
+    return { timerStatus };
 };

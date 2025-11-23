@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import theme from './styles/theme';
 import './App.css';
-import Licenses from './pages/Licenses';
+import Licenses from './pages/LicenseScreen';
 import DBReader from './services/db_reader';
 import Sidebar from './components/navigation/Sidebar';
 import TimerScreen from './pages/TimerScreen';
@@ -15,7 +15,21 @@ import StatisticsScreen from './pages/StatisticsScreen';
 
 const dbReader: DBReader = DBReader.instance;
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return width;
+}
+
 function App() {
+  const width = useWindowWidth();
+  const isMobile = width <= 768;
   const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);
   const [backendOnline, setBackendOnline] = useState(true);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(lastSelectedDiscipline);

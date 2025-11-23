@@ -71,7 +71,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
         const stats: Stats = { duration: null, avg5: null, avg12: null, avg100: null, avg1000: null };
         if (!solves.length) return stats;
 
-        const updateBest = (key: keyof typeof stats, val: number | undefined | null) => {
+        const updateBest = (key: keyof Stats, val: number | undefined | null) => {
             if (typeof val === 'number' && val > 0 && (stats[key] === null || val < stats[key])) {
                 stats[key] = val;
             }

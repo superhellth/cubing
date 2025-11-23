@@ -15,12 +15,11 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
-import type DBWriter from "../../../services/db_writer";
 import { getDisplayableTime, getDisplayTime } from "../../../utils/solveUtils";
 
 function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateStatus }: {
     solve: ISolve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
-    onDeleteSolve: Function, dbWriter: DBWriter
+    onDeleteSolve: Function
 }) {
     const [status, setStatus] = useState<Status>(solve.status);
     const date: Date = new Date(solve.date);

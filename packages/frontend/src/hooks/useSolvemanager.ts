@@ -6,13 +6,12 @@ import DBReader from '../services/db_reader';
 import Scrambler from '../utils/scrambling/scrambler';
 import { solveWithUpdatedStatus } from '../utils/solveUtils';
 
-// Instantiate singletons outside the hook to avoid recreation
 const dbWriter = DBWriter.instance;
 const dbReader = DBReader.instance;
 const scrambleGenerator = new Scrambler();
 
 export const useSolveManager = (selectedDiscipline: Discipline) => {
-    const [solves, setSolves] = useState<ISolve[]>([]);
+    const [rawSolves, setRawSolves] = useState<ISolve[]>([]);
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
 
@@ -25,7 +24,7 @@ export const useSolveManager = (selectedDiscipline: Discipline) => {
         }
         return uID;
     });
-    const processedSolves = useSolvesWithAverages(solves);
+    const solves = useSolvesWithAverages(rawSolves);
 
     useEffect(() => {
         let mounted = true;
@@ -34,7 +33,7 @@ export const useSolveManager = (selectedDiscipline: Discipline) => {
             try {
                 const fetchedSolves = await dbReader.getAllUserSolves(userID, selectedDiscipline);
                 if (mounted) {
-                    setSolves(fetchedSolves);
+                    setRawSolves(fetchedSolves);
                     setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
                 }
             } catch (error) {
@@ -61,7 +60,7 @@ export const useSolveManager = (selectedDiscipline: Discipline) => {
                 session: "default"
             });
 
-            setSolves(prev => [newSolve, ...prev]);
+            setRawSolves(prev => [newSolve, ...prev]);
 
             setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
@@ -77,21 +76,20 @@ export const useSolveManager = (selectedDiscipline: Discipline) => {
     // 5. Action: Delete Solve
     const deleteSolve = useCallback((solveID: number) => {
         dbWriter.deleteSolve(solveID); // Fire and forget (or await if you want strict consistency)
-        setSolves(prev => prev.filter(s => s.id !== solveID));
+        setRawSolves(prev => prev.filter(s => s.id !== solveID));
     }, []);
 
     // 6. Action: Update Status (+2, DNF, OK)
     const updateSolveStatus = useCallback((oldSolve: ISolve, newStatus: Status) => {
         const updatedSolve = solveWithUpdatedStatus(oldSolve, newStatus);
         dbWriter.updateSolveStatus(updatedSolve);
-        setSolves(prev => prev.map(s =>
+        setRawSolves(prev => prev.map(s =>
             s.id === updatedSolve.id ? updatedSolve : s
         ));
     }, []);
 
     return {
         solves,
-        processedSolves,
         currentScramble,
         isLimitDialogOpen,
         setIsLimitDialogOpen,
