@@ -50,16 +50,20 @@ app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date() });
 })
 
-const GetSolvesQuerySchema = z.object({
+const GetAllSolvesQS = z.object({
+    uuid: z.uuid()
+});
+
+const GetSolvesByDisciplineQS = z.object({
     uuid: z.uuid(),
     discipline: z.enum(Discipline)
 });
 
-app.get("/api/db/solves/get", updateLimit, async (req: Request, res: Response) => {
+app.get("/api/db/solves/getByDiscipline", updateLimit, async (req: Request, res: Response) => {
     try {
-        const queryParams = GetSolvesQuerySchema.parse(req.query);
+        const queryParams = GetSolvesByDisciplineQS.parse(req.query);
 
-        const queryText = `SELECT id, scramble, uuid, date, duration, discipline, status, session
+        const queryText = `SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
                 FROM solves
                 WHERE uuid = $1 AND discipline = $2
                 ORDER BY date DESC`;
@@ -68,7 +72,25 @@ app.get("/api/db/solves/get", updateLimit, async (req: Request, res: Response) =
         const result = await pool.query(queryText, queryValues);
         res.status(201).json(result.rows);
     } catch (error: any) {
-        console.error('Error loading solves:', error.message);
+        console.error('Error loading solves by discipline:', error.message);
+        res.status(500).json({ message: 'Failed to load solves.' });
+    }
+});
+
+app.get("/api/db/solves/getAll", updateLimit, async (req: Request, res: Response) => {
+    try {
+        const queryParams = GetAllSolvesQS.parse(req.query);
+
+        const queryText = `SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
+                FROM solves
+                WHERE uuid = $1
+                ORDER BY date DESC`;
+        const queryValues = [queryParams.uuid];
+
+        const result = await pool.query(queryText, queryValues);
+        res.status(201).json(result.rows);
+    } catch (error: any) {
+        console.error('Error loading all user solves:', error.message);
         res.status(500).json({ message: 'Failed to load solves.' });
     }
 });

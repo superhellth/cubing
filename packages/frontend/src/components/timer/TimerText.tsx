@@ -12,6 +12,7 @@ export enum TimerStatus {
     ReadyForInspection = "INSPECT_READY",
     InspectionCancelled = "INSPECT_DNF"
 }
+export const ACTIVE_TIMER_STATUS = [TimerStatus.Ready, TimerStatus.ReadyForInspection, TimerStatus.Inspecting, TimerStatus.Running];
 
 interface Props {
     timerStatus: TimerStatus;
@@ -133,7 +134,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
     };
 
     return (
-        <Box sx={{ transform: "translateZ(0)", willChange: "transform" }}>
+        <Box sx={{ transform: "translateZ(0)", willChange: "transform", padding: 0, margin: 0 }}>
             <Typography sx={{
                 WebkitFontSmoothing: "antialiased",
                 MozOsxFontSmoothing: "none",
@@ -142,6 +143,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                 fontFamily: "'DSEG7 Classic', monospace",
                 width: "100%",
                 display: "block",
+                lineHeight: 1,
                 textAlign: "center",
                 color: getColor(),
                 userSelect: "none"

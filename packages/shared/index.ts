@@ -32,6 +32,7 @@ export const DISCIPLINE_LABELS = Object.entries(Discipline).map(([key, value]) =
 }));
 
 export interface ISolve {
+    readonly pk: bigint;
     readonly id: number;
     readonly uuid: string;
     readonly discipline: Discipline;

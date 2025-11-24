@@ -19,7 +19,8 @@ checker.init({
 
     Object.keys(packages).filter(key => key !== "cubing@1.0.0").forEach(key => {
         const pkg = packages[key];
-
+        const atIndex = key.lastIndexOf('@');
+        const name = atIndex > 0 ? key.substring(0, atIndex) : key;
         // 1. Read the license content from the file system
         let licenseText = 'License text not found.';
         if (pkg.licenseFile && fs.existsSync(pkg.licenseFile)) {
@@ -32,6 +33,7 @@ checker.init({
 
         // 2. Create a clean object for your frontend
         formattedPackages[key] = {
+            name: name,
             licenses: pkg.licenses,
             repository: pkg.repository,
             publisher: pkg.publisher,

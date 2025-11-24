@@ -17,17 +17,16 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LinkIcon from '@mui/icons-material/Link';
 
 interface LicensePackage {
-  licenses: string;
-  repository: string;
-  publisher?: string;
-  licenseText: string;
-  name?: string;
+    licenses: string;
+    repository: string;
+    publisher?: string;
+    licenseText: string;
+    name?: string;
 }
 
 const Licenses = () => {
     // Transform the data object into an array
     const licenses = Object.keys(licenseData).map((key: any) => ({
-        name: key,
         ...licenseData[key as keyof typeof licenseData],
     }));
 
@@ -190,7 +189,7 @@ const Licenses = () => {
                                             rel="noreferrer"
                                             underline="hover"
                                             variant="body2"
-                                            sx={{color: "info.main"}}
+                                            sx={{ color: "info.main" }}
                                         >
                                             {pkg.repository}
                                         </Link>

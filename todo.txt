@@ -1,0 +1,4 @@
+app
+mobile website
+user page: activity graph like github
+statistics page: avg100/avg1000 prediction logistic regression (see mui line charts), PB progression, warm up analysis

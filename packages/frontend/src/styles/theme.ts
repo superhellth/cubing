@@ -28,6 +28,9 @@ const theme = createTheme({
         text: {
             primary: text,
         },
+        warning: {
+            main: "#ffff00"
+        },
         info: {
             main: accent,
             light: accentLighter,
@@ -43,7 +46,7 @@ const theme = createTheme({
     },
     typography: {
         fontFamily: [
-            "Space Mono", 
+            "Space Mono",
             '-apple-system',
             'BlinkMacSystemFont',
             '"Segoe UI"',
@@ -63,19 +66,34 @@ const theme = createTheme({
     components: {
         MuiChartsTooltip: {
             styleOverrides: {
-                paper: ({theme}) => ({
+                paper: ({ theme }) => ({
                     backgroundColor: theme.palette.secondary.main,
                     color: theme.palette.text.primary,
                 }),
             },
         },
+        MuiBarChart: {
+            defaultProps: {
+                colors: [accentDarker, primary],
+            },
+        },
+        MuiLineChart: {
+            defaultProps: {
+                colors: [accentDarker, primary],
+            },
+        },
+        MuiScatterChart: {
+            defaultProps: {
+                colors: [accentDarker, primary],
+            },
+        },
         MuiTooltip: {
             styleOverrides: {
-                tooltip: ({theme}) => ({
+                tooltip: ({ theme }) => ({
                     backgroundColor: theme.palette.secondary.main,
                     fontSize: "1rem"
                 }),
-                arrow: ({theme}) => ({
+                arrow: ({ theme }) => ({
                     color: theme.palette.secondary.main
                 })
             }

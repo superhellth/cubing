@@ -31,7 +31,7 @@ export const useSolveManager = (selectedDiscipline: Discipline) => {
 
         const initData = async () => {
             try {
-                const fetchedSolves = await dbReader.getAllUserSolves(userID, selectedDiscipline);
+                const fetchedSolves = await dbReader.getSolvesByDiscipline(userID, selectedDiscipline);
                 if (mounted) {
                     setRawSolves(fetchedSolves);
                     setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));

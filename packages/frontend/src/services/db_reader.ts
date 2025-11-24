@@ -4,7 +4,8 @@ import z from "zod";
 
 class DBReader {
 
-    private static readonly READ_SOLVES_URL = "/api/db/solves/get";
+    private static readonly GET_ALL_SOLVES_URL = "/api/db/solves/getAll";
+    private static readonly GET_SOLVES_BY_DISCIPLINE = "/api/db/solves/getByDiscipline";
     private static readonly CHECK_HEALTH_URL = "/api/health";
     static #instance: DBReader;
 
@@ -19,10 +20,28 @@ class DBReader {
         return DBReader.#instance;
     }
 
-    public async getAllUserSolves(uuid: string, discipline: Discipline) {
+    public async getAllUserSolves(uuid: string) {
         try {
             const SolvesArraySchema = z.array(SolveSchema);
-            const response = await axios.get(DBReader.READ_SOLVES_URL, {
+            const response = await axios.get(DBReader.GET_ALL_SOLVES_URL, {
+                params: {
+                    uuid: uuid
+                }
+            });
+
+            const solves: ISolve[] = SolvesArraySchema.parse(response.data);
+            return solves;
+
+        } catch (error) {
+            console.error('Error fetching user solves:', error);
+            throw error;
+        }
+    }
+
+    public async getSolvesByDiscipline(uuid: string, discipline: Discipline) {
+        try {
+            const SolvesArraySchema = z.array(SolveSchema);
+            const response = await axios.get(DBReader.GET_SOLVES_BY_DISCIPLINE, {
                 params: {
                     uuid: uuid,
                     discipline: discipline,

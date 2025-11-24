@@ -1,17 +1,18 @@
-import { Discipline, inspectionLessDisciplines, type ISolve } from "@cubing/shared";
+import { Discipline, inspectionLessDisciplines, Status, type ISolve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { PercentileGauge } from "../components/graphs/PercentileGauge";
 import HCButton from "../components/HCButton";
 import AvgGraphs from "../components/timer/AvgGraphs";
 import LimitReachedDialog from "../components/timer/dialogs/LimitReachedDialog";
 import SolveDetailsScreen from "../components/timer/dialogs/SolveDetailsDialog";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerSettings from "../components/timer/TimerSettings";
-import TimerDisplay from "../components/timer/TimerText";
+import TimerDisplay, { ACTIVE_TIMER_STATUS } from "../components/timer/TimerText";
 import { useSolveManager } from "../hooks/useSolveManager";
 import { useTimerLogic } from "../hooks/useTimerLogic";
 import { useTimerSettings } from "../hooks/useTimerSettings";
@@ -29,6 +30,13 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         settings,
         selectedDiscipline
     );
+    const percentile = useMemo(() => {
+        if (solves.length === 0) return 100;
+        if (solves[0].status === Status.DNF) return 0;
+        const slowerSolvesCount = solves.filter(s => s.duration > solves[0].duration).length;
+        const rawPercent = (slowerSolvesCount / solves.length) * 100;
+        return Math.round(rawPercent);
+    }, [solves])
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
 
@@ -45,7 +53,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                         position: "absolute", right: 25, top: 25,
                         userSelect: "none"
                     }}
-                    onClick={() => { setSettingsOpen(true); }} isSelected={true}                >
+                    onClick={() => { setSettingsOpen(true); }} isSelected={true}>
                     <SettingsIcon />
                 </HCButton>
                 <Box sx={{ flex: 1 }}>
@@ -54,9 +62,12 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </ScrambleText>
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
-                    <Box sx={{ flex: 4, display: "grid", alignItems: "center" }}>
+                    <Box sx={{ flex: 4, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingBottom: "25px"}}>
                         <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
                             !inspectionLessDisciplines.includes(selectedDiscipline)} />
+                        {!ACTIVE_TIMER_STATUS.includes(timerStatus) &&
+                            <PercentileGauge percentile={percentile} />
+                        }
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
