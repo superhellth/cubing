@@ -9,7 +9,7 @@ function StatisticsScreen() {
     const { solves } =
         useSolveManager(selectedDiscipline);
     const solvesOfDiscipline = useMemo(() => {
-        return solves.filter((solve) => solve.discipline === selectedDiscipline);
+        return solves.filter((solve: ISolve) => solve.discipline === selectedDiscipline);
     }, [solves, selectedDiscipline]);
     const key: keyof ISolve = "duration";
 
