@@ -3,5 +3,10 @@ postgres command-line: psql
 start backend: node app.js
 
 NGINX Webserver config:
-sudo nano /etc/nginx/sites-available/my-react-app
-pm2 for running backend
+sudo certbot --nginx -d yourdomain.com
+sudo nano /etc/nginx/sites-available/highpercube
+
+PM2 for backend:
+pm2 start server.js --name "my-api"
+pm2 save
+pm2 startup

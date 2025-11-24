@@ -5,7 +5,7 @@ import z from "zod";
 class DBReader {
 
     private static readonly READ_SOLVES_URL = "/api/db/solves/get";
-    private static readonly CHECK_HEALTH_URL = "api/health";
+    private static readonly CHECK_HEALTH_URL = "/api/health";
     static #instance: DBReader;
 
     private constructor() {
@@ -43,11 +43,16 @@ class DBReader {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-            await fetch(DBReader.CHECK_HEALTH_URL, {
+            const response = await fetch(DBReader.CHECK_HEALTH_URL, {
                 signal: controller.signal
             });
 
             clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                return false;
+            }
+
             return true;
         } catch (error) {
             return false;

@@ -38,6 +38,7 @@ function App() {
   useEffect(() => {
     const checkStatus = async () => {
       const status = await dbReader.checkHealth();
+      console.log(status)
       setBackendOnline(status);
     };
     checkStatus();

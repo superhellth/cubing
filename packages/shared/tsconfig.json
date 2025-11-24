@@ -1,0 +1,18 @@
+{
+  // Visit https://aka.ms/tsconfig to read more about this file
+  "compilerOptions": {
+    // --- The key settings ---
+    "module": "CommonJS",           // 1. Tell TS to output CommonJS (`require`)
+    "esModuleInterop": true,        // 2. Allow you to write `import` for CommonJS libs
+    "moduleResolution": "Node",     // 3. Use the classic Node.js way to find modules
+    // "verbatimModuleSyntax": true, <-- DELETE OR SET TO FALSE
+    
+    // --- Other good settings ---
+    "target": "ES2020",
+    "outDir": "./dist",
+    "strict": true,
+    "declaration": true,
+    "skipLibCheck": true
+  },
+  "include": ["./index.ts"]
+}
