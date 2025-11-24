@@ -1,12 +1,15 @@
 switch to postgres user: sudo -i -u postgres
 postgres command-line: psql
-start backend: node app.js
 
 NGINX Webserver config:
 sudo certbot --nginx -d yourdomain.com
 sudo nano /etc/nginx/sites-available/highpercube
 
 PM2 for backend:
-pm2 start server.js --name "my-api"
+pm2 start ./dist/app.js --name "highpercube"
 pm2 save
 pm2 startup
+
+pm2 list
+pm2 delete <name>
+pm2 save
