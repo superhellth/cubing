@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import { Box, styled } from "@mui/system";
 
-export const ScreenContainer = styled(Box)(({ theme }) => ({
+export const ScreenContainer = styled(Box)(({ }) => ({
     display: 'flex',
     height: '100%',
     width: '100%',
@@ -25,7 +25,7 @@ export const HistoryPanel = styled(Box)(({ theme }) => ({
 
 export const ScrambleText = styled(Typography, {
     shouldForwardProp: (prop) => prop !== 'charCount',
-})<{ charCount: number }>(({ theme, charCount }) => {
+})<{ charCount: number }>(({ charCount }) => {
     let fontSize = '2rem';
     if (charCount > 130) fontSize = '1.3rem';
     else if (charCount > 70) fontSize = '1.6rem';
@@ -38,7 +38,7 @@ export const ScrambleText = styled(Typography, {
     };
 });
 
-export const StatText = styled(Typography)(({ theme }) => ({
+export const StatText = styled(Typography)(({ }) => ({
     fontSize: '3rem',
     fontFamily: '"Space Mono", monospace',
     lineHeight: 1.2,

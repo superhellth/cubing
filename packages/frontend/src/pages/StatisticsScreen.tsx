@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { useSolveManager } from "../hooks/useSolveManager";
 
 function StatisticsScreen() {
-    const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
+    const [selectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
     const { solves } =
         useSolveManager(selectedDiscipline);
     const solvesOfDiscipline = useMemo(() => {
