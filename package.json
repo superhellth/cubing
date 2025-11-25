@@ -18,7 +18,10 @@
     "@mui/icons-material": "^7.3.5",
     "@mui/system": "^7.3.5",
     "@mui/x-charts": "^8.18.0",
+    "downsample": "^1.4.0",
+    "downsample-lttb": "^0.0.1",
     "express-rate-limit": "^8.2.1",
+    "react-virtuoso": "^4.14.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {

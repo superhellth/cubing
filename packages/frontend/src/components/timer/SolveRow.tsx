@@ -1,21 +1,15 @@
 import { Status } from "@cubing/shared";
 import TableCell from "@mui/material/TableCell";
-import TableRow from "@mui/material/TableRow";
 import { memo } from "react";
 import { getDisplayableTime, getDisplayTime } from "../../utils/solveUtils";
 
-export const SolveRow = memo(({ solve, bestStats, openSolveDetailsScreen }: any) => {
+export const SolveRow = memo(({ solve, bestStats }: any) => {
     const isBestSingle = bestStats.single !== null && solve.duration === bestStats.single;
     const isBestAvg5 = bestStats.avg5 !== null && solve.avg5 === bestStats.avg5;
     const isBestAvg12 = bestStats.avg12 !== null && solve.avg12 === bestStats.avg12;
 
     return (
-        <TableRow onClick={() => openSolveDetailsScreen(solve)} hover sx={{
-            cursor: 'pointer',
-            '&:hover .MuiTableCell-root': {
-                bgcolor: 'secondary.light'
-            }
-        }}>
+        <>
             <TableCell>{solve.id}</TableCell>
 
             {/* Single */}
@@ -41,6 +35,6 @@ export const SolveRow = memo(({ solve, bestStats, openSolveDetailsScreen }: any)
             }}>
                 {getDisplayableTime(solve, 'avg12')}
             </TableCell>
-        </TableRow>
+        </>
     );
 });

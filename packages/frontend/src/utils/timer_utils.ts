@@ -27,54 +27,53 @@ export function useLocalStorage(key: string, initialValue: any) {
     return [storedValue, setValue];
 }
 
-export function useSolvesWithAverages (solves: ISolve[]) {
-        return useMemo(() => {
-            const processed = new Array(solves.length);
-            const calcAvg = (startIndex: number, length: number): number | null => {
-                if (startIndex + length > solves.length) return null;
+export function useSolvesWithAverages(solves: ISolve[]) {
+    return useMemo(() => {
+        const processed = new Array(solves.length);
+        const calcAvg = (startIndex: number, length: number): number | null => {
+            if (startIndex + length > solves.length) return null;
 
-                let sum = 0;
-                let min = Infinity;
-                let max = -Infinity;
-                let dnfCount = 0;
+            let sum = 0;
+            let min = Infinity;
+            let max = -Infinity;
+            let dnfCount = 0;
 
-                for (let i = 0; i < length; i++) {
-                    const s = solves[startIndex + i];
-                    if (s.status === Status.DNF) {
-                        dnfCount++;
-                        continue;
-                    }
-
-                    let time = s.duration;
-                    if (s.status === Status.PlusTwo) {
-                        time += 2000;
-                    }
-
-                    if (time < min) min = time;
-                    if (time > max) max = time;
-                    sum += time;
+            for (let i = 0; i < length; i++) {
+                const s = solves[startIndex + i];
+                if (s.status === Status.DNF) {
+                    dnfCount++;
+                    continue;
                 }
 
-                if (dnfCount > 1) {
-                    return -1;
-                }
-                if (dnfCount === 1) {
-                    return (sum - min) / (length - 2);
+                let time = s.duration;
+                if (s.status === Status.PlusTwo) {
+                    time += 2000;
                 }
 
-                return (sum - min - max) / (length - 2);
-            };
-
-            for (let i = 0; i < solves.length; i++) {
-                processed[i] = {
-                    ...solves[i],
-                    avg5: calcAvg(i, 5),
-                    avg12: calcAvg(i, 12),
-                    avg100: calcAvg(i, 100),
-                    avg1000: calcAvg(i, 1000)
-                };
+                if (time < min) min = time;
+                if (time > max) max = time;
+                sum += time;
             }
 
-            return processed;
-        }, [solves]);
-    };
+            if (dnfCount > 1) {
+                return -1;
+            }
+            if (dnfCount === 1) {
+                return (sum - min) / (length - 2);
+            }
+
+            return (sum - min - max) / (length - 2);
+        };
+
+        for (let i = 0; i < solves.length; i++) {
+            processed[i] = {
+                ...solves[i],
+                avg5: calcAvg(i, 5),
+                avg12: calcAvg(i, 12),
+                avg100: calcAvg(i, 100),
+                avg1000: calcAvg(i, 1000)
+            };
+        }
+        return processed;
+    }, [solves]);
+};

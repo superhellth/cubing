@@ -12,6 +12,7 @@ lerna-debug.log*
 *-lock.json
 *-lock.yaml
 licenses.json
+solves.txt
 dist
 dist-ssr
 *.local

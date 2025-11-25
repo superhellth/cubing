@@ -73,13 +73,11 @@ export const useSolveManager = (selectedDiscipline: Discipline) => {
         }
     }, [userID, currentScramble, selectedDiscipline]);
 
-    // 5. Action: Delete Solve
     const deleteSolve = useCallback((solveID: number) => {
-        dbWriter.deleteSolve(solveID); // Fire and forget (or await if you want strict consistency)
+        dbWriter.deleteSolve(solveID);
         setRawSolves(prev => prev.filter(s => s.id !== solveID));
     }, []);
 
-    // 6. Action: Update Status (+2, DNF, OK)
     const updateSolveStatus = useCallback((oldSolve: ISolve, newStatus: Status) => {
         const updatedSolve = solveWithUpdatedStatus(oldSolve, newStatus);
         dbWriter.updateSolveStatus(updatedSolve);

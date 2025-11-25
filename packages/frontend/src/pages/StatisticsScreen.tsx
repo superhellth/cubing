@@ -4,21 +4,30 @@ import { BarChart, LineChart, ScatterChart } from "@mui/x-charts";
 import { useMemo, useState } from "react";
 import RegressionLine from "../components/graphs/RegressionLine";
 import { useSolveManager } from "../hooks/useSolveManager";
+import { LTTB } from 'downsample';
+
+const samplingThreshold: number = 1000;
+const key: keyof ISolve = "duration";
 
 function StatisticsScreen() {
-    const [selectedDiscipline] = useState<Discipline>(Discipline.ThreeByThree);
+    const [selectedDiscipline] = useState<Discipline>(Discipline.OneHanded);
+    const [selectedSession] = useState<string>("default");
     const { solves } =
         useSolveManager(selectedDiscipline);
-    const solvesOfDiscipline = useMemo(() => {
-        return solves.filter((solve: ISolve) => solve.discipline === selectedDiscipline);
+    const relevantSolves = useMemo(() => {
+        const candidates: ISolve[] = solves.filter((solve: ISolve) => solve.discipline === selectedDiscipline && solve.session == selectedSession);
+        if (candidates.length > samplingThreshold) {
+
+        }
+        return candidates;
     }, [solves, selectedDiscipline]);
-    const key: keyof ISolve = "duration";
+
     const timeByDate = useMemo(() => {
-        return solvesOfDiscipline.map((solve: ISolve) => ({
+        return relevantSolves.map((solve: ISolve) => ({
             date: new Date(solve.date),
             time: solve.duration
         }))
-    }, [solvesOfDiscipline]);
+    }, [relevantSolves]);
     const pbProgression = useMemo(() => {
         const pbs: ISolve[] = [];
         for (let solve of solves) {
@@ -35,16 +44,19 @@ function StatisticsScreen() {
 
     const nBins: number = 9;
     const timeBins = useMemo(() => {
-        const relevantDataPoints: (number)[] = solves.filter((solve: ISolve) => solve[key]).map((solve: ISolve) => solve[key]);
-        const highest: number = Math.max(...relevantDataPoints);
-        const lowest: number = Math.min(...relevantDataPoints);
+        const relevantDataPoints: any[] = solves.filter((solve: ISolve) => solve[key]).map((solve: ISolve) => ({x: solve.date, y: solve[key]}));
+        const highest: number = Math.max(...relevantDataPoints.map((point: any) => point.y));
+        const lowest: number = Math.min(...relevantDataPoints.map((point: any) => point.y));
         const binSize: number = (highest - lowest) / nBins;
         const bins: number[][] = Array.from({ length: nBins }, () => []);
+        if (relevantSolves.length <= 1) return [];
+        console.log(relevantDataPoints)
+        const sampled = LTTB(relevantDataPoints, 500);
 
-        for (let time of relevantDataPoints) {
-            let index: number = Math.floor((time - lowest) / binSize)
+        for (let point of sampled) {
+            let index: number = Math.floor((point.y - lowest) / binSize)
             if (index >= nBins) index = nBins - 1;
-            bins[index].push(time);
+            bins[index].push(point.y);
         }
 
         return bins.map((bin: number[], index: number) => ({
@@ -52,7 +64,7 @@ function StatisticsScreen() {
             range: `${(lowest + index * binSize).toFixed(2)} - ${(lowest + (index + 1) * binSize).toFixed(2)}`,
             entries: bin.length
         }));
-    }, [nBins, solvesOfDiscipline, key]);
+    }, [nBins, relevantSolves, key]);
 
     return (
         <Grid container spacing={2} sx={{ height: "100%", bgcolor: "primary.main" }}>
@@ -64,7 +76,7 @@ function StatisticsScreen() {
                 }]} />
             </Grid>
             <Grid size={5}>
-                {solvesOfDiscipline.length > 0 &&
+                {relevantSolves.length > 0 &&
                     <ScatterChart dataset={timeByDate} xAxis={[{ scaleType: "time", dataKey: "date", label: "All Solves" }]} series={[{
                         id: "scatter",
                         datasetKeys: { x: "date", y: "time" }
