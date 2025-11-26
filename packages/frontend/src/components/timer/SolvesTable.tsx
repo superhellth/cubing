@@ -97,10 +97,10 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                 sx={{
                                     cursor: 'pointer',
                                     '&:hover .MuiTableCell-root': {
-                                        bgcolor: theme.palette.primary.light
+                                        bgcolor: theme.palette.secondary.light
                                     },
                                     '.MuiTableCell-root': {
-                                        bgcolor: theme.palette.primary.main
+                                        bgcolor: theme.palette.secondary.main
                                     },
                                 }}
                             />
@@ -123,7 +123,7 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                         fontSize: '1.3rem',
                                         fontWeight: "bold",
                                         borderColor: theme.palette.info.main, 
-                                        bgcolor: theme.palette.primary.dark,
+                                        bgcolor: theme.palette.secondary.dark,
                                     }}
                                 >
                                     <TableSortLabel
