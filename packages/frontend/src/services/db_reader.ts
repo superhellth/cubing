@@ -5,7 +5,7 @@ import z from "zod";
 class DBReader {
 
     private static readonly GET_ALL_SOLVES_URL = "/api/db/solves/getAll";
-    private static readonly GET_SOLVES_BY_DISCIPLINE = "/api/db/solves/getByDiscipline";
+    private static readonly GET_SOLVES_BY_DISCIPLINE_AND_SESSION = "/api/db/solves/getByDisciplineAndSession";
     private static readonly CHECK_HEALTH_URL = "/api/health";
     static #instance: DBReader;
 
@@ -38,13 +38,14 @@ class DBReader {
         }
     }
 
-    public async getSolvesByDiscipline(uuid: string, discipline: Discipline) {
+    public async getSolvesByDisciplineAndSession(uuid: string, discipline: Discipline, session: string) {
         try {
             const SolvesArraySchema = z.array(SolveSchema);
-            const response = await axios.get(DBReader.GET_SOLVES_BY_DISCIPLINE, {
+            const response = await axios.get(DBReader.GET_SOLVES_BY_DISCIPLINE_AND_SESSION, {
                 params: {
                     uuid: uuid,
                     discipline: discipline,
+                    session: session
                 }
             });
 

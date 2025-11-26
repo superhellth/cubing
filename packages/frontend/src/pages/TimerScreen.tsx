@@ -24,7 +24,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const { solves, addSolve, deleteSolve, updateSolveStatus, currentScramble } =
-        useSolveManager(selectedDiscipline);
+        useSolveManager(selectedDiscipline, "default");
 
     const { timerStatus } = useTimerLogic(
         settings,

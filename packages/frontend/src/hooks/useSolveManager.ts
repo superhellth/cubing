@@ -10,7 +10,7 @@ const dbWriter = DBWriter.instance;
 const dbReader = DBReader.instance;
 const scrambleGenerator = new Scrambler();
 
-export const useSolveManager = (selectedDiscipline: Discipline) => {
+export const useSolveManager = (selectedDiscipline: Discipline, selectedSession: string) => {
     const [rawSolves, setRawSolves] = useState<ISolve[]>([]);
     const [currentScramble, setCurrentScramble] = useState<string>("");
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
@@ -31,7 +31,7 @@ export const useSolveManager = (selectedDiscipline: Discipline) => {
 
         const initData = async () => {
             try {
-                const fetchedSolves = await dbReader.getSolvesByDiscipline(userID, selectedDiscipline);
+                const fetchedSolves = await dbReader.getSolvesByDisciplineAndSession(userID, selectedDiscipline, selectedSession);
                 if (mounted) {
                     setRawSolves(fetchedSolves);
                     setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));

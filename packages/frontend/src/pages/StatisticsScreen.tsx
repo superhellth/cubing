@@ -2,43 +2,21 @@ import { Discipline, type ISolve } from "@cubing/shared";
 import { Grid } from "@mui/system";
 import { LTTB } from 'downsample';
 import { useMemo, useState } from "react";
-import { useOutlierDetection } from "../hooks/useOutlierDetection";
-import { useSolveManager } from "../hooks/useSolveManager";
 import ImprovementChart from "../components/graphs/ImprovementChart";
-import LineWithUncertaintyArea from "../components/graphs/TestGraph";
+import { useSolveManager } from "../hooks/useSolveManager";
 
-const samplingThreshold: number = 50;
+const samplingThreshold: number = 1000;
 const key: keyof ISolve = "duration";
 
 function StatisticsScreen() {
     const [selectedDiscipline] = useState<Discipline>(Discipline.OneHanded);
     const [selectedSession] = useState<string>("default");
     const { solves } =
-        useSolveManager(selectedDiscipline);
-    const relevantSolves = useMemo(() => {
-        const candidates: ISolve[] = solves.filter((solve: ISolve) => solve.discipline === selectedDiscipline && solve.session == selectedSession);
-        if (candidates.length > samplingThreshold) {
-            const mappedData = solves.map((solve) => ({
-                x: solve.date,
-                y: solve.duration,
-                original: solve
-            }));
-            return LTTB(mappedData, samplingThreshold).map((point: any) => point.original);
-        }
-        return candidates;
-    }, [solves, selectedDiscipline]);
-    const { nonOutliers, outliers, thresholds } = useOutlierDetection(relevantSolves);
+        useSolveManager(selectedDiscipline, selectedSession);
 
-    const timeByDate = useMemo(() => {
-        return relevantSolves.map((solve: ISolve) => ({
-            date: new Date(solve.date),
-            id: solve.id,
-            time: solve.duration
-        }))
-    }, [relevantSolves]);
-    const pbProgression = useMemo(() => {
+    const pbs = useMemo(() => {
         const pbs: ISolve[] = [];
-        for (let solve of solves.reverse()) {
+        for (let solve of [...solves].reverse()) {
             if (pbs.length == 0 || pbs[pbs.length - 1].duration > solve.duration) {
                 pbs.push(solve);
             }
@@ -46,26 +24,48 @@ function StatisticsScreen() {
         return pbs;
     }, [solves]);
 
-    const nBins: number = 20;
-    const timeBins = useMemo(() => {
-        if (!nonOutliers || nonOutliers.length <= 1) return [];
-        const highest: number = Math.max(...nonOutliers.map((solve: ISolve) => solve.duration));
-        const lowest: number = Math.min(...nonOutliers.map((solve: ISolve) => solve.duration));
-        const binSize: number = (highest - lowest) / nBins;
-        const bins: number[][] = Array.from({ length: nBins }, () => []);
-
-        for (let solve of nonOutliers) {
-            let index: number = Math.floor((solve.duration - lowest) / binSize)
-            if (index >= nBins) index = nBins - 1;
-            bins[index].push(solve.duration);
+    const downsampledSolves = useMemo(() => {
+        if (solves.length > samplingThreshold) {
+            const mappedData = solves.map((solve) => ({
+                x: solve.date,
+                y: solve.duration,
+                original: solve
+            }));
+            const downsampled = LTTB(mappedData, samplingThreshold).map((point: any) => point.original);
+            return [...new Set([...downsampled, ...pbs])].sort((a: any, b: any) => {return b.date - a.date});
         }
+        return solves;
+    }, [solves]);
+    // const { nonOutliers, outliers, thresholds } = useOutlierDetection(downsampledSolves);
 
-        return bins.map((bin: number[], index: number) => ({
-            id: index,
-            range: `${(lowest + index * binSize).toFixed(2)} - ${(lowest + (index + 1) * binSize).toFixed(2)}`,
-            entries: bin.length
-        }));
-    }, [nBins, nonOutliers, key]);
+    // const timeByDate = useMemo(() => {
+    //     return downsampledSolves.map((solve: ISolve) => ({
+    //         date: new Date(solve.date),
+    //         id: solve.id,
+    //         time: solve.duration
+    //     }))
+    // }, [downsampledSolves]);
+
+    // const nBins: number = 20;
+    // const timeBins = useMemo(() => {
+    //     if (!nonOutliers || nonOutliers.length <= 1) return [];
+    //     const highest: number = Math.max(...nonOutliers.map((solve: ISolve) => solve.duration));
+    //     const lowest: number = Math.min(...nonOutliers.map((solve: ISolve) => solve.duration));
+    //     const binSize: number = (highest - lowest) / nBins;
+    //     const bins: number[][] = Array.from({ length: nBins }, () => []);
+
+    //     for (let solve of nonOutliers) {
+    //         let index: number = Math.floor((solve.duration - lowest) / binSize)
+    //         if (index >= nBins) index = nBins - 1;
+    //         bins[index].push(solve.duration);
+    //     }
+
+    //     return bins.map((bin: number[], index: number) => ({
+    //         id: index,
+    //         range: `${(lowest + index * binSize).toFixed(2)} - ${(lowest + (index + 1) * binSize).toFixed(2)}`,
+    //         entries: bin.length
+    //     }));
+    // }, [nBins, nonOutliers, key]);
 
     return (
         <Grid container spacing={2} sx={{ height: "100%", bgcolor: "primary.main" }}>
@@ -86,12 +86,12 @@ function StatisticsScreen() {
                     </ScatterChart>
                 }
             </Grid> */}
-            <Grid size={6}>
-                <ImprovementChart solves={relevantSolves} pbProgression={pbProgression} />
+            <Grid size={12}>
+                <ImprovementChart solves={downsampledSolves} pbProgression={pbs} />
             </Grid>
-            <Grid size={6}>
+            {/* <Grid size={6}>
                 <LineWithUncertaintyArea />
-            </Grid>
+            </Grid> */}
         </Grid>
     );
 }

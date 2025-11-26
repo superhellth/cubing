@@ -1,89 +1,111 @@
 import type { ISolve } from "@cubing/shared";
-import { ChartContainer, ChartsGrid, ChartsTooltip, ChartsXAxis, ChartsYAxis, LinePlot, ScatterPlot } from "@mui/x-charts";
+import { ChartContainer, ChartsGrid, ChartsTooltip, ChartsXAxis, ChartsYAxis, LinePlot, MarkPlot, ScatterPlot } from "@mui/x-charts";
 import { memo, useMemo } from "react";
+import { HoltsLinear } from "../../utils/holtsLinear";
 import { LinkPoints } from "./LinkPoints";
-import { CustomAnimatedLine, ShadedBackground } from "./PredictionArea";
+import { CustomAnimatedLine, ForecastArea, ShadedBackground } from "./PredictionArea";
+import theme from "../../styles/theme";
+import { Card, Paper } from "@mui/material";
+import { Grid } from "@mui/system";
+import Timer from "../../utils/timer";
 
-const ImprovementChart = memo(({ solves, pbProgression }: any) => {
+const ImprovementChart = memo(({ solves, pbProgression, display = ["avg100", "avg1000"], predict = "avg100", showConfidence = true }:
+    { solves: ISolve[], pbProgression: ISolve[], display: (keyof ISolve)[], predict: keyof ISolve, showConfidence: boolean }) => {
     if (!solves || solves.length < 1) return;
-    const forecastData = [
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 },
-        { y0: 20000, y1: 30000 }
-    ];
-    const lastSolve = solves[0];
+    const lastIndex = solves.length - 1;
+
+    const forecaster = useMemo(() => {
+        const chronologicalSolves: ISolve[] = [...solves].reverse();
+        const averages: number[] = chronologicalSolves.map((solve: ISolve) => solve[predict]).filter((n): n is number => n !== undefined && n !== null);
+        const { alpha, beta } = HoltsLinear.optimize(averages);
+        const forecaster = new HoltsLinear({ alpha, beta });
+        averages.forEach((val: number) => forecaster.update(val));
+        return forecaster;
+    }, [solves])
+
+    const { predictedSolves, confidences } = useMemo(() => {
+        const predicted = [];
+        const confidences = [];
+        for (let i = 0; i < 12; i++) {
+            const { forecast, lower, upper } = forecaster.predictInterval(i + 1, 0.95);
+            predicted.push({
+                id: lastIndex + i + 1, avg5: predict == "avg5" ? forecast : null, avg12: predict == "avg12" ? forecast : null,
+                avg100: predict == "avg100" ? forecast : null, avg1000: predict == "avg1000" ? forecast : null, pb: null, index: i
+            });
+            confidences.push({ y0: lower, y1: upper });
+        }
+        return { predictedSolves: predicted, confidences }
+    }, [forecaster]);
 
     const { extendedSolves, limitIndex } = useMemo(() => {
-        if (!solves || solves.length === 0) return { extendedSolves: [], limitIndex: 0, limitValue: 0 };
-        const lastSolve = solves[0];
-        console.log(lastSolve)
-        const lastID = lastSolve.id;
-
-        const futureSolves = forecastData.map((_, i) => ({
-            id: lastID + (10 * i) + 1,
-            avg12: 25000,
-            avg100: 25000
+        const pbIds = new Set(pbProgression.map(s => s.id));
+        const reversedHistory = [...solves].reverse().map((solve, index) => ({
+            ...solve,
+            // If this solve ID is in our PB list, add the value, otherwise null
+            pb: pbIds.has(solve.id) ? solve.duration : null,
+            index: index
         }));
-        console.log(solves.length)
-        console.log([...futureSolves.reverse(), ...solves])
-
         return {
-            extendedSolves: [...futureSolves, ...solves],
-            limitIndex: lastID
+            // 3. Merge history with predictions (predictions don't have PBs)
+            extendedSolves: [...reversedHistory, ...predictedSolves],
+            limitIndex: lastIndex
         };
-    }, [solves, forecastData]);
+    }, [solves, predictedSolves, pbProgression]);
 
 
     const pbs: any = useMemo(() => {
         return pbProgression.map((solve: ISolve) => {
-            return { x: solve.id, y: solve.duration }
+            return { x: solves.length - 1 - solves.indexOf(solve), y: solve.duration }
         });
     }, [solves]);
 
+    const displaySeries: any = display.map((key: keyof ISolve) => {
+        return {
+            type: "line",
+            dataKey: key,
+            label: key,
+            valueFormatter: (v: number) => Timer.formatTime(v)
+        }
+    })
+
     return (
+
         <ChartContainer
-            dataset={extendedSolves}
+            dataset={extendedSolves as any}
             series={[
+                ...displaySeries,
                 {
-                    type: "line",
-                    dataKey: "avg12",
-                    label: "Average of 12"
-                },
-                // {
-                //     type: "line",
-                //     dataKey: "avg100",
-                //     label: "Average of 100"
-                // },
-                // {
-                //     type: "scatter",
-                //     id: "pb-scatter",
-                //     data: pbs,
-                // }
+                    type: "scatter",
+                    id: "pb-scatter",
+                    label: "Personal Best",
+                    datasetKeys: { x: 'index', y: 'pb' },
+                    color: theme.palette.info.main,
+                    dataKey: "pb",
+                    markerSize: 5,
+                    valueFormatter: (v) => (v != null && v.y != null) ? Timer.formatTime(v.y) : null
+                }
             ]}
+            voronoiMaxRadius={50}
             sx={{ '& .line-after path': { strokeDasharray: '10 5' } }}
-            xAxis={[{ scaleType: 'linear', dataKey: "id" }]}
+            xAxis={[{
+                scaleType: 'linear', data: extendedSolves.map((_, index) => index), min: 0,
+                max: extendedSolves.length - 1,
+            }]}
         >
-            {/* <ScatterPlot /> */}
-            {/* <LinkPoints seriesId="pb-scatter" /> */}
+            <ShadedBackground limit={limitIndex} />
+            <LinkPoints seriesId="pb-scatter" />
             <ChartsGrid horizontal />
 
-            <ShadedBackground limit={limitIndex} />
             <LinePlot
                 slots={{ line: CustomAnimatedLine }}
-                slotProps={{ line: { limit: 0 } as any }}
+                slotProps={{ line: { limit: limitIndex } as any }}
             />
-            {/* <ForecastArea limit={limitIndex} forecast={[{ y0: lastSolve.avg12, y1: lastSolve.avg12 }, ...forecastData]} /> */}
-
-            {/* <ChartsTooltip trigger="axis" /> */}
+            <ScatterPlot />
+            {showConfidence &&
+                <ForecastArea limit={limitIndex} forecast={confidences} />
+            }
+            {/* <MarkPlot /> */}
+            <ChartsTooltip trigger="axis" />
             <ChartsXAxis />
             <ChartsYAxis />
 

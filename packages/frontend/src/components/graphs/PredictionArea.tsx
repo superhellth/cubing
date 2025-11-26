@@ -1,8 +1,9 @@
-import { useTheme, type SxProps, type Theme } from "@mui/system";
+import { alpha, useTheme, type SxProps, type Theme } from "@mui/system";
 import type { AnimatedLineProps } from "@mui/x-charts";
 import { AnimatedLine, useChartId, useDrawingArea, useLineSeries, useXAxis, useXScale, useYScale } from "@mui/x-charts";
 import * as d3Shape from 'd3-shape';
 import React from "react";
+import theme from "../../styles/theme";
 
 interface CustomAnimatedLineProps extends AnimatedLineProps {
     limit?: number;
@@ -58,13 +59,7 @@ export function CustomAnimatedLine(props: CustomAnimatedLineProps) {
     );
 }
 
-export function ForecastArea({
-    limit,
-    forecast,
-}: {
-    limit: number;
-    forecast: { y0: number; y1: number }[];
-}) {
+export function ForecastArea({ limit, forecast }: { limit: number; forecast: { y0: number; y1: number }[]; }) {
     const lineSeries = useLineSeries();
     const xAxis = useXAxis();
     const xScale = useXScale();
@@ -85,8 +80,8 @@ export function ForecastArea({
                     // If the slice included an extra "connecting point" at the start,
                     // we might need to shift the index or clamp it.
                     // For now, let's just use the current index `i`.
-                    const point = forecast[i]; 
-                    
+                    const point = forecast[i];
+
                     // If we run out of forecast data, return null to skip
                     if (!point) return null;
 
@@ -105,7 +100,7 @@ export function ForecastArea({
                     .y0((d) => yScale(d.y0)!)
                     .y1((d) => yScale(d.y1)!)(data)!;
 
-                return <path key={`forecast-area-${series.id}`} d={path} fill="#0000ff44" />;
+                return <path key={`forecast-area-${series.id}`} d={path} fill={alpha(theme.palette.secondary.light, 0.3)} />;
             })}
         </React.Fragment>
     );
@@ -116,10 +111,7 @@ export function ShadedBackground({ limit }: { limit: number }) {
     const scale = useXScale();
     const limitPosition = scale(limit)!;
     const theme = useTheme();
-    const fill =
-        theme.palette.mode === 'dark'
-            ? theme.palette.grey[900]
-            : theme.palette.grey[400];
+    const fill = theme.palette.secondary.light;
 
     return (
         <rect

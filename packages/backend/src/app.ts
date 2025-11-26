@@ -54,20 +54,21 @@ const GetAllSolvesQS = z.object({
     uuid: z.uuid()
 });
 
-const GetSolvesByDisciplineQS = z.object({
+const GetSolvesByDisciplineAndSessionQS = z.object({
     uuid: z.uuid(),
-    discipline: z.enum(Discipline)
+    discipline: z.enum(Discipline),
+    session: z.string()
 });
 
-app.get("/api/db/solves/getByDiscipline", updateLimit, async (req: Request, res: Response) => {
+app.get("/api/db/solves/getByDisciplineAndSession", updateLimit, async (req: Request, res: Response) => {
     try {
-        const queryParams = GetSolvesByDisciplineQS.parse(req.query);
+        const queryParams = GetSolvesByDisciplineAndSessionQS.parse(req.query);
 
         const queryText = `SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
                 FROM solves
-                WHERE uuid = $1 AND discipline = $2
+                WHERE uuid = $1 AND discipline = $2 AND session = $3
                 ORDER BY date DESC`;
-        const queryValues = [queryParams.uuid, queryParams.discipline];
+        const queryValues = [queryParams.uuid, queryParams.discipline, queryParams.session];
 
         const result = await pool.query(queryText, queryValues);
         res.status(201).json(result.rows);

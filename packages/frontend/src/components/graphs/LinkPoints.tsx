@@ -1,4 +1,5 @@
 import { useScatterSeries, useXScale, useYScale } from "@mui/x-charts";
+import theme from "../../styles/theme";
 
 export function LinkPoints({ seriesId }: { seriesId: string }) {
     const scatter = useScatterSeries(seriesId);
@@ -30,7 +31,7 @@ export function LinkPoints({ seriesId }: { seriesId: string }) {
         <path
             d={dPath}
             fill="none"
-            stroke="red" // Or use {color} from the series
+            stroke={theme.palette.info.main} // Or use {color} from the series
             strokeWidth={2}
             strokeDasharray="5 5" // Optional: make it dashed to look like a "trend"
             style={{ pointerEvents: 'none' }}
