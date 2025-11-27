@@ -7,23 +7,22 @@ import Timer from "../../utils/timer";
 import { CustomItemTooltip } from "./CustomTooltip";
 import { CustomAnimatedLine, ForecastArea, ShadedBackground } from "./PredictionArea";
 
-const ImprovementChart = memo(({ solves, pbProgression, display = ["avg100", "avg1000"], predict = "avg100", showConfidence = true }:
-    { solves: ISolve[], pbProgression: ISolve[], display: (keyof ISolve)[], predict: keyof ISolve, showConfidence: boolean }) => {
-    if (!solves || solves.length < 1) return;
-    const lastIndex = solves.length - 1;
-    const chronologicalSolves = useMemo(() => [...solves].reverse(), [solves]);
+const ImprovementChart = memo(({ solvesChronological, pbProgression, display = ["avg100", "avg1000"], predict = "avg100", showConfidence = true }:
+    { solvesChronological: ISolve[], pbProgression: ISolve[], display: (keyof ISolve)[], predict: keyof ISolve, showConfidence: boolean }) => {
+    if (!solvesChronological || solvesChronological.length < 1) return;
+    const lastIndex = solvesChronological.length - 1;
 
     const forecaster = useMemo(() => {
-        const averages: number[] = chronologicalSolves.map((solve: ISolve) => solve[predict]).filter((n): n is number => n !== undefined && n !== null);
+        const averages: number[] = solvesChronological.map((solve: ISolve) => solve[predict]).filter((n): n is number => n !== undefined && n !== null);
         const { alpha, beta } = HoltsLinear.optimize(averages);
         const forecaster = new HoltsLinear({ alpha, beta });
         averages.forEach((val: number) => forecaster.update(val));
         return forecaster;
-    }, [chronologicalSolves])
+    }, [solvesChronological])
 
     const { predictedSolves, confidences } = useMemo(() => {
         const predicted = [];
-        const confidences: any = [{ y0: chronologicalSolves[lastIndex][predict], y1: chronologicalSolves[lastIndex][predict] }];
+        const confidences: any = [{ y0: solvesChronological[lastIndex][predict], y1: solvesChronological[lastIndex][predict] }];
         for (let i = 0; i < 12; i++) {
             const { forecast, lower, upper } = forecaster.predictInterval(i + 1, 0.95);
             predicted.push({
@@ -40,7 +39,7 @@ const ImprovementChart = memo(({ solves, pbProgression, display = ["avg100", "av
         let runningIndex: number = 0;
         const solvesWithPb: any[] = [];
         let newPB: boolean = false;
-        for (let solve of chronologicalSolves) {
+        for (let solve of solvesChronological) {
             if (currentPb == -1 || solve.duration < currentPb) {
                 currentPb = solve.duration;
                 newPB = true;
@@ -60,14 +59,14 @@ const ImprovementChart = memo(({ solves, pbProgression, display = ["avg100", "av
             extendedSolves: [...solvesWithPb, ...predictedSolves],
             xAxisData: finalSolves.map((_, i) => i)
         };
-    }, [chronologicalSolves, predictedSolves]);
+    }, [solvesChronological, predictedSolves]);
 
 
     const pbs: any = useMemo(() => {
         return pbProgression.map((solve: ISolve) => {
-            return { x: solves.length - 1 - solves.indexOf(solve), y: solve.duration }
+            return { x: solvesChronological.indexOf(solve), y: solve.duration }
         });
-    }, [solves]);
+    }, [solvesChronological]);
 
     const displaySeries: any = useMemo(() => {
         const series: any[] = display.map((key: keyof ISolve) => {

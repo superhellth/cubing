@@ -100,4 +100,4 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
     );
 });
 
-export default memo(TimeDisplay); // Memoize the entire component
+export default TimeDisplay; // Memoize the entire component
