@@ -100,7 +100,7 @@ export function ForecastArea({ limit, forecast }: { limit: number; forecast: { y
                     .y0((d) => yScale(d.y0)!)
                     .y1((d) => yScale(d.y1)!)(data)!;
 
-                return <path key={`forecast-area-${series.id}`} d={path} fill={alpha(theme.palette.secondary.light, 0.3)} />;
+                return <path key={`forecast-area-${series.id}`} d={path} fill={alpha(theme.palette.secondary.light, 0.1)} />;
             })}
         </React.Fragment>
     );
