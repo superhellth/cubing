@@ -1,9 +1,7 @@
 import { Status, type ISolve } from "@cubing/shared";
 import Timer from "./timer";
 
-export type TimeKey = 'duration' | 'avg5' | 'avg12' | 'avg100' | 'avg1000';
-
-export function getDisplayableTime(solve: ISolve, key: TimeKey) {
+export function getDisplayableTime(solve: ISolve, key: keyof ISolve) {
     if (key == "duration") return getDisplayTime(solve);
     const time = solve[key];
     if (time === -1) {

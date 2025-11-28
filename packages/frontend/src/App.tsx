@@ -4,14 +4,14 @@ import { ThemeProvider } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import theme from './styles/theme';
 import './App.css';
-import Licenses from './pages/LicenseScreen';
-import DBReader from './services/db_reader';
 import Sidebar from './components/navigation/Sidebar';
-import TimerScreen from './pages/TimerScreen';
-import { useLocalStorage } from './utils/timer_utils';
+import { useLocalStorage } from './hooks/useLocalStorage';
+import Licenses from './pages/LicenseScreen';
 import StatisticsScreen from './pages/StatisticsScreen';
+import TimerScreen from './pages/TimerScreen';
+import DBReader from './services/dbReader';
+import theme from './styles/theme';
 
 const dbReader: DBReader = DBReader.instance;
 

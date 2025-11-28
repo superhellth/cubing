@@ -7,7 +7,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Box from '@mui/system/Box';
 import { memo, useMemo } from "react";
-import { getDisplayableTime, type TimeKey } from '../../utils/solveUtils';
+import { getDisplayableTime } from '../../utils/solveUtils';
 import Timer from "../../utils/timer";
 import SolvesTable from './SolvesTable';
 
@@ -84,7 +84,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
 
                                         {/* Current Stat */}
                                         <TableCell>
-                                            {latestSolve ? getDisplayableTime(latestSolve, row.id as TimeKey) : "-"}
+                                            {latestSolve ? getDisplayableTime(latestSolve, row.id as keyof ISolve) : "-"}
                                         </TableCell>
                                     </TableRow>
                                 );
@@ -100,4 +100,4 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
     );
 });
 
-export default TimeDisplay; // Memoize the entire component
+export default TimeDisplay;

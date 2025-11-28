@@ -1,6 +1,17 @@
 import { red } from '@mui/material/colors';
-import { createTheme, duration } from '@mui/material/styles';
-import tinycolor from 'tinycolor2';
+import '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
+import type { } from '@mui/x-charts/themeAugmentation';
+
+declare module '@mui/material/styles' {
+    interface Palette {
+        graphColors: Record<string, string>;
+    }
+
+    interface PaletteOptions {
+        graphColors?: Record<string, string>;
+    }
+}
 
 const primary = "#222831";
 const primaryLight = "#343d4b";
@@ -13,18 +24,6 @@ const accentDarker = "#007980";
 const accentLighter = "#00dae6";
 const text = "#EEEEEE";
 const background = "#000000";
-
-function generateDoubleTriad(baseColor: string): string[] {
-    const start = tinycolor(baseColor);
-    const colors: string[] = [];
-
-    // 0, 60, 120, 180, 240, 300
-    for (let i = 0; i < 6; i++) {
-        colors.push(start.clone().spin(i * 60).toHexString());
-    }
-
-    return [...colors].reverse();
-}
 
 const theme = createTheme({
     palette: {
@@ -65,7 +64,6 @@ const theme = createTheme({
             duration: "#F0E442",
         }
     },
-    // lineGraphColorList: ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#F0E442"],
     typography: {
         fontFamily: [
             "Space Mono",

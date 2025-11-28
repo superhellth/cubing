@@ -35,7 +35,6 @@ const AvgGraphs = memo(({ solves, xByDate }: { solves: ISolve[], xByDate: boolea
     return (
         <Box>
             <LineChart
-                // experimentalFeatures={{ preferStrictDomainInLineCharts: true }}
                 dataset={chartData}
                 xAxis={[{
                     label: xByDate ? "Date" : "ID",

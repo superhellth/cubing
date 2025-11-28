@@ -135,7 +135,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                         Cancel
                     </Button>
                     <Button onClick={() => {
-                        onDeleteSolve(solve.id);
+                        onDeleteSolve(solve.pk);
                         setOpenDeleteDialog(false)
                     }} color="error">
                         Delete

@@ -51,10 +51,10 @@ class DBWriter {
         }
     }
 
-    public async deleteSolve(solveID: number) {
+    public async deleteSolve(pk: bigint) {
         try {
             const response = await axios.post(DBWriter.DELETE_SOLVE_URL, {
-                solveID: solveID
+                pk: pk.toString()
             });
 
             return response.data;

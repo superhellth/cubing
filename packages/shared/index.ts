@@ -31,33 +31,17 @@ export const DISCIPLINE_LABELS = Object.entries(Discipline).map(([key, value]) =
     value: value,
 }));
 
-export interface ISolve {
-    readonly pk: bigint;
-    readonly id: number;
-    readonly uuid: string;
-    readonly discipline: Discipline;
-    readonly session: string;
-    readonly duration: number;
-    readonly date: Date;
-    readonly scramble: string;
-    readonly status: Status;
-    readonly avg5?: number;
-    readonly avg12?: number;
-    readonly avg100?: number;
-    readonly avg1000?: number;
-}
-
 export const keyToLabels = {
-  avg5: "Ao5",
-  avg12: "Ao12",
-  avg100: "Ao100",
-  avg1000: "Ao1000"
+    avg5: "Ao5",
+    avg12: "Ao12",
+    avg100: "Ao100",
+    avg1000: "Ao1000"
 };
 
-export type INewSolve = Omit<ISolve, 'id'>;
 
 export const SolveSchema = z.object({
-    id: z.coerce.number().int(),
+    pk: z.coerce.bigint(),
+    id: z.coerce.number(),
     uuid: z.uuid(),
     discipline: z.enum(Discipline),
     session: z.string(),
@@ -70,4 +54,8 @@ export const SolveSchema = z.object({
     avg100: z.number().optional(),
     avg1000: z.number().optional()
 });
-export const NewSolveSchema = SolveSchema.omit({ id: true });
+
+export const NewSolveSchema = SolveSchema.omit({ id: true, pk: true });
+
+export type ISolve = z.infer<typeof SolveSchema>;
+export type INewSolve = z.infer<typeof NewSolveSchema>;

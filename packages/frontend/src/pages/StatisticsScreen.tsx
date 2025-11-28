@@ -10,6 +10,11 @@ import DistributionCard from "../components/graphs/DistributionCard";
 
 const samplingThreshold: number = 500;
 const display: (keyof ISolve)[] = ["avg5", "avg12", "avg100", "avg1000"];
+interface LTTBPoint {
+    x: number;
+    y: number;
+    original: ISolve; // Or whatever your original data type is
+}
 
 function StatisticsScreen() {
     const [selectedDiscipline] = useState<Discipline>(Discipline.OneHanded);
@@ -35,8 +40,9 @@ function StatisticsScreen() {
                 y: solve.duration,
                 original: solve
             }));
-            const downsampled = LTTB(mappedData, samplingThreshold).map((point: any) => point.original);
-            return [...new Set([...downsampled, ...pbs])].sort((a: any, b: any) => { return a.date - b.date });
+            const sampledPoints = LTTB(mappedData, samplingThreshold) as LTTBPoint[];
+            const sampledSolves = sampledPoints.map((point: any) => point.original);
+            return [...new Set([...sampledSolves, ...pbs])].sort((a: any, b: any) => { return a.date - b.date });
         }
         return [...new Set([...solvesWithRelevantAverages, ...pbs])];
     }, [solves]);
@@ -53,7 +59,7 @@ function StatisticsScreen() {
                 <ActivityCard />
             </Grid>
             <Grid size={12}>
-                <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} display={display} predict={["avg5", "avg12", "avg100", "avg1000"]} showConfidence={true} />
+                <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} display={display} predict={display} showConfidence={true} />
             </Grid>
         </Grid >
     );

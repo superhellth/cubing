@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import DBReader from '../services/db_reader';
+import DBReader from '../services/dbReader';
 
 const dbReader = DBReader.instance;
 

@@ -13,11 +13,11 @@ import SolveDetailsScreen from "../components/timer/dialogs/SolveDetailsDialog";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerSettings from "../components/timer/TimerSettings";
 import TimerDisplay, { ACTIVE_TIMER_STATUS } from "../components/timer/TimerText";
-import { useSolveManager } from "../hooks/useSolveManager";
 import { useTimerLogic } from "../hooks/useTimerLogic";
 import { useTimerSettings } from "../hooks/useTimerSettings";
 import { getDisplayableTime } from "../utils/solveUtils";
 import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
+import { useSolveManager } from "../hooks/useSolveManager";
 
 function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline }) {
     const { settings, updateSetting } = useTimerSettings();
@@ -87,7 +87,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} />
             </Box>
             {selectedSolve && (
-                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={(solveID: number) => { setOpenedSolveDetailsDialog(false); deleteSolve(solveID) }} onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
+                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={(solvePk: bigint) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk) }} onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
             )}
             <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} settings={settings} updateSetting={updateSetting} />

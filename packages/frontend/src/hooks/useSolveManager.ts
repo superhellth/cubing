@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
 import { Discipline, Status, type ISolve } from "@cubing/shared";
-import { useSolvesWithAverages } from "../utils/timer_utils";
-import DBWriter from '../services/db_writer';
-import DBReader from '../services/db_reader';
+import { useCallback, useEffect, useState } from 'react';
+import DBReader from '../services/dbReader';
+import DBWriter from '../services/dbWriter';
 import Scrambler from '../utils/scrambling/scrambler';
 import { solveWithUpdatedStatus } from '../utils/solveUtils';
+import { useSolveStats } from './useSolveStats';
 
 const dbWriter = DBWriter.instance;
 const dbReader = DBReader.instance;
@@ -24,7 +24,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         }
         return uID;
     });
-    const solves = useSolvesWithAverages(rawSolves);
+    const solves: ISolve[] = useSolveStats(rawSolves);
 
     useEffect(() => {
         let mounted = true;
@@ -73,9 +73,9 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         }
     }, [userID, currentScramble, selectedDiscipline]);
 
-    const deleteSolve = useCallback((solveID: number) => {
-        dbWriter.deleteSolve(solveID);
-        setRawSolves(prev => prev.filter(s => s.id !== solveID));
+    const deleteSolve = useCallback((solvePk: bigint) => {
+        dbWriter.deleteSolve(solvePk);
+        setRawSolves(prev => prev.filter(s => s.pk !== solvePk));
     }, []);
 
     const updateSolveStatus = useCallback((oldSolve: ISolve, newStatus: Status) => {
