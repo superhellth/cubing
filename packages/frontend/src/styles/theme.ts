@@ -41,7 +41,7 @@ const theme = createTheme({
         },
         background: {
             default: background,
-            paper: primaryDark
+            paper: primary
         },
     },
     typography: {
@@ -77,11 +77,6 @@ const theme = createTheme({
                 colors: [accentDarker, primary],
             },
         },
-        // MuiLineChart: {
-        //     defaultProps: {
-        //         colors: [accentDarker, accentLighter, accent],
-        //     },
-        // },
         MuiScatterChart: {
             defaultProps: {
                 colors: [accentDarker, primary],

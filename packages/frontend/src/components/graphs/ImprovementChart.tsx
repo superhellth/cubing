@@ -1,38 +1,56 @@
 import type { ISolve } from "@cubing/shared";
-import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
+import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsLegend, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
 import { memo, useMemo } from "react";
 import theme from "../../styles/theme";
 import { HoltsLinear } from "../../utils/holtsLinear";
 import Timer from "../../utils/timer";
 import { CustomItemTooltip } from "./CustomTooltip";
 import { CustomAnimatedLine, ForecastArea, ShadedBackground } from "./PredictionArea";
+import { Box, Stack } from "@mui/system";
+import { Paper, Typography } from "@mui/material";
 
-const ImprovementChart = memo(({ solvesChronological, pbProgression, display = ["avg100", "avg1000"], predict = "avg100", showConfidence = true }:
-    { solvesChronological: ISolve[], pbProgression: ISolve[], display: (keyof ISolve)[], predict: keyof ISolve, showConfidence: boolean }) => {
+const predictionHorizon: number = 12;
+
+const ImprovementChart = memo(({ solvesChronological, pbProgression, display = ["avg100", "avg1000"], predict = ["avg100"], showConfidence = true }:
+    { solvesChronological: ISolve[], pbProgression: ISolve[], display: (keyof ISolve)[], predict: (keyof ISolve)[], showConfidence: boolean }) => {
     if (!solvesChronological || solvesChronological.length < 1) return;
     const lastIndex = solvesChronological.length - 1;
 
-    const forecaster = useMemo(() => {
-        const averages: number[] = solvesChronological.map((solve: ISolve) => solve[predict]).filter((n): n is number => n !== undefined && n !== null);
-        const { alpha, beta } = HoltsLinear.optimize(averages);
-        const forecaster = new HoltsLinear({ alpha, beta });
-        averages.forEach((val: number) => forecaster.update(val));
-        return forecaster;
+    const forecasters = useMemo(() => {
+        const forecasters: any[] = [];
+        for (let predValue of predict) {
+            const averages: number[] = solvesChronological.map((solve: ISolve) => solve[predValue]).filter((n): n is number => n !== undefined && n !== null);
+            const { alpha, beta } = HoltsLinear.optimize(averages);
+            const forecaster = new HoltsLinear({ alpha, beta });
+            averages.forEach((val: number) => forecaster.update(val));
+            forecasters.push(forecaster);
+        }
+        return forecasters;
     }, [solvesChronological])
 
     const { predictedSolves, confidences } = useMemo(() => {
         const predicted = [];
-        const confidences: any = [{ y0: solvesChronological[lastIndex][predict], y1: solvesChronological[lastIndex][predict] }];
-        for (let i = 0; i < 12; i++) {
-            const { forecast, lower, upper } = forecaster.predictInterval(i + 1, 0.95);
-            predicted.push({
-                id: lastIndex + i + 1, avg5: predict == "avg5" ? forecast : null, avg12: predict == "avg12" ? forecast : null,
-                avg100: predict == "avg100" ? forecast : null, avg1000: predict == "avg1000" ? forecast : null, newPB: false, pb: null, index: lastIndex + i + 1
-            });
-            confidences.push({ y0: lower, y1: upper });
+        const allConfidences: any[][] = [];
+        for (let predValueIndex = 0; predValueIndex < predict.length; predValueIndex++) {
+            const predictKey: keyof ISolve = predict[predValueIndex];
+            const confidences: any = [{ y0: solvesChronological[lastIndex][predictKey], y1: solvesChronological[lastIndex][predictKey] }];
+            for (let i = 0; i < predictionHorizon; i++) {
+                if (predValueIndex == 0) {
+                    predicted.push({
+                        id: lastIndex + i + 1, avg5: null, avg12: null,
+                        avg100: null, avg1000: null, newPB: false, pb: null, index: lastIndex + i + 1
+                    });
+                }
+
+                const forecaster = forecasters[predValueIndex];
+                const { forecast, lower, upper } = forecaster.predictInterval(i + 1, 0.95);
+                predicted[i][predictKey] = forecast;
+                confidences.push({ y0: lower, y1: upper });
+            }
+            allConfidences.push(confidences);
         }
-        return { predictedSolves: predicted, confidences }
-    }, [forecaster]);
+        return { predictedSolves: predicted, confidences: allConfidences }
+    }, [forecasters]);
 
     const { extendedSolves, xAxisData } = useMemo(() => {
         let currentPb: number = -1;
@@ -74,6 +92,7 @@ const ImprovementChart = memo(({ solvesChronological, pbProgression, display = [
                 type: "line",
                 dataKey: key,
                 label: key,
+                // color: "red",
                 showMark: true,
                 valueFormatter: (v: number) => Timer.formatTime(v)
             }
@@ -99,42 +118,57 @@ const ImprovementChart = memo(({ solvesChronological, pbProgression, display = [
     }, [])
 
     return (
-        <ChartDataProvider dataset={extendedSolves as any}
-            series={displaySeries}
-            xAxis={[{
-                scaleType: 'linear', data: xAxisData, min: 0,
-                max: extendedSolves.length - 1,
-            }]}>
-            <ChartsSurface sx={{
-                '& .line-after path': { strokeDasharray: '10 5' }, '& .MuiLineElement-series-pb-line': {
-                    strokeDasharray: '10 5', // "10px dash, 5px gap"
-                    strokeWidth: 2,          // Optional: adjust thickness
-                },
-            }}>
-                <ShadedBackground limit={lastIndex} />
-                {/* <LinkPoints seriesId="pb-scatter" /> */}
-                <ChartsGrid horizontal />
+        <Paper>
+            {/* <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 2 }}>
+                {displaySeries.map((series: any) => (
+                    <Stack key={series.id} direction="row" alignItems="center" spacing={1}>
+                        <Box sx={{
+                            width: 15,
+                            height: 15,
+                            borderRadius: '50%',
+                            backgroundColor: series.color
+                        }} />
 
-                <LinePlot
-                    slots={{ line: CustomAnimatedLine }}
-                    slotProps={{ line: { limit: lastIndex } as any }}
-                />
-                {/* <MarkPlot /> */}
-                <ScatterPlot />
-                {showConfidence &&
-                    <ForecastArea limit={lastIndex} forecast={confidences} />
-                }
+                        <Typography variant="body2" color="text.secondary">
+                            {series.label}
+                        </Typography>
+                    </Stack>
+                ))}
+            </Stack> */}
+            <ChartDataProvider dataset={extendedSolves as any}
+                series={displaySeries}
+                xAxis={[{
+                    scaleType: 'linear', data: xAxisData, min: 0,
+                    max: extendedSolves.length - 1,
+                }]}>
+                <ChartsSurface sx={{
+                    '& .line-after path': { strokeDasharray: '10 5' }, '& .MuiLineElement-series-pb-line': {
+                        strokeDasharray: '10 5',
+                    },
+                }}>
+                    <ShadedBackground limit={lastIndex} />
+                    <ChartsGrid horizontal />
 
-                {/* <ChartsTooltip trigger="axis" /> */}
-                <ChartsAxisHighlight x="line" />
-                <LineHighlightPlot />
-                <ChartsXAxis />
-                <ChartsYAxis />
-            </ChartsSurface>
-            <ChartsTooltipContainer trigger="axis">
-                <CustomItemTooltip displayedSolves={extendedSolves} display={display} predictionStart={lastIndex + 1} />
-            </ChartsTooltipContainer>
-        </ChartDataProvider>
+                    <LinePlot
+                        slots={{ line: CustomAnimatedLine }}
+                        slotProps={{ line: { limit: lastIndex } as any }}
+                    />
+                    <ScatterPlot />
+                    {showConfidence &&
+                        <ForecastArea limit={lastIndex} forecast={confidences[0]} />
+                    }
+
+                    <ChartsAxisHighlight x="line" />
+                    <LineHighlightPlot />
+                    <ChartsXAxis />
+                    <ChartsYAxis />
+                    <ChartsLegend direction="horizontal" />
+                </ChartsSurface>
+                <ChartsTooltipContainer trigger="axis">
+                    <CustomItemTooltip displayedSolves={extendedSolves} display={display} predictionStart={lastIndex + 1} />
+                </ChartsTooltipContainer>
+            </ChartDataProvider>
+        </Paper>
     );
 });
 

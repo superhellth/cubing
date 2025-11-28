@@ -50,7 +50,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
 
 
     return (
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "10px" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "5px" }}>
             {/* Best Statistics Table */}
             <Box style={{ flex: 1 }}>
                 <h1>Your Solves</h1>

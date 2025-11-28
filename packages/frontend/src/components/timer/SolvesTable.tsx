@@ -75,7 +75,7 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                             stickyHeader
                             sx={{
                                 borderCollapse: 'separate',
-                                '& .MuiTableCell-root': { paddingLeft: '6px', paddingRight: '6px' },
+                                '& .MuiTableCell-root': { paddingLeft: '0px', paddingRight: '0px' },
                                 userSelect: "none",
                                 borderSpacing: 0
                             }}
@@ -122,7 +122,7 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                         textAlign: 'center',
                                         fontSize: '1.3rem',
                                         fontWeight: "bold",
-                                        borderColor: theme.palette.info.main, 
+                                        borderColor: theme.palette.info.main,
                                         bgcolor: theme.palette.secondary.dark,
                                     }}
                                 >

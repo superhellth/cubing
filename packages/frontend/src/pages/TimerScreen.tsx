@@ -83,7 +83,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 </Box>
             </TimerPanel>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
-            <Box sx={{ bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0 }}>
+            <Box sx={{ bgcolor: "secondary.main", height: "100%", margin: 0, padding: 0, flex: 2 }}>
                 <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} />
             </Box>
             {selectedSolve && (

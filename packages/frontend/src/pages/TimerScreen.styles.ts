@@ -9,7 +9,7 @@ export const ScreenContainer = styled(Box)(({ }) => ({
 }));
 
 export const TimerPanel = styled(Box)(({ theme }) => ({
-    flex: 1,
+    flex: 10,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',

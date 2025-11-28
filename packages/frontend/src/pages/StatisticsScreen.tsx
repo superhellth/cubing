@@ -4,7 +4,7 @@ import { Grid } from "@mui/system";
 import { LTTB } from 'downsample';
 import { useMemo, useState } from "react";
 import ImprovementChart from "../components/graphs/ImprovementChart";
-import VariabilityChart from "../components/graphs/VariabilityChart";
+import VariabilityCard from "../components/graphs/VariabilityCard";
 import { useSolveManager } from "../hooks/useSolveManager";
 import ActivityCard from "../components/graphs/ActivityCard";
 
@@ -44,21 +44,16 @@ function StatisticsScreen() {
     return (
         <Grid container spacing={2} sx={{ height: "100%", bgcolor: "primary.main", padding: "15px" }}>
             <Grid size={{ xs: 12, sm: 4 }}>
-                <ActivityCard />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
-                <Card>
-                    <Typography>Variability</Typography>
-                    <VariabilityChart solvesChronological={downsampledSolves}/>
-                </Card>
+                <VariabilityCard solvesChronological={downsampledSolves} />
             </Grid>
             <Grid size={{ xs: 12, sm: 4 }}>
                 Something else
             </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+                <ActivityCard />
+            </Grid>
             <Grid size={12}>
-                <Card sx={{ width: "100%", height: "100%" }}>
-                    <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} display={display} predict={"avg100"} showConfidence={true} />
-                </Card>
+                <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} display={display} predict={["avg100", "avg1000"]} showConfidence={true} />
             </Grid>
         </Grid >
     );

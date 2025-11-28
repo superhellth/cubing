@@ -42,81 +42,77 @@ export const Heatmap: React.FC<HeatmapProps> = ({
     const minValue = Math.min(...allValues);
 
     return (
-        <Box sx={{ width: '100%', overflowX: 'auto' }}>
+        // 1. Ensure the container takes full size
+        <Box sx={{ width: '100%', height: "100%", overflow: 'hidden' }}>
             <Box
                 sx={{
                     display: 'grid',
+                    width: '100%',
+                    height: '100%',
+                    padding: "10px",
+                    boxSizing: 'border-box',
                     gridTemplateColumns: `auto repeat(${xLabels.length}, 1fr)`,
+                    gridTemplateRows: `auto repeat(${yLabels.length}, 1fr)`,
+                    
                     gap: 1,
-                    alignItems: 'center',
-                    padding: "10px"
                 }}
             >
                 <Box />
 
                 {xLabels.map((label, i) => (
-                    <Typography
-                        key={`x-${i}`}
-                        variant="caption"
-                        align="center"
-                        sx={{ mb: 0.5 }}
-                    >
-                        {label}
-                    </Typography>
+                    <Box key={`x-${i}`} sx={{ display: 'flex', alignItems: 'end', justifyContent: 'center', height: '100%' }}>
+                         <Typography
+                            variant="caption"
+                            align="center"
+                            sx={{ mb: 0.5 }}
+                        >
+                            {label}
+                        </Typography>
+                    </Box>
                 ))}
 
                 {data.map((row, rowIndex) => (
                     <React.Fragment key={`row-${rowIndex}`}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
+                            <Typography
+                                variant="caption"
+                                sx={{ mr: 1, whiteSpace: 'nowrap', textAlign: 'right' }}
+                            >
+                                {yLabels[rowIndex]}
+                            </Typography>
+                        </Box>
 
-                        <Typography
-                            variant="caption"
-                            sx={{ mr: 1, whiteSpace: 'nowrap', textAlign: 'right' }}
-                        >
-                            {yLabels[rowIndex]}
-                        </Typography>
-
+                        {/* Cells */}
                         {row.map((value, colIndex) => {
                             const range = maxValue - minValue;
                             const intensity = range === 0 ? 0 : (value - minValue) / range;
-
                             const cellColor = interpolateColor(minColor, maxColor, intensity);
 
                             return (
                                 <Tooltip
                                     key={`cell-${rowIndex}-${colIndex}`}
-                                    title={`${yLabels[rowIndex]}, ${xLabels[colIndex]}: ${value} issues`}
+                                    title={`${yLabels[rowIndex]}, ${xLabels[colIndex]}: ${value} solves`}
                                     arrow
                                     placement="top"
+                                    style={{ width: '100%', height: '100%' }} 
                                 >
                                     <Box
                                         sx={{
                                             width: '100%',
-                                            paddingTop: '100%',
-                                            position: 'relative',
+                                            height: '100%', 
+                                            backgroundColor: cellColor,
+                                            borderRadius: 1,
+                                            cursor: 'pointer',
+                                            transition: theme.transitions.create(['transform', 'box-shadow', 'z-index'], {
+                                                duration: theme.transitions.duration.shortest,
+                                            }),
+                                            '&:hover': {
+                                                transform: 'scale(1.1)',
+                                                zIndex: 10,
+                                                boxShadow: theme.shadows[4],
+                                            }
                                         }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                backgroundColor: cellColor,
-                                                borderRadius: 1,
-                                                transition: theme.transitions.create(['transform', 'box-shadow', 'z-index'], {
-                                                    duration: theme.transitions.duration.shortest,
-                                                }),
-                                                cursor: 'pointer',
-                                                zIndex: 1,
-                                                '&:hover': {
-                                                    transform: 'scale(1.2)',
-                                                    zIndex: 10,
-                                                    boxShadow: theme.shadows[4],
-                                                }
-                                            }}
-                                        />
-                                    </Box>
+                                    />
                                 </Tooltip>
                             );
                         })}
