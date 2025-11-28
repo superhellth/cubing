@@ -19,6 +19,7 @@
     "@mui/system": "^7.3.5",
     "@mui/x-charts": "^8.19.0",
     "@react-spring/web": "^10.0.3",
+    "@types/tinycolor2": "^1.4.6",
     "chart.js": "^4.5.1",
     "d3-shape": "^3.2.0",
     "downsample": "^1.4.0",
@@ -26,6 +27,7 @@
     "express-rate-limit": "^8.2.1",
     "react-chartjs-2": "^5.3.1",
     "react-virtuoso": "^4.15.0",
+    "tinycolor2": "^1.6.0",
     "zod": "^4.1.13"
   },
   "devDependencies": {

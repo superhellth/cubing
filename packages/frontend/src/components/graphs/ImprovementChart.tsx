@@ -1,12 +1,11 @@
-import type { ISolve } from "@cubing/shared";
+import { keyToLabels, type ISolve } from "@cubing/shared";
 import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsLegend, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
 import { memo, useMemo } from "react";
-import theme from "../../styles/theme";
 import { HoltsLinear } from "../../utils/holtsLinear";
 import Timer from "../../utils/timer";
 import { CustomItemTooltip } from "./CustomTooltip";
 import { CustomAnimatedLine, ForecastArea, ShadedBackground } from "./PredictionArea";
-import { Box, Stack } from "@mui/system";
+import { Box, Stack, useTheme } from "@mui/system";
 import { Paper, Typography } from "@mui/material";
 
 const predictionHorizon: number = 12;
@@ -14,6 +13,7 @@ const predictionHorizon: number = 12;
 const ImprovementChart = memo(({ solvesChronological, pbProgression, display = ["avg100", "avg1000"], predict = ["avg100"], showConfidence = true }:
     { solvesChronological: ISolve[], pbProgression: ISolve[], display: (keyof ISolve)[], predict: (keyof ISolve)[], showConfidence: boolean }) => {
     if (!solvesChronological || solvesChronological.length < 1) return;
+    const theme = useTheme();
     const lastIndex = solvesChronological.length - 1;
 
     const forecasters = useMemo(() => {
@@ -90,9 +90,10 @@ const ImprovementChart = memo(({ solvesChronological, pbProgression, display = [
         const series: any[] = display.map((key: keyof ISolve) => {
             return {
                 type: "line",
+                id: key,
                 dataKey: key,
-                label: key,
-                // color: "red",
+                label: keyToLabels[key],
+                color: theme.palette.graphColors[key],
                 showMark: true,
                 valueFormatter: (v: number) => Timer.formatTime(v)
             }
@@ -109,7 +110,7 @@ const ImprovementChart = memo(({ solvesChronological, pbProgression, display = [
         series.push({
             type: "line",
             id: "pb-line",
-            label: "Personal Best",
+            label: "PB",
             color: theme.palette.info.main,
             dataKey: "pb",
             disableHighlight: true,
@@ -118,56 +119,70 @@ const ImprovementChart = memo(({ solvesChronological, pbProgression, display = [
     }, [])
 
     return (
-        <Paper>
-            {/* <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 2 }}>
-                {displaySeries.map((series: any) => (
-                    <Stack key={series.id} direction="row" alignItems="center" spacing={1}>
-                        <Box sx={{
-                            width: 15,
-                            height: 15,
-                            borderRadius: '50%',
-                            backgroundColor: series.color
-                        }} />
+        <Paper sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+            <Box>
+                <Stack direction="row" spacing={2} justifyContent="center">
+                    {displaySeries.filter((series: any) => series.id != "pb-scatter").map((series: any) => (
+                        <Stack key={series.id} direction="row" alignItems="center" spacing={1}>
+                            <Box sx={{
+                                width: 20,
+                                height: 3,
+                                ...(series.id == "pb-line" ? {
+                                    background: `repeating-linear-gradient(
+                        90deg, 
+                        ${series.color}, 
+                        ${series.color} 5px, 
+                        transparent 5px, 
+                        transparent 9px
+                    )`,
+                                } : {
+                                    backgroundColor: series.color
+                                })
+                            }} />
 
-                        <Typography variant="body2" color="text.secondary">
-                            {series.label}
-                        </Typography>
-                    </Stack>
-                ))}
-            </Stack> */}
-            <ChartDataProvider dataset={extendedSolves as any}
-                series={displaySeries}
-                xAxis={[{
-                    scaleType: 'linear', data: xAxisData, min: 0,
-                    max: extendedSolves.length - 1,
-                }]}>
-                <ChartsSurface sx={{
-                    '& .line-after path': { strokeDasharray: '10 5' }, '& .MuiLineElement-series-pb-line': {
-                        strokeDasharray: '10 5',
-                    },
-                }}>
-                    <ShadedBackground limit={lastIndex} />
-                    <ChartsGrid horizontal />
+                            <Typography>
+                                {series.label}
+                            </Typography>
+                        </Stack>
+                    ))}
+                </Stack>
 
-                    <LinePlot
-                        slots={{ line: CustomAnimatedLine }}
-                        slotProps={{ line: { limit: lastIndex } as any }}
-                    />
-                    <ScatterPlot />
-                    {showConfidence &&
-                        <ForecastArea limit={lastIndex} forecast={confidences[0]} />
-                    }
+            </Box>
+            <Box sx={{ flex: 1 }}>
+                <ChartDataProvider dataset={extendedSolves as any}
+                    series={displaySeries}
+                    xAxis={[{
+                        scaleType: 'linear', data: xAxisData, min: 0,
+                        max: extendedSolves.length - 1,
+                    }]}>
+                    <ChartsSurface sx={{
+                        '& .line-after path': { strokeDasharray: '10 5' }, '& .MuiLineElement-series-pb-line': {
+                            strokeDasharray: '10 5',
+                        },
+                    }}>
+                        <ShadedBackground limit={lastIndex} />
+                        <ChartsGrid horizontal />
 
-                    <ChartsAxisHighlight x="line" />
-                    <LineHighlightPlot />
-                    <ChartsXAxis />
-                    <ChartsYAxis />
-                    <ChartsLegend direction="horizontal" />
-                </ChartsSurface>
-                <ChartsTooltipContainer trigger="axis">
-                    <CustomItemTooltip displayedSolves={extendedSolves} display={display} predictionStart={lastIndex + 1} />
-                </ChartsTooltipContainer>
-            </ChartDataProvider>
+                        <LinePlot
+                            slots={{ line: CustomAnimatedLine }}
+                            slotProps={{ line: { limit: lastIndex } as any }}
+                        />
+                        <ScatterPlot />
+                        {/* {showConfidence &&
+                            <ForecastArea limit={lastIndex} forecast={confidences[0]} />
+                        } */}
+
+                        <ChartsAxisHighlight x="line" />
+                        <LineHighlightPlot />
+                        <ChartsXAxis />
+                        <ChartsYAxis />
+                        <ChartsLegend direction="horizontal" />
+                    </ChartsSurface>
+                    <ChartsTooltipContainer trigger="axis">
+                        <CustomItemTooltip displayedSolves={extendedSolves} display={display} predictionStart={lastIndex + 1} />
+                    </ChartsTooltipContainer>
+                </ChartDataProvider>
+            </Box>
         </Paper>
     );
 });

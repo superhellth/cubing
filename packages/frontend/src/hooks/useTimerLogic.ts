@@ -1,4 +1,4 @@
-import { Discipline, inspectionLessDisciplines } from '@cubing/shared';
+import { Discipline, inspectionlessDisciplines } from '@cubing/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { TimerStatus } from '../components/timer/TimerText';
 
@@ -16,7 +16,7 @@ export const useTimerLogic = (settings: any, selectedDiscipline: Discipline) => 
                 case TimerStatus.Idle:
                 case TimerStatus.Cancelled:
                 case TimerStatus.InspectionCancelled:
-                    if (settings.inspection && !inspectionLessDisciplines.includes(selectedDiscipline)) {
+                    if (settings.inspection && !inspectionlessDisciplines.includes(selectedDiscipline)) {
                         setTimerStatus(TimerStatus.ReadyForInspection);
                     } else {
                         setTimerStatus(TimerStatus.Ready);

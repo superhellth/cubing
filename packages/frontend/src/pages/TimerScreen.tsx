@@ -1,4 +1,4 @@
-import { Discipline, inspectionLessDisciplines, Status, type ISolve } from "@cubing/shared";
+import { Discipline, inspectionlessDisciplines, Status, type ISolve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Divider from "@mui/material/Divider";
@@ -64,7 +64,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                     <Box sx={{ flex: 4, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingBottom: "25px"}}>
                         <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
-                            !inspectionLessDisciplines.includes(selectedDiscipline)} />
+                            !inspectionlessDisciplines.includes(selectedDiscipline)} />
                         {!ACTIVE_TIMER_STATUS.includes(timerStatus) &&
                             <PercentileGauge percentile={percentile} />
                         }

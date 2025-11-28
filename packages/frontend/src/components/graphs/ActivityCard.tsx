@@ -15,19 +15,22 @@ const ActivityCard = () => {
     const weeks = ['This week', 'Last week', '2 Weeks ago', '3 Weeks ago'];
 
     return (
-        <Paper>
+        <Paper sx={{ height: "200px" }}>
             <Typography
                 sx={{
                     color: 'rgb(117, 117, 117)',
                     fontSize: '0.9rem',
                     pt: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 1,
                 }}
             >
                 <FitnessCenterIcon
                     fill="rgb(117, 117, 117)"
                     width="8px"
                     height="0.9rem"
-                    style={{ marginRight: 8 }}
                 />
                 Activity
             </Typography>

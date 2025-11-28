@@ -1,9 +1,9 @@
 import type { ISolve } from "@cubing/shared";
+import TimelineIcon from '@mui/icons-material/Timeline';
+import { Paper, Stack, Typography } from "@mui/material";
 import { areaElementClasses, chartsAxisHighlightClasses, lineElementClasses, SparkLineChart } from "@mui/x-charts";
 import { memo, useMemo, useState } from "react";
 import theme from "../../styles/theme";
-import { alpha, Card, Paper, Stack, Typography } from "@mui/material";
-import TimelineIcon from '@mui/icons-material/Timeline';
 
 const windowSize: number = 50;
 const longFormatter = new Intl.DateTimeFormat('en-US', {
@@ -28,20 +28,28 @@ const VariabilityCard = memo(({ solvesChronological }: any) => {
     }, [solvesChronological]);
 
     return (
-        <Paper>
+        <Paper sx={{
+            height: "200px",
+            display: 'flex',
+            flexDirection: 'column',
+        }}>
             <Typography
                 sx={{
                     color: 'rgb(117, 117, 117)',
                     fontWeight: 500,
                     fontSize: '0.9rem',
                     pt: 1,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 1,
+                    flexShrink: 0
                 }}
             >
                 <TimelineIcon
                     fill="rgb(117, 117, 117)"
                     width="8px"
                     height="12px"
-                    style={{ marginRight: 8 }}
                 />
                 {dataIndex === null ? 'Variability over Time' : longFormatter.format(solvesChronological[windowSize + dataIndex].date)}
             </Typography>
@@ -49,7 +57,13 @@ const VariabilityCard = memo(({ solvesChronological }: any) => {
                 direction="row"
                 justifyContent="space-between"
                 alignItems="center"
-                sx={{ padding: "10px" }}
+                sx={{
+                    padding: "10px",
+                    // 3. IMPORTANT: Tell the Stack to fill all remaining vertical space
+                    flexGrow: 1,
+                    // 4. IMPORTANT: Allow the Stack to shrink below its content's default size
+                    minHeight: 0
+                }}
             >
                 <svg style={{ height: 0, width: 0, position: 'absolute' }}>
                     <defs>

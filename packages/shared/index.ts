@@ -24,7 +24,7 @@ export enum Discipline {
     Skewb = "Skewb",
     Square1 = "Square-1",
 }
-export const inspectionLessDisciplines: Discipline[] = [Discipline.ThreeBlind, Discipline.FourBlind, Discipline.FiveBlind, Discipline.FewestMoves];
+export const inspectionlessDisciplines: Discipline[] = [Discipline.ThreeBlind, Discipline.FourBlind, Discipline.FiveBlind, Discipline.FewestMoves];
 
 export const DISCIPLINE_LABELS = Object.entries(Discipline).map(([key, value]) => ({
     key: key,
@@ -46,6 +46,14 @@ export interface ISolve {
     readonly avg100?: number;
     readonly avg1000?: number;
 }
+
+export const keyToLabels = {
+  avg5: "Ao5",
+  avg12: "Ao12",
+  avg100: "Ao100",
+  avg1000: "Ao1000"
+};
+
 export type INewSolve = Omit<ISolve, 'id'>;
 
 export const SolveSchema = z.object({

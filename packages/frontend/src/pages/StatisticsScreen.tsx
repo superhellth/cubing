@@ -1,15 +1,15 @@
 import { Discipline, type ISolve } from "@cubing/shared";
-import { Card, Typography } from "@mui/material";
 import { Grid } from "@mui/system";
 import { LTTB } from 'downsample';
 import { useMemo, useState } from "react";
+import ActivityCard from "../components/graphs/ActivityCard";
 import ImprovementChart from "../components/graphs/ImprovementChart";
 import VariabilityCard from "../components/graphs/VariabilityCard";
 import { useSolveManager } from "../hooks/useSolveManager";
-import ActivityCard from "../components/graphs/ActivityCard";
+import DistributionCard from "../components/graphs/DistributionCard";
 
-const samplingThreshold: number = 100;
-const display: (keyof ISolve)[] = ["avg100", "avg1000"];
+const samplingThreshold: number = 500;
+const display: (keyof ISolve)[] = ["avg5", "avg12", "avg100", "avg1000"];
 
 function StatisticsScreen() {
     const [selectedDiscipline] = useState<Discipline>(Discipline.OneHanded);
@@ -43,17 +43,17 @@ function StatisticsScreen() {
 
     return (
         <Grid container spacing={2} sx={{ height: "100%", bgcolor: "primary.main", padding: "15px" }}>
-            <Grid size={{ xs: 12, sm: 4 }}>
+            <Grid size={{ xs: 12, sm: 3 }}>
                 <VariabilityCard solvesChronological={downsampledSolves} />
             </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
-                Something else
+            <Grid size={{ xs: 12, sm: 6 }}>
+                <DistributionCard solves={solves} />
             </Grid>
-            <Grid size={{ xs: 12, sm: 4 }}>
+            <Grid size={{ xs: 12, sm: 3 }}>
                 <ActivityCard />
             </Grid>
             <Grid size={12}>
-                <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} display={display} predict={["avg100", "avg1000"]} showConfidence={true} />
+                <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} display={display} predict={["avg5", "avg12", "avg100", "avg1000"]} showConfidence={true} />
             </Grid>
         </Grid >
     );
