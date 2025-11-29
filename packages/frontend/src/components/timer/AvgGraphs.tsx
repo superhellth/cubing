@@ -11,14 +11,17 @@ const cleanVal = (val: number | undefined | null) => {
 
 const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any }) => {
     const theme = useTheme();
-    const xByDate: boolean = useMemo(() => {return settings.avgGraphXAxis == "date"}, [settings]);
-    const display: any[] = useMemo(() => {return settings.avgGraphDisplay}, [settings]);
-    const displayNumSolves: number = useMemo(() => {return settings.avgGraphNumSolves}, [settings]);
+    const xByDate: boolean = useMemo(() => { return settings.avgGraphXAxis == "date" }, [settings]);
+    const display: any[] = useMemo(() => { return settings.avgGraphDisplay }, [settings]);
 
     const chartData = useMemo(() => {
-        const chronologicalSolves = [...solves].reverse().slice(-Math.min(displayNumSolves, solves.length));
+        const chronologicalSolves = [...solves].reverse().slice(-Math.min(settings.avgGraphNumSolves, solves.length));
+        const foundIndex = chronologicalSolves.findIndex(solve =>
+            display.some(key => solve[key as keyof ISolve] != null)
+        );
+        const firstNonNull = foundIndex === -1 ? 0 : foundIndex;
 
-        return chronologicalSolves.map((solve, i) => ({
+        return chronologicalSolves.slice(firstNonNull).map((solve, i) => ({
             index: i + 1,
             id: solve.id,
             date: new Date(solve.date),

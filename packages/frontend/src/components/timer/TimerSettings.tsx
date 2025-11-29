@@ -4,7 +4,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from '@mui/icons-material/Close';
 import Typography from "@mui/material/Typography";
-import { Box, Stack } from "@mui/system";
+import { Box, Stack, useTheme } from "@mui/system";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import Divider from "@mui/material/Divider";
@@ -16,7 +16,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
 
 function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: boolean, onClose: Function, settings: any, updateSetting: Function }) {
-
+    const theme = useTheme();
     return (
         <Dialog open={isOpen} sx={{ color: "red" }}>
             <DialogTitle sx={{ bgcolor: "primary.main", textAlign: "center", fontSize: "3rem", fontWeight: "bold" }}>Settings

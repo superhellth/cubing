@@ -10,12 +10,13 @@ export const SolveRow = memo(({ solve, bestStats }: any) => {
 
     return (
         <>
-            <TableCell>{solve.id}</TableCell>
+            <TableCell sx={{ whiteSpace: "nowrap" }}>{solve.id}</TableCell>
 
             {/* Single */}
             <TableCell sx={{
                 color: solve.status === Status.DNF ? "error.main" : solve.status === Status.PlusTwo ? "warning.main" : "text.primary",
-                fontWeight: isBestSingle ? "bold" : "normal"
+                fontWeight: isBestSingle ? "bold" : "normal",
+                whiteSpace: "nowrap"
             }}>
                 {getDisplayTime(solve)}
             </TableCell>
@@ -23,7 +24,8 @@ export const SolveRow = memo(({ solve, bestStats }: any) => {
             {/* Avg 5 */}
             <TableCell sx={{
                 color: solve.avg5 === -1 ? "error.main" : "text.primary",
-                fontWeight: isBestAvg5 ? "bold" : "normal"
+                fontWeight: isBestAvg5 ? "bold" : "normal",
+                whiteSpace: "nowrap"
             }}>
                 {getDisplayableTime(solve, 'avg5')}
             </TableCell>
@@ -31,7 +33,8 @@ export const SolveRow = memo(({ solve, bestStats }: any) => {
             {/* Avg 12 */}
             <TableCell sx={{
                 color: solve.avg12 === -1 ? "error.main" : "text.primary",
-                fontWeight: isBestAvg12 ? "bold" : "normal"
+                fontWeight: isBestAvg12 ? "bold" : "normal",
+                whiteSpace: "nowrap"
             }}>
                 {getDisplayableTime(solve, 'avg12')}
             </TableCell>

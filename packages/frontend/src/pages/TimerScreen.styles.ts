@@ -3,13 +3,15 @@ import { Box, styled } from "@mui/system";
 
 export const ScreenContainer = styled(Box)(({ }) => ({
     display: 'flex',
+    flexDirection: "row",
+    // justifyContent: 'space-between',
     height: '100%',
     width: '100%',
     overflow: 'hidden',
 }));
 
 export const TimerPanel = styled(Box)(({ theme }) => ({
-    flex: 10,
+    flex: 3,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',

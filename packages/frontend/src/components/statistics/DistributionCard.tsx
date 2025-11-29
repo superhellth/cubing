@@ -5,10 +5,11 @@ import { useMemo } from "react";
 import { useOutlierDetection } from "../../hooks/useOutlierDetection";
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { GraphCard } from "../GraphCard";
+import Timer from "../../utils/timer";
 
 const DistributionCard = ({ solves }: any) => {
     const { nonOutliers } = useOutlierDetection(solves);
-    const nBins: number = 9;
+    const nBins: number = 20;
     const timeBins = useMemo(() => {
         if (!nonOutliers || nonOutliers.length <= 1) return [];
         const highest: number = Math.max(...nonOutliers.map((solve: ISolve) => solve.duration));
@@ -24,20 +25,31 @@ const DistributionCard = ({ solves }: any) => {
 
         return bins.map((bin: number[], index: number) => ({
             id: index,
-            range: `${(lowest + index * binSize).toFixed(2)} - ${(lowest + (index + 1) * binSize).toFixed(2)}`,
+            range: `${Timer.formatTime(lowest + index * binSize)} - ${Timer.formatTime(lowest + (index + 1) * binSize)}`,
             entries: bin.length
         }));
     }, [nBins, nonOutliers]);
 
     return (
         <GraphCard title={"Distribution of Solve Times"} icon={<BarChartIcon />}>
-            <BarChart dataset={timeBins} hideLegend={true} series={[{
-                id: 'solves',
-                label: "Solves Count",
-                dataKey: "entries"
-            }]} />
+            <BarChart dataset={timeBins} hideLegend={true}
+                grid={{ horizontal: true }}
+                xAxis={[{
+                    scaleType: 'band',
+                    dataKey: 'range',
+                    tickLabelStyle: {
+                        angle: 45,
+                        textAnchor: 'start',
+                        fontSize: 12
+                    }
+                }]}
+                series={[{
+                    id: 'solves',
+                    label: "#Solves",
+                    dataKey: "entries"
+                }]} />
         </GraphCard>
-    )
+    );
 }
 
 export default DistributionCard;

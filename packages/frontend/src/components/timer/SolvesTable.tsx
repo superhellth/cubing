@@ -55,29 +55,45 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
         setOrderBy(property);
     };
     return (
-        <Box sx={{ flex: 2, overflow: "auto", marginTop: "25px" }}>
+        <Paper elevation={15} sx={{
+            flex: 1,
+            marginTop: "1rem",
+            bgcolor: theme.palette.primary.main,
+            border: "1px solid #333",
+            width: 'fit-content',
+            minWidth: '100%'
+        }}>
+
             <TableVirtuoso
+                style={{
+                    width: 'fit-content',
+                    minWidth: '100%'
+                }}
                 data={sortedSolves}
                 components={{
                     Scroller: React.forwardRef((props, ref) => (
                         <TableContainer component={Paper} {...props} ref={ref} sx={{
-                            // 1. Hide scrollbar for Chrome, Safari, and Opera
+                            overflowX: 'auto',
                             '&::-webkit-scrollbar': { display: 'none' },
-                            // 2. Hide scrollbar for Firefox
                             scrollbarWidth: 'none',
-                            // 3. Hide scrollbar for IE and Edge
+                            overflow: 'visible',
+                            flexShrink: 0,
+                            width: 'fit-content',
+                            minWidth: '100%',
                             msOverflowStyle: 'none',
+                            bgcolor: "transparent",
                         }} />
                     )),
                     Table: (props) => (
+
                         <Table
                             {...props}
                             stickyHeader
                             sx={{
-                                borderCollapse: 'separate',
-                                '& .MuiTableCell-root': { paddingLeft: '0px', paddingRight: '0px' },
+                                width: 'auto', minWidth: '100%',
+                                tableLayout: 'fixed',
+                                '& .MuiTableCell-root': { paddingLeft: "auto", paddingRight: '0px' },
                                 userSelect: "none",
-                                borderSpacing: 0
                             }}
                         />
                     ),
@@ -97,11 +113,12 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                 sx={{
                                     cursor: 'pointer',
                                     '&:hover .MuiTableCell-root': {
-                                        bgcolor: theme.palette.secondary.light
+                                        bgcolor: "rgba(255, 255, 255, 0.04)"
                                     },
                                     '.MuiTableCell-root': {
-                                        bgcolor: theme.palette.secondary.main
+                                        bgcolor: "transparent"
                                     },
+                                    height: "60px"
                                 }}
                             />
                         );
@@ -119,11 +136,13 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                     key={headCell.id}
                                     sortDirection={orderBy === headCell.id ? order : undefined}
                                     sx={{
+                                        whiteSpace: 'nowrap',
                                         textAlign: 'center',
                                         fontSize: '1.3rem',
                                         fontWeight: "bold",
-                                        borderColor: theme.palette.info.main,
-                                        bgcolor: theme.palette.secondary.dark,
+                                        // border: "2px solid #333",
+                                        // borderColor: theme.palette.info.main,
+                                        bgcolor: theme.palette.primary.main,
                                     }}
                                 >
                                     <TableSortLabel
@@ -156,6 +175,6 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                     />
                 )}
             />
-        </Box>
+        </Paper>
     );
 }

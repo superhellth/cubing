@@ -10,6 +10,7 @@ import { memo, useMemo } from "react";
 import { getDisplayableTime } from '../../utils/solveUtils';
 import Timer from "../../utils/timer";
 import SolvesTable from './SolvesTable';
+import { useTheme } from '@mui/system';
 
 interface Stats {
     [key: string]: number | null;
@@ -25,6 +26,7 @@ export const HEAD_CELLS = [
 ];
 
 const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[], openSolveDetailsScreen: Function }) => {
+    const theme = useTheme();
     const latestSolve = solves?.[0];
 
     const bestStats: any = useMemo(() => {
@@ -50,49 +52,47 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
 
 
     return (
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "5px" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "1.5rem", overflow: "hidden" }}>
             {/* Best Statistics Table */}
-            <Box style={{ flex: 1 }}>
-                <h1>Your Solves</h1>
-                <Paper elevation={10} sx={{ bgcolor: "secondary.main" }}>
-                    <Table sx={{
-                        [`& .${tableCellClasses.root}`]: { borderBottom: "none", paddingTop: "6px", paddingBottom: "6px" }
-                    }}>
-                        <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.3rem', fontWeight: "bold" } }} >
-                            <TableRow>
-                                <TableCell></TableCell>
-                                <TableCell>Best</TableCell>
-                                <TableCell>Current</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' } }}>
+            <h1>Your Solves</h1>
+            <Paper elevation={0} sx={{ bgcolor: theme.palette.primary.main, border: "1px solid #333" }}>
+                <Table sx={{
+                    [`& .${tableCellClasses.root}`]: { borderBottom: "none" }
+                }}>
+                    <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.3rem', fontWeight: "bold" } }} >
+                        <TableRow>
+                            <TableCell></TableCell>
+                            <TableCell>Best</TableCell>
+                            <TableCell>Current</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' } }}>
 
-                            {HEAD_CELLS.slice(1).map((row) => {
-                                if (solves.length < row.minSolves) return null;
+                        {HEAD_CELLS.slice(1).map((row) => {
+                            if (solves.length < row.minSolves) return null;
 
-                                return (
-                                    <TableRow key={row.id} sx={{ '& .MuiTableCell-root': { color: row.color } }}>
-                                        {/* Label */}
-                                        <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>
-                                            {row.label}
-                                        </TableCell>
+                            return (
+                                <TableRow key={row.id} sx={{ '& .MuiTableCell-root': { color: row.color } }}>
+                                    {/* Label */}
+                                    <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>
+                                        {row.label}
+                                    </TableCell>
 
-                                        {/* Best Stat */}
-                                        <TableCell>
-                                            {Timer.formatTime(bestStats[row.id])}
-                                        </TableCell>
+                                    {/* Best Stat */}
+                                    <TableCell>
+                                        {Timer.formatTime(bestStats[row.id])}
+                                    </TableCell>
 
-                                        {/* Current Stat */}
-                                        <TableCell>
-                                            {latestSolve ? getDisplayableTime(latestSolve, row.id as keyof ISolve) : "-"}
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </Paper>
-            </Box>
+                                    {/* Current Stat */}
+                                    <TableCell>
+                                        {latestSolve ? getDisplayableTime(latestSolve, row.id as keyof ISolve) : "-"}
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </Paper>
 
             {/* Main History Table */}
             <SolvesTable solves={solves} bestStats={bestStats} openSolveDetailsScreen={openSolveDetailsScreen} />

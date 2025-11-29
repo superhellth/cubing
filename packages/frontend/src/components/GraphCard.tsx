@@ -1,5 +1,5 @@
 import React, { isValidElement } from 'react';
-import { Box, Card, Paper, Typography } from '@mui/material';
+import { Box, Card, Paper, Typography, useTheme } from '@mui/material';
 
 // If you are using TypeScript, uncomment the interface below
 interface ChartWidgetProps {
@@ -17,8 +17,10 @@ export const GraphCard = ({
     height = "200px",
     sx = {}
 }: ChartWidgetProps) => {
+    const theme = useTheme();
     return (
-        <Paper sx={{ height: height, ...sx, display: "flex", flexDirection: "column" }}>
+        <Paper sx={{ height: height, ...sx, display: "flex", flexDirection: "column",
+        bgcolor: theme.palette.primary.main, border: "1px solid", borderColor: theme.palette.secondary.main}} >
             <Typography
                 sx={{
                     color: 'rgb(117, 117, 117)',

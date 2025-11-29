@@ -35,11 +35,15 @@ const ImprovementChart = memo(({
 
     // Prediction
     const { predictions, confidences } = useSolvesForecast(sortChronologically(solves),
-        display.filter((s: string) => s !== "pb"), predictionHorizon);
+        display.filter((s: string) => s !== "pb"), predictionHorizon, "linear");
 
     // Chart Configuration (Memoized)
     const historyAndPredictions: ISolve[] = useMemo(() => {
-        return [...solvesChronological, ...predictions];
+        const foundIndex = solvesChronological.findIndex(solve =>
+            display.some(key => solve[key as keyof ISolve] != null)
+        );
+        const firstNonNull = foundIndex === -1 ? 0 : foundIndex;
+        return [...solvesChronological.slice(firstNonNull), ...predictions];
     }, [sampledSolves, predictions]);
     const xAxisData = useMemo(() => {
         return historyAndPredictions.map((_: ISolve, i: number) => i);
@@ -96,7 +100,10 @@ const ImprovementChart = memo(({
     };
 
     return (
-        <Paper sx={{ height: "100%", display: "flex", flexDirection: "column", p: 2 }}>
+        <Paper sx={{
+            height: "100%", display: "flex", flexDirection: "column", p: 2,
+            bgcolor: theme.palette.primary.main, border: "1px solid", borderColor: theme.palette.secondary.main
+        }} >
 
             <ImprovementChartControl numSolves={solves.length}
                 display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}

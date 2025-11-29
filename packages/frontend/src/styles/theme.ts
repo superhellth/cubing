@@ -13,17 +13,22 @@ declare module '@mui/material/styles' {
     }
 }
 
-const primary = "#222831";
+// const primary = "#222831";
+const primary = "#121212";
 const primaryLight = "#343d4b";
 const primaryDark = "#15191e";
-const secondary = "#393E46";
+// const secondary = "#393E46";
+const secondary = "#1E1E1E";
 const secondaryLight = "#505762";
 const secondaryDark = "#22252a";
 const accent = "#00ADB5"
 const accentDarker = "#007980";
 const accentLighter = "#00dae6";
-const text = "#EEEEEE";
-const background = "#000000";
+// const text = "#EEEEEE";
+const text = "#F2F2F2";
+const secondaryText = "#A1A1AA";
+// const text = "#EDEDED";
+const background = "#2C2C2C";
 
 const theme = createTheme({
     palette: {
@@ -39,6 +44,7 @@ const theme = createTheme({
         },
         text: {
             primary: text,
+            secondary: secondaryText
         },
         warning: {
             main: "#ffff00"
@@ -163,6 +169,10 @@ const theme = createTheme({
                             borderColor: theme.palette.info.main, // Change to your desired color
                             borderWidth: '2px', // Optional: thicker border on focus
                         },
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: theme.palette.text.primary, // Change to your desired color
+                        borderWidth: '2px', // Optional: thicker border on focus
                     },
                 }),
             },

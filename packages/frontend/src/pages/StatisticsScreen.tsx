@@ -1,5 +1,5 @@
 import { Discipline, type ISolve } from "@cubing/shared";
-import { Grid } from "@mui/system";
+import { Box, Grid, useTheme } from "@mui/system";
 import { LTTB } from 'downsample';
 import { useMemo, useState } from "react";
 import ActivityCard from "../components/statistics/ActivityCard";
@@ -8,6 +8,7 @@ import ImprovementChart from "../components/statistics/ImprovementChart";
 import VariabilityCard from "../components/statistics/VariabilityCard";
 import { useSolveManager } from "../hooks/useSolveManager";
 import { sortChronologically } from "../utils/solveUtils";
+import { Card } from "@mui/material";
 
 const samplingThreshold: number = 500;
 const display: (keyof ISolve)[] = ["avg5", "avg12", "avg100", "avg1000"];
@@ -18,6 +19,7 @@ interface LTTBPoint {
 }
 
 function StatisticsScreen() {
+    const theme = useTheme();
     const [selectedDiscipline] = useState<Discipline>(Discipline.OneHanded);
     const [selectedSession] = useState<string>("default");
     const { solves } =
@@ -49,20 +51,24 @@ function StatisticsScreen() {
     }, [solves]);
 
     return (
-        <Grid container spacing={2} sx={{ height: "100%", bgcolor: "primary.main", padding: "15px" }}>
-            <Grid size={{ xs: 12, sm: 3 }}>
-                <VariabilityCard solvesChronological={downsampledSolves} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-                <DistributionCard solves={solves} />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 3 }}>
-                <ActivityCard />
-            </Grid>
-            <Grid size={12}>
-                <ImprovementChart solves={solves} />
-            </Grid>
-        </Grid >
+        <Box sx={{height: "100%", padding: "1rem", bgcolor: theme.palette.primary.main}}>
+            <Card sx={{ height: "100%", bgcolor: theme.palette.primary.main, border: "1px solid", borderColor: theme.palette.secondary.main }}>
+                <Grid container spacing={2} sx={{ height: "100%", padding: "15px" }}>
+                    <Grid size={{ xs: 12, sm: 3 }}>
+                        <VariabilityCard solvesChronological={downsampledSolves} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                        <DistributionCard solves={solves} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 3 }}>
+                        <ActivityCard />
+                    </Grid>
+                    <Grid size={12}>
+                        <ImprovementChart solves={solves} />
+                    </Grid>
+                </Grid >
+            </Card>
+        </Box>
     );
 }
 

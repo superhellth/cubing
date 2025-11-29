@@ -1,43 +1,40 @@
-// useSolvesForecast.ts (or top of file)
-import { ISolve } from "@cubing/shared";
+import { ISolve } from '@cubing/shared';
 import { useMemo } from 'react';
-import { HoltsLinear } from '../utils/holtsLinear';
+import { createForecaster, ForecastModelType } from '../utils/forecaster';
 
-interface ForecastResult {
-    predictions: ISolve[];
-    confidences: Array<{ y0: number; y1: number }[]>;
-}
-
-export const useSolvesForecast = (solvesChronologically: ISolve[], predictKeys: string[], predictionHorizon: number): ForecastResult => {
-
-    // 1. Calculate Forecasters
+export const useSolvesForecast = (
+    solvesChronologically: ISolve[],
+    predictKeys: string[],
+    predictionHorizon: number,
+    modelType: ForecastModelType = 'holts'
+) => {
     const forecasters = useMemo(() => {
-        return predictKeys.map((key: any) => {
-            const values = solvesChronologically.map((s: ISolve) => s[key as keyof ISolve]).filter((n: any): n is number => typeof n === 'number');
-            const { alpha, beta } = HoltsLinear.optimize(values);
-            const model = new HoltsLinear({ alpha, beta });
-            values.forEach((v: any) => model.update(v));
-            return model;
-        });
-    }, [solvesChronologically, predictKeys]);
+        return predictKeys.map((key) => {
+            const values = solvesChronologically
+                .map((s) => s[key as keyof ISolve])
+                .filter((n): n is number => typeof n === 'number');
 
-    // 2. Generate Predictions & Confidence Intervals
+            return createForecaster(modelType, values);
+        });
+    }, [solvesChronologically, predictKeys, modelType]);
+
     const { predictedSolves, confidences } = useMemo(() => {
+        if (solvesChronologically.length === 0) return { predictedSolves: [], confidences: [] };
+
         const lastIdx = solvesChronologically.length - 1;
-        const predictions: any[] = [];
+        const predictions: any[] = Array.from({ length: predictionHorizon }, () => ({}));
         const allConfidences: any[][] = [];
 
-        // Initialize prediction array structure
-        for (let i = 0; i < predictionHorizon; i++) {
-            predictions.push({});
-        }
+        predictKeys.forEach((key, keyIdx) => {
+            const lastValRaw = solvesChronologically[lastIdx][key as keyof ISolve];
+            const lastVal = typeof lastValRaw === 'number' ? lastValRaw : 0;
 
-        predictKeys.forEach((key: any, keyIdx: any) => {
-            const lastVal = solvesChronologically[lastIdx][key as keyof ISolve] as number;
             const currentConf = [{ y0: lastVal, y1: lastVal }];
 
             for (let i = 0; i < predictionHorizon; i++) {
-                const { forecast, lower, upper } = forecasters[keyIdx].predictInterval(i + 1, 0.95);
+                const step = i + 1;
+                const { forecast, lower, upper } = forecasters[keyIdx].predictInterval(step, 0.95);
+
                 predictions[i][key] = forecast;
                 currentConf.push({ y0: lower, y1: upper });
             }
@@ -45,7 +42,7 @@ export const useSolvesForecast = (solvesChronologically: ISolve[], predictKeys: 
         });
 
         return { predictedSolves: predictions, confidences: allConfidences };
-    }, [solvesChronologically, forecasters, predictKeys]);
+    }, [solvesChronologically, forecasters, predictKeys, predictionHorizon]);
 
-    return {predictions: predictedSolves, confidences};
+    return { predictions: predictedSolves, confidences };
 };

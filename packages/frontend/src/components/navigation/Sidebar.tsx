@@ -68,9 +68,9 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange }: Side
             </Box>
 
             {/* Slide out Drawer */}
-            <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
+            {/* <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" /> */}
             <Slide in={openDrawer} direction='right'>
-                <Box sx={{ position: "absolute", left: "100px", height: "100%", bgcolor: "primary.main", zIndex: 1, display: "flex", flexDirection: "row" }}>
+                <Box sx={{ position: "absolute", left: "100px", height: "100%", bgcolor: "primary.main", zIndex: 2, display: "flex", flexDirection: "row" }}>
                     <Box sx={{
                         overflowY: "auto", height: "100vh", width: "100px", display: "flex", flexDirection: "column",
                         scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }
@@ -96,7 +96,7 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange }: Side
                         background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))',
                         pointerEvents: 'none'
                     }} />
-                    <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
+                    {/* <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" /> */}
                 </Box>
             </Slide>
         </Box>
