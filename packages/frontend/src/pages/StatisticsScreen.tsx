@@ -13,7 +13,7 @@ const display: (keyof ISolve)[] = ["avg5", "avg12", "avg100", "avg1000"];
 interface LTTBPoint {
     x: number;
     y: number;
-    original: ISolve; // Or whatever your original data type is
+    original: ISolve;
 }
 
 function StatisticsScreen() {
@@ -59,7 +59,7 @@ function StatisticsScreen() {
                 <ActivityCard />
             </Grid>
             <Grid size={12}>
-                <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} display={display} predict={display} showConfidence={true} />
+                <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} predict={display} showConfidence={true} />
             </Grid>
         </Grid >
     );

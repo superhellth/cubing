@@ -33,6 +33,7 @@ export const DISCIPLINE_LABELS = Object.entries(Discipline).map(([key, value]) =
 
 export const keyToLabels = {
     duration: "Single",
+    pb: "PB",
     avg5: "Ao5",
     avg12: "Ao12",
     avg100: "Ao100",

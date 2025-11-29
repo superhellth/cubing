@@ -3,14 +3,16 @@ import { useState } from "react";
 const defaultSettings = {
     inspection: false,
     readyAfter: 200,
-    averageGraphXAxis: 'date'
+    avgGraphXAxis: 'id',
+    avgGraphDisplay: ["avg5", "avg12"],
+    avgGraphNumSolves: 50
 };
 
 export const useTimerSettings = () => {
     const [settings, setSettings] = useState(() => {
         try {
             const item = localStorage.getItem("appSettings");
-            return item ? JSON.parse(item) : defaultSettings;
+            return item ? { ...defaultSettings, ...JSON.parse(item) } : defaultSettings;
         } catch (error) {
             console.error(error);
             return defaultSettings;
@@ -18,13 +20,17 @@ export const useTimerSettings = () => {
     });
 
     const updateSetting = (key: string, value: any) => {
-        try {
-            setSettings((prev: any) => ({ ...prev, [key]: value }));
-            localStorage.setItem(key, JSON.stringify(value));
-        } catch (error) {
-            console.error(error);
-        }
+        setSettings((prev: any) => {
+            const newSettings = { ...prev, [key]: value };
+            try {
+                localStorage.setItem("appSettings", JSON.stringify(newSettings));
+            } catch (error) {
+                console.error("Failed to save settings to LocalStorage", error);
+            }
+
+            return newSettings;
+        });
     };
 
-    return {settings, updateSetting}
+    return { settings, updateSetting }
 }

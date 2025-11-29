@@ -79,7 +79,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </Box>
                 </Box>
                 <Box sx={{ flex: 1, }}>
-                    <AvgGraphs solves={solves} xByDate={settings.averageGraphXAxis == "date"} display={["avg5", "avg12", "avg100"]} />
+                    <AvgGraphs solves={solves} settings={settings} />
                 </Box>
             </TimerPanel>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />

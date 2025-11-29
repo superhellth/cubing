@@ -10,7 +10,7 @@ export const ImprovementChartLegend = ({ series }: LegendProps) => {
     const visibleSeries = series.filter(s => s.id !== "pb-scatter");
 
     return (
-        <Stack direction="row" spacing={2} justifyContent="center" mb={1}>
+        <Stack direction="row" spacing={2} justifyContent="center" mb={1} sx={{margin: 0}}>
             {visibleSeries.map((item) => (
                 <Stack key={item.id} direction="row" alignItems="center" spacing={1}>
                     <Box sx={{

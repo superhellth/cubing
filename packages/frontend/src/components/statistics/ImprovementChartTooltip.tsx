@@ -45,7 +45,7 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
                         }
                     </Grid>
                     <Grid size={10}>
-                        {display.map((key: keyof ISolve) => (
+                        {display.filter((v: string) => v !== "pb").map((key: keyof ISolve) => (
                             solve[key] ? (
                                 <Stack direction="row" spacing={2} alignItems="center">
                                     <Box sx={{
@@ -62,26 +62,28 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
                                 </Stack>
                             ) : null
                         ))}
-                        <Stack direction="row" spacing={2} alignItems="center">
-                            <Box sx={{
-                                width: 20,
-                                height: 3,
-                                background: `repeating-linear-gradient(
-                                            90deg, 
-                                            ${theme.palette.graphColors["pb"]}, 
-                                            ${theme.palette.graphColors["pb"]} 5px, 
-                                            transparent 5px, 
-                                            transparent 9px
-                                            )`
+                        {display.includes("pb") &&
+                            <Stack direction="row" spacing={2} alignItems="center">
+                                <Box sx={{
+                                    width: 20,
+                                    height: 3,
+                                    background: `repeating-linear-gradient(
+                                    90deg, 
+                                    ${theme.palette.graphColors["pb"]}, 
+                                    ${theme.palette.graphColors["pb"]} 5px, 
+                                    transparent 5px, 
+                                    transparent 9px
+                                    )`
 
-                            }} />
-                            <Typography
-                                key={"pb"}
-                                sx={{ ml: 2, fontWeight: 'light' }}
-                            >
-                                {solve.newPB ? "(New)" : ""} PB: {Timer.formatTime(solve.pb)}
-                            </Typography>
-                        </Stack>
+                                }} />
+                                <Typography
+                                    key={"pb"}
+                                    sx={{ ml: 2, fontWeight: 'light' }}
+                                >
+                                    {solve.newPB ? "(New)" : ""} PB: {Timer.formatTime(solve.pb)}
+                                </Typography>
+                            </Stack>
+                        }
                     </Grid>
                 </Grid>
             </Stack>

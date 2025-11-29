@@ -1,17 +1,17 @@
 import { keyToLabels, type ISolve } from "@cubing/shared";
-import { Box, Paper, useTheme } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Paper, Select, useTheme } from "@mui/material";
 import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import Timer from "../../utils/timer";
 import { CustomAnimatedLine, ForecastArea, ShadedBackground } from "../graphs/PredictionArea";
 import { useSolvesForecast } from "../../hooks/useSolveForecast";
 import { ImprovementChartLegend } from "./ImprovementChartLegend";
 import { ImprovementChartTooltip } from "./ImprovementChartTooltip";
+import ImprovementChartControl from "./ImprovementChartControl";
 
 interface ImprovementChartProps {
     solvesChronological: ISolve[];
     pbProgression: ISolve[];
-    display?: (keyof ISolve)[];
     predict?: (keyof ISolve)[];
     showConfidence?: boolean;
 }
@@ -19,21 +19,24 @@ interface ImprovementChartProps {
 const ImprovementChart = memo(({
     solvesChronological,
     pbProgression,
-    display = ["avg100", "avg1000"],
     predict = ["avg100"],
     showConfidence = true
 }: ImprovementChartProps) => {
-    const theme = useTheme();
-
-    // Guard Clause
     if (!solvesChronological?.length) return null;
 
+    const theme = useTheme();
+    const [display, setDisplay] = useState<string[]>(["avg100", "avg1000", "pb"]);
+    const [predictionHorizon, setPredictionHorizon] = useState<number>(20);
+
+    // Guard Clause
+
     // 1. Logic Hook
-    const { historyAndPredictions, xAxisData, confidences, lastIndex } = useSolvesForecast(solvesChronological, predict);
+    const { historyAndPredictions, xAxisData, confidences, lastIndex } = useSolvesForecast(solvesChronological,
+        display.filter((s: string) => s !== "pb"), predictionHorizon);
 
     // 2. Chart Configuration (Memoized)
     const seriesConfig: any = useMemo(() => {
-        const lines = display.map(key => ({
+        const lines = display.filter((value: string) => value !== "pb").map(key => ({
             type: "line",
             id: key,
             dataKey: key,
@@ -61,12 +64,11 @@ const ImprovementChart = memo(({
             dataKey: "pb",
             disableHighlight: true,
         };
+        if (display.includes("pb")) return [...lines, pbScatter, pbLine]
 
-        return [...lines, pbScatter, pbLine];
+        return lines;
     }, [display, pbProgression, solvesChronological, theme]);
 
-    // 3. Styles
-    // Centralize complex sx props
     const chartSurfaceSx = {
         '& .line-after path': { strokeDasharray: '10 5' },
         '& .MuiLineElement-series-pb-line': { strokeDasharray: '10 5' },
@@ -75,6 +77,8 @@ const ImprovementChart = memo(({
     return (
         <Paper sx={{ height: "100%", display: "flex", flexDirection: "column", p: 2 }}>
 
+            <ImprovementChartControl display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
+                predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)} />
             <ImprovementChartLegend series={seriesConfig} />
 
             <Box sx={{ flexGrow: 1, minHeight: 0 }}>
@@ -87,6 +91,9 @@ const ImprovementChart = memo(({
                         min: 0,
                         max: historyAndPredictions.length - 1,
                     }]}
+                    yAxis={[{
+                        valueFormatter: (v: number) => (v / 1000).toFixed(0)
+                    }]}
                 >
                     <ChartsSurface sx={chartSurfaceSx}>
                         <ShadedBackground limit={lastIndex} />
@@ -98,9 +105,9 @@ const ImprovementChart = memo(({
                         />
                         <ScatterPlot />
 
-                        {showConfidence && (
+                        {/* {showConfidence && (
                             <ForecastArea limit={lastIndex} forecast={confidences[0]} />
-                        )}
+                        )} */}
 
                         <ChartsAxisHighlight x="line" />
                         <LineHighlightPlot />

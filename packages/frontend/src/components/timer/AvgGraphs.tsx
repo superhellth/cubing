@@ -9,11 +9,14 @@ const cleanVal = (val: number | undefined | null) => {
     return val;
 };
 
-const AvgGraphs = memo(({ solves, xByDate, display = ["avg12", "avg100", "avg1000"] }: { solves: ISolve[], xByDate: boolean, display: any }) => {
+const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any }) => {
     const theme = useTheme();
+    const xByDate: boolean = useMemo(() => {return settings.avgGraphXAxis == "date"}, [settings]);
+    const display: any[] = useMemo(() => {return settings.avgGraphDisplay}, [settings]);
+    const displayNumSolves: number = useMemo(() => {return settings.avgGraphNumSolves}, [settings]);
 
     const chartData = useMemo(() => {
-        const chronologicalSolves = [...solves].reverse();
+        const chronologicalSolves = [...solves].reverse().slice(-Math.min(displayNumSolves, solves.length));
 
         return chronologicalSolves.map((solve, i) => ({
             index: i + 1,
@@ -26,21 +29,24 @@ const AvgGraphs = memo(({ solves, xByDate, display = ["avg12", "avg100", "avg100
         }));
     }, [solves]);
 
-    const series = display.map((key: any) => ({
-        id: key,
-        label: keyToLabels[key as keyof typeof keyToLabels],
-        dataKey: key,
-        color: theme.palette.graphColors[key],
-        showMark: false,
-        valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
-    }));
+    const series = useMemo(() => {
+        if (display == null) return [];
+        return display.map((key: any) => ({
+            id: key,
+            label: keyToLabels[key as keyof typeof keyToLabels],
+            dataKey: key,
+            color: theme.palette.graphColors[key],
+            showMark: false,
+            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
+        }));
+    }, [display]);
 
     return (
         <Box>
             <LineChart
                 dataset={chartData}
                 xAxis={[{
-                    label: xByDate ? "Date" : "ID",
+                    label: xByDate ? "Date" : "Solve ID",
                     dataKey: xByDate ? "date" : "id",
                     scaleType: xByDate ? 'time' : 'linear',
                     valueFormatter: xByDate
@@ -55,7 +61,7 @@ const AvgGraphs = memo(({ solves, xByDate, display = ["avg12", "avg100", "avg100
                     },
                 }}
                 grid={{ horizontal: true }}
-                yAxis={[{ label: 'Seconds' }]}
+                yAxis={[{ label: 'Time', valueFormatter: (v: number) => (v / 1000).toFixed(0) }]}
                 hideLegend={true}
                 series={series}
                 height={200}
