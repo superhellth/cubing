@@ -19,11 +19,12 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
     if (!tooltipData) {
         return null;
     }
-    const solve: any = useMemo(() => {
-        const axisData = tooltipData;
-        const solveIndex: number = axisData[0].dataIndex;
+    const solveIndex: number = useMemo(() => {
+        return tooltipData[0].dataIndex;
+    }, [tooltipData])
+    const solve: ISolve = useMemo(() => {
         return displayedSolves[solveIndex];
-    }, tooltipData);
+    }, [tooltipData]);
 
     return (
         <Paper
@@ -39,9 +40,9 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
             <Stack direction="row" alignItems="center">
                 <Grid container spacing={2}>
                     <Grid size={10}>
-                        {solve.index < predictionStart ?
+                        {solveIndex < predictionStart ?
                             <Typography sx={{ ml: 2 }}>{longFormatter.format(solve.date)}</Typography>
-                            : <Typography sx={{ ml: 2 }}>{"Prediction " + (solve.index - predictionStart + 1) + " solves into the future"}</Typography>
+                            : <Typography sx={{ ml: 2 }}>{"Prediction " + (solveIndex - predictionStart + 1) + " solves into the future"}</Typography>
                         }
                     </Grid>
                     <Grid size={10}>
@@ -57,12 +58,12 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
                                         key={key}
                                         sx={{ ml: 2, fontWeight: 'light' }}
                                     >
-                                        {keyToLabels[key as keyof typeof keyToLabels]}: {Timer.formatTime(solve[key])}
+                                        {keyToLabels[key as keyof typeof keyToLabels]}: {Timer.formatTime(solve[key] as number)}
                                     </Typography>
                                 </Stack>
                             ) : null
                         ))}
-                        {display.includes("pb") &&
+                        {display.includes("pb") && solveIndex < predictionStart &&
                             <Stack direction="row" spacing={2} alignItems="center">
                                 <Box sx={{
                                     width: 20,

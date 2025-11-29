@@ -26,3 +26,11 @@ export function solveWithUpdatedStatus(solve: ISolve, newStatus: Status) {
         status: newStatus
     }
 }
+
+export function sortChronologically(solves: ISolve[], order="asc") {
+    if (order === "asc") {
+        return solves.sort((a: ISolve, b: ISolve) => {return a.date.getTime() - b.date.getTime()})
+    } else {
+        return solves.sort((a: ISolve, b: ISolve) => {return b.date.getTime() - a.date.getTime()})
+    }
+}

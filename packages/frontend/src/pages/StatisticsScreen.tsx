@@ -7,6 +7,7 @@ import DistributionCard from "../components/statistics/DistributionCard";
 import ImprovementChart from "../components/statistics/ImprovementChart";
 import VariabilityCard from "../components/statistics/VariabilityCard";
 import { useSolveManager } from "../hooks/useSolveManager";
+import { sortChronologically } from "../utils/solveUtils";
 
 const samplingThreshold: number = 500;
 const display: (keyof ISolve)[] = ["avg5", "avg12", "avg100", "avg1000"];
@@ -42,7 +43,7 @@ function StatisticsScreen() {
             }));
             const sampledPoints = LTTB(mappedData, samplingThreshold) as LTTBPoint[];
             const sampledSolves = sampledPoints.map((point: any) => point.original);
-            return [...new Set([...sampledSolves, ...pbs])].sort((a: any, b: any) => { return a.date - b.date });
+            return sortChronologically([...new Set([...sampledSolves, ...pbs])]);
         }
         return [...new Set([...solvesWithRelevantAverages, ...pbs])];
     }, [solves]);
@@ -59,7 +60,7 @@ function StatisticsScreen() {
                 <ActivityCard />
             </Grid>
             <Grid size={12}>
-                <ImprovementChart solvesChronological={downsampledSolves} pbProgression={pbs} predict={display} showConfidence={true} />
+                <ImprovementChart solves={solves} />
             </Grid>
         </Grid >
     );

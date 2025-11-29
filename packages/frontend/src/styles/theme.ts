@@ -1,6 +1,6 @@
 import { red } from '@mui/material/colors';
 import '@mui/material/styles';
-import { createTheme } from '@mui/material/styles';
+import { alpha, createTheme } from '@mui/material/styles';
 import type { } from '@mui/x-charts/themeAugmentation';
 
 declare module '@mui/material/styles' {
@@ -112,7 +112,74 @@ const theme = createTheme({
                     color: theme.palette.secondary.main
                 })
             }
-        }
+        },
+        // MuiSlider: {
+        //     styleOverrides: {
+
+        //     }
+        // },
+        MuiMenuItem: {
+            styleOverrides: {
+                root: ({ theme }) => ({
+                    // 1. Hover state
+                    '&:hover': {
+                        backgroundColor: alpha(theme.palette.info.main, 0.3),
+                    },
+                    // 2. Selected state
+                    '&.Mui-selected': {
+                        backgroundColor: theme.palette.info.dark,
+                        // 3. Hover state WHILE selected
+                        '&:hover': {
+                            backgroundColor: theme.palette.info.light,
+                        },
+                    },
+                    // Optional: You might want to unset the focus visible opacity if it conflicts
+                    '&.Mui-focusVisible': {
+                        backgroundColor: theme.palette.info.main,
+                    }
+                }),
+            },
+        },
+        MuiInputLabel: {
+            styleOverrides: {
+                root: ({ theme }) => ({
+                    // Default state (matches :not(.Mui-focused))
+                    color: theme.palette.text.primary,
+
+                    // Focused state
+                    '&.Mui-focused': {
+                        color: theme.palette.info.main,
+                    },
+                }),
+            },
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: ({ theme }) => ({
+                    // 1. Target the focused state
+                    '&.Mui-focused': {
+                        // 2. Target the distinct border element (fieldset)
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: theme.palette.info.main, // Change to your desired color
+                            borderWidth: '2px', // Optional: thicker border on focus
+                        },
+                    },
+                }),
+            },
+        },
+        MuiFormHelperText: {
+            styleOverrides: {
+                root: ({ theme }) => ({
+                    // Default state
+                    color: theme.palette.text.primary,
+
+                    // Focused state
+                    '&.Mui-focused': {
+                        color: theme.palette.info.main,
+                    },
+                }),
+            },
+        },
     },
 });
 

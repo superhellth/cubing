@@ -8,33 +8,53 @@ import { useSolvesForecast } from "../../hooks/useSolveForecast";
 import { ImprovementChartLegend } from "./ImprovementChartLegend";
 import { ImprovementChartTooltip } from "./ImprovementChartTooltip";
 import ImprovementChartControl from "./ImprovementChartControl";
+import useDownsampling from "../../hooks/useDownsampling";
+import usePBStats from "../../hooks/usePBStats";
+import { sortChronologically } from "../../utils/solveUtils";
 
 interface ImprovementChartProps {
-    solvesChronological: ISolve[];
-    pbProgression: ISolve[];
-    predict?: (keyof ISolve)[];
-    showConfidence?: boolean;
+    solves: ISolve[];
 }
 
 const ImprovementChart = memo(({
-    solvesChronological,
-    pbProgression,
-    predict = ["avg100"],
-    showConfidence = true
+    solves
 }: ImprovementChartProps) => {
-    if (!solvesChronological?.length) return null;
-
+    if (!solves?.length) return null;
     const theme = useTheme();
+
+    // Chart Controller
     const [display, setDisplay] = useState<string[]>(["avg100", "avg1000", "pb"]);
     const [predictionHorizon, setPredictionHorizon] = useState<number>(20);
+    const [samplingLimit, setSamplingLimit] = useState<number>(100);
 
-    // Guard Clause
+    // Data cleaning
+    const solvesWithPbs: ISolve[] = usePBStats(solves);
+    const sampledSolves: ISolve[] = useDownsampling(solvesWithPbs, samplingLimit, true);
+    const solvesChronological: ISolve[] = useMemo(() => { return sortChronologically(sampledSolves) }, [sampledSolves]);
+    const lastIndex: number = sampledSolves.length - 1;
 
-    // 1. Logic Hook
-    const { historyAndPredictions, xAxisData, confidences, lastIndex } = useSolvesForecast(solvesChronological,
+    // Prediction
+    const { predictions, confidences } = useSolvesForecast(sortChronologically(solves),
         display.filter((s: string) => s !== "pb"), predictionHorizon);
 
-    // 2. Chart Configuration (Memoized)
+    // Chart Configuration (Memoized)
+    const historyAndPredictions: ISolve[] = useMemo(() => {
+        return [...solvesChronological, ...predictions];
+    }, [sampledSolves, predictions]);
+    const xAxisData = useMemo(() => {
+        return historyAndPredictions.map((_: ISolve, i: number) => i);
+    }, [historyAndPredictions]);
+    const pbData: any = useMemo(() => {
+        const dataPoints: any[] = [];
+        for (let i = 0; i < solvesChronological.length; i++) {
+            const solve: ISolve = solvesChronological[i];
+            if (solve.newPB) {
+                dataPoints.push({ x: i, y: solve.duration });
+            }
+        }
+        // console.log()
+        return dataPoints;
+    }, [solvesChronological]);
     const seriesConfig: any = useMemo(() => {
         const lines = display.filter((value: string) => value !== "pb").map(key => ({
             type: "line",
@@ -43,6 +63,7 @@ const ImprovementChart = memo(({
             label: keyToLabels[key as keyof typeof keyToLabels],
             color: theme.palette.graphColors[key],
             showMark: true,
+            skipAnimation: true,
             valueFormatter: (v: number) => Timer.formatTime(v)
         }));
 
@@ -50,7 +71,7 @@ const ImprovementChart = memo(({
             type: "scatter",
             id: "pb-scatter",
             label: "Personal Best",
-            data: pbProgression.map(s => ({ x: solvesChronological.indexOf(s), y: s.duration })),
+            data: pbData,
             color: theme.palette.info.main,
             markerSize: 5,
             valueFormatter: () => null
@@ -67,7 +88,7 @@ const ImprovementChart = memo(({
         if (display.includes("pb")) return [...lines, pbScatter, pbLine]
 
         return lines;
-    }, [display, pbProgression, solvesChronological, theme]);
+    }, [display, solves, theme, pbData]);
 
     const chartSurfaceSx = {
         '& .line-after path': { strokeDasharray: '10 5' },
@@ -77,8 +98,10 @@ const ImprovementChart = memo(({
     return (
         <Paper sx={{ height: "100%", display: "flex", flexDirection: "column", p: 2 }}>
 
-            <ImprovementChartControl display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
-                predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)} />
+            <ImprovementChartControl numSolves={solves.length}
+                display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
+                predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}
+                sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => setSamplingLimit(newValue)} />
             <ImprovementChartLegend series={seriesConfig} />
 
             <Box sx={{ flexGrow: 1, minHeight: 0 }}>

@@ -50,20 +50,6 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                 label="Use Inspection"
                             />
                             <TextField
-                                sx={{
-                                    "& .MuiInputLabel-root.Mui-focused": {
-                                        color: "info.main",
-                                    },
-                                    "& .MuiInputLabel-root:not(.Mui-focused)": {
-                                        color: "text.primary",
-                                    },
-                                    "& .MuiFormHelperText-root:not(.Mui-focused)": {
-                                        color: "text.primary",
-                                    },
-                                    "& .MuiFormHelperText-root.Mui-focused": {
-                                        color: "info.main",
-                                    }
-                                }}
                                 label="Preparation Timer"
                                 variant="outlined"
                                 color="info"
@@ -82,50 +68,15 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                         </Typography>
                         <Stack spacing={2}>
 
-                            <FormControl fullWidth size="small"
-                                color="info"
-                                sx={{
-                                    "& .MuiInputLabel-root.Mui-focused": {
-                                        color: "info.main",
-                                    },
-                                    "& .MuiInputLabel-root:not(.Mui-focused)": {
-                                        color: "text.primary",
-                                    },
-                                    "& .MuiFormHelperText-root:not(.Mui-focused)": {
-                                        color: "text.primary",
-                                    },
-                                    "& .MuiFormHelperText-root.Mui-focused": {
-                                        color: "info.main",
-                                    }
-                                }}>
+                            <FormControl fullWidth size="small">
                                 <InputLabel>Graph Axis</InputLabel>
                                 <Select
-                                    MenuProps={{
-                                        PaperProps: {
-                                            sx: {
-                                                bgcolor: 'background.paper',
-
-                                                '& .MuiMenuItem-root': {
-                                                    '&:hover': {
-                                                        bgcolor: 'info.main',
-                                                        opacity: 0.3
-                                                    },
-                                                    '&.Mui-selected': {
-                                                        bgcolor: 'info.dark',
-                                                        '&:hover': {
-                                                            bgcolor: 'info.light',
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }}
-                                    value={settings.averageGraphXAxis}
+                                    value={settings.avgGraphXAxis}
                                     variant="outlined"
                                     label="Graph Axis"
-                                    onChange={(e) => updateSetting('averageGraphXAxis', e.target.value)}
+                                    onChange={(e) => {updateSetting('avgGraphXAxis', e.target.value)}}
                                 >
-                                    <MenuItem value="date">Date</MenuItem>
+                                    <MenuItem value={"date"}>Date</MenuItem>
                                     <MenuItem value="id">Solve ID</MenuItem>
                                 </Select>
                                 <FormHelperText>Unit of the X-Axis of the Average Graph.</FormHelperText>

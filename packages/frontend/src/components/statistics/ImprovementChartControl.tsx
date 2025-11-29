@@ -1,5 +1,5 @@
 import { ISolve, keyToLabels } from "@cubing/shared";
-import { Checkbox, FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, SelectChangeEvent, Slider, Stack } from "@mui/material";
+import { Checkbox, FormControl, FormLabel, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, SelectChangeEvent, Slider, Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { memo, useState } from "react";
 
 const ITEM_HEIGHT = 48;
@@ -13,31 +13,37 @@ const MenuProps = {
     },
 };
 
-const ImprovementChartControl = memo(({ display, onDisplaySelectionChanged, predict, onPredictionHorizonChanged }: any) => {
-    // const [display, setDisplay] = useState<string[]>(["avg100", "avg1000", "pb"]);
-    // const [predict, setPredict] = useState<number>(20);
+const AVERAGE_DISPLAY_ORDER = ["avg5", "avg12", "avg100", "avg1000", "pb"];
+
+const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionChanged,
+    predict, onPredictionHorizonChanged,
+    sampleThreshold, onSampleThresholdChanged }: any) => {
 
     const handleDisplayChange = (event: SelectChangeEvent<typeof display>) => {
         const { target: { value } } = event;
         const newDisplaySelection: any = typeof value === 'string' ? value.split(',') : value;
-        // setDisplay(newDisplaySelection);
-        // console.log(newDisplaySelection)
-        onDisplaySelectionChanged(newDisplaySelection);
+        const sortedSelection = AVERAGE_DISPLAY_ORDER.filter(item => newDisplaySelection.includes(item));
+
+        onDisplaySelectionChanged(sortedSelection);
     };
     const handlePredictionHorizonChange = (_event: Event, newValue: number) => {
-        // setPredict(newValue);
         onPredictionHorizonChanged(newValue);
     };
+    const handleSampleThresholdChange = (_event: any, newValue: any) => {
+        onSampleThresholdChanged(newValue);
+    }
 
     return (
         <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
-            <FormControl fullWidth sx={{ bgcolor: "secondary.main" }}>
+            <FormControl fullWidth>
                 <InputLabel>Display Times</InputLabel>
                 <Select
                     multiple
                     value={display}
+                    variant="outlined"
+                    label="Display Times"
                     onChange={handleDisplayChange}
-                    input={<OutlinedInput label="Tag" />}
+                    // input={<OutlinedInput label="Tag" />}
                     renderValue={(selected) => selected.map((value: string) => keyToLabels[value as keyof typeof keyToLabels]).join(', ')}
                     MenuProps={MenuProps}
                 >
@@ -49,7 +55,32 @@ const ImprovementChartControl = memo(({ display, onDisplaySelectionChanged, pred
                     ))}
                 </Select>
             </FormControl>
-            <FormControl fullWidth sx={{ bgcolor: "secondary.main" }}>
+            <ToggleButtonGroup
+                value={sampleThreshold}
+                exclusive
+                onChange={handleSampleThresholdChange}
+                sx={{
+                    justifyContent: 'center',
+                    width: '100%'
+                }}
+            >
+                <ToggleButton value={100} >
+                    Max
+                </ToggleButton>
+                <ToggleButton value={numSolves / 100}>
+                    Heavy
+                </ToggleButton>
+                <ToggleButton value={numSolves / 10}>
+                    Medium
+                </ToggleButton>
+                <ToggleButton value={numSolves / 3}>
+                    Slight
+                </ToggleButton>
+                <ToggleButton value={numSolves}>
+                    None
+                </ToggleButton>
+            </ToggleButtonGroup>
+            <FormControl fullWidth >
                 {/* <InputLabel>Display Times</InputLabel> */}
                 <Slider
                     value={predict}
@@ -58,6 +89,7 @@ const ImprovementChartControl = memo(({ display, onDisplaySelectionChanged, pred
                     shiftStep={30}
                     step={5}
                     marks
+                    color="info"
                     min={0}
                     max={100}
                 />

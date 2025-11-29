@@ -29,7 +29,6 @@
     "noUncheckedSideEffectImports": true
   },
   "include": [
-    "src*",            // ✅ This covers everything in src
-    "src/**/*.d.ts"
+    "src*"
   ]
 }

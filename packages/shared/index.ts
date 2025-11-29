@@ -54,7 +54,9 @@ export const SolveSchema = z.object({
     avg5: z.number().optional(),
     avg12: z.number().optional(),
     avg100: z.number().optional(),
-    avg1000: z.number().optional()
+    avg1000: z.number().optional(),
+    newPB: z.boolean().optional(),
+    pb: z.number().optional()
 });
 
 export const NewSolveSchema = SolveSchema.omit({ id: true, pk: true });
