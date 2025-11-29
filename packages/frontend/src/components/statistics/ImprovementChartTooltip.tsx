@@ -14,7 +14,7 @@ const longFormatter = new Intl.DateTimeFormat('en-US', {
     day: 'numeric'
 });
 
-export function CustomItemTooltip({ displayedSolves, display, predictionStart }: any) {
+export function ImprovementChartTooltip({ displayedSolves, display, predictionStart }: any) {
     const tooltipData = useAxesTooltip();
     if (!tooltipData) {
         return null;
@@ -57,7 +57,7 @@ export function CustomItemTooltip({ displayedSolves, display, predictionStart }:
                                         key={key}
                                         sx={{ ml: 2, fontWeight: 'light' }}
                                     >
-                                        {keyToLabels[key]}: {Timer.formatTime(solve[key])}
+                                        {keyToLabels[key as keyof typeof keyToLabels]}: {Timer.formatTime(solve[key])}
                                     </Typography>
                                 </Stack>
                             ) : null

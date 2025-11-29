@@ -1,54 +1,79 @@
-import { ISolve, Status } from "@cubing/shared"; 
+// utils/averages.ts
 
-// Helper to convert solve to milliseconds (handling +2)
-const getSolveTime = (s: ISolve): number => {
-    if (s.status === Status.PlusTwo) return s.duration + 2000;
-    return s.duration;
-};
+import { ISolve, Status } from "@cubing/shared";
 
-export function calculateAverage(solves: ISolve[], size: number): number | null {
-    if (solves.length < size) return null;
+// Reusable buffer to prevent memory allocation in the hot loop
+// We assume max window is 1000.
+const buffer = new Float64Array(1000);
 
-    // 1. Get the chunk of solves we are calculating
-    // (Assuming we are passing just the slice needed, or handling slicing outside)
-    const activeSolves = solves.slice(0, size);
+export function calculateAverageOptimized(
+    allSolves: ISolve[],
+    startIndex: number,
+    size: number
+): number | undefined {
+    // 1. Bounds check
+    if (startIndex + size > allSolves.length) return undefined;
 
     let dnfCount = 0;
-    const times: number[] = [];
+    let validCount = 0;
 
-    // 2. Extract times and count DNFs
-    for (const s of activeSolves) {
-        if (s.status === Status.DNF) {
+    // 2. Extract times into our pre-allocated buffer
+    // This avoids creating `const times = []` and `.slice()`
+    for (let i = 0; i < size; i++) {
+        const solve = allSolves[startIndex + i];
+        if (solve.status === Status.DNF) {
             dnfCount++;
         } else {
-            times.push(getSolveTime(s));
+            buffer[validCount++] = solve.duration; // Assuming duration is in milliseconds or seconds
         }
     }
 
-    // 3. Logic for DNF limits
-    // Usually: More than 1 DNF in an Ao5 is a DNF. 
-    // For Ao100, you can have up to 5 DNFs (5% rule).
-    const trimCount = Math.ceil(size * 0.05); // 5% trim (1 for Ao5/12, 5 for Ao100)
-    
-    if (dnfCount > trimCount) return -1; // DNF result
+    // 3. DNF Logic (5% rule)
+    const trimCount = Math.ceil(size * 0.05);
+    if (dnfCount > trimCount) return -1; // -1 represents DNF result
 
-    // 4. Sort times to find best/worst
-    times.sort((a, b) => a - b);
+    // 4. SPECIAL CASE: Ao5 (Optimization)
+    // For Ao5, we don't need to sort (O(N log N)). We just need sum, min, and max (O(N)).
+    if (size === 5) {
+        let min = Infinity;
+        let max = -Infinity;
+        let sum = 0;
 
-    // 5. Remove best and worst
-    // If we have DNFs, they technically count as the "worst" solves and are already removed from 'times' array,
-    // so we only need to remove extra times from the top/bottom to satisfy the trim.
-    
-    // Total to remove from each side: trimCount.
-    // We already "removed" 'dnfCount' from the bad side.
+        for (let i = 0; i < validCount; i++) {
+            const val = buffer[i];
+            if (val < min) min = val;
+            if (val > max) max = val;
+            sum += val;
+        }
+
+        // Remove 1 best, and (trimCount - dnfCount) worst
+        // In Ao5, trimCount is 1.
+        // If 0 DNFs: remove min and max.
+        // If 1 DNF: remove min (best). The DNF counts as the max (worst).
+
+        if (dnfCount === 0) {
+            return (sum - min - max) / 3;
+        } else {
+            // DNF is the "worst", so we only remove the "best" (min) from the valid times
+            return (sum - min) / 3;
+        }
+    }
+
+    // 5. General Case (Ao12, Ao100, Ao1000)
+    // We only sort the valid numbers we collected (subarray of buffer)
+    const activeBuffer = buffer.subarray(0, validCount);
+    activeBuffer.sort(); // Float64Array sorts numerically by default, unlike Array.sort()
+
+    // 6. Calculate Mean
     const removeBest = trimCount;
     const removeWorst = trimCount - dnfCount;
 
-    // Slice the valid times
-    // We trim 'removeBest' from start (fastest) and 'removeWorst' from end (slowest)
-    const validTimes = times.slice(removeBest, times.length - removeWorst);
+    let sum = 0;
+    // Sum only the central part
+    const loopEnd = validCount - removeWorst;
+    for (let i = removeBest; i < loopEnd; i++) {
+        sum += activeBuffer[i];
+    }
 
-    // 6. Calculate Mean
-    const sum = validTimes.reduce((a, b) => a + b, 0);
-    return sum / validTimes.length;
+    return sum / (size - 2 * trimCount);
 }

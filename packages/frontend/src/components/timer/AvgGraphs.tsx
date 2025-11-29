@@ -1,5 +1,5 @@
-import type { ISolve } from "@cubing/shared";
-import { Box } from "@mui/system";
+import { keyToLabels, type ISolve } from "@cubing/shared";
+import { Box, useTheme } from "@mui/system";
 import { LineChart } from "@mui/x-charts";
 import { memo, useMemo } from "react";
 import Timer from "../../utils/timer";
@@ -9,7 +9,9 @@ const cleanVal = (val: number | undefined | null) => {
     return val;
 };
 
-const AvgGraphs = memo(({ solves, xByDate }: { solves: ISolve[], xByDate: boolean }) => {
+const AvgGraphs = memo(({ solves, xByDate, display = ["avg12", "avg100", "avg1000"] }: { solves: ISolve[], xByDate: boolean, display: any }) => {
+    const theme = useTheme();
+
     const chartData = useMemo(() => {
         const chronologicalSolves = [...solves].reverse();
 
@@ -24,10 +26,11 @@ const AvgGraphs = memo(({ solves, xByDate }: { solves: ISolve[], xByDate: boolea
         }));
     }, [solves]);
 
-    const series = [["avg5", "Average of 5"], ["avg12", "Average of 12"], ["avg100", "Average of 100"], ["avg1000", "Average of 1000"]].map((value: string[]) => ({
-        id: value[0],
-        label: value[1],
-        dataKey: value[0],
+    const series = display.map((key: any) => ({
+        id: key,
+        label: keyToLabels[key as keyof typeof keyToLabels],
+        dataKey: key,
+        color: theme.palette.graphColors[key],
         showMark: false,
         valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
     }));

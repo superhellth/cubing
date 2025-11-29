@@ -3,7 +3,6 @@ import type { AnimatedLineProps } from "@mui/x-charts";
 import { AnimatedLine, useChartId, useDrawingArea, useLineSeries, useXAxis, useXScale, useYScale } from "@mui/x-charts";
 import * as d3Shape from 'd3-shape';
 import React from "react";
-import theme from "../../styles/theme";
 
 interface CustomAnimatedLineProps extends AnimatedLineProps {
     limit?: number;
@@ -60,6 +59,7 @@ export function CustomAnimatedLine(props: CustomAnimatedLineProps) {
 }
 
 export function ForecastArea({ limit, forecast }: { limit: number; forecast: { y0: number; y1: number }[]; }) {
+    const theme = useTheme();
     const lineSeries = useLineSeries();
     const xAxis = useXAxis();
     const xScale = useXScale();
@@ -96,9 +96,9 @@ export function ForecastArea({ limit, forecast }: { limit: number; forecast: { y
 
                 const path = d3Shape
                     .area<(typeof data)[number]>()
-                    .x((d) => xScale(d.x)!)
-                    .y0((d) => yScale(d.y0)!)
-                    .y1((d) => yScale(d.y1)!)(data)!;
+                    .x((d: any) => xScale(d.x)!)
+                    .y0((d: any) => yScale(d.y0)!)
+                    .y1((d: any) => yScale(d.y1)!)(data)!;
 
                 return <path key={`forecast-area-${series.id}`} d={path} fill={alpha(theme.palette.secondary.light, 0.1)} />;
             })}

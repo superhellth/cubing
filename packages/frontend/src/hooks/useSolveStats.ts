@@ -1,28 +1,38 @@
-import { useMemo } from 'react';
+import { useEffect, useRef, useState } from "react";
 import { ISolve } from "@cubing/shared";
-import { calculateAverage } from '../utils/calc';
 
 export function useSolveStats(solves: ISolve[]) {
+    // Start with empty stats, or current solves if you want immediate render 
+    // (though they won't have averages yet)
+    const [stats, setStats] = useState<ISolve[]>([]);
+    
+    const workerRef = useRef<Worker | null>(null);
 
-    return useMemo(() => {
-        if (!solves.length) return [];
+    useEffect(() => {
+        // Initialize the worker
+        // 'import.meta.url' is standard in Vite/Webpack 5
+        workerRef.current = new Worker(
+            new URL('../utils/stats.worker.ts', import.meta.url), 
+            { type: 'module' }
+        );
 
-        return solves.map((solve, index): ISolve => {
-            const relevantSolves = solves.slice(index, index + 1000);
+        // Handle messages from the worker
+        workerRef.current.onmessage = (event) => {
+            setStats(event.data);
+        };
 
-            const getAvg = (size: number) => {
-                if (relevantSolves.length < size) return undefined;
-                const result = calculateAverage(relevantSolves, size);
-                return result === null ? undefined : result;
-            };
+        // Cleanup: Terminate worker when the component unmounts
+        return () => {
+            workerRef.current?.terminate();
+        };
+    }, []);
 
-            return {
-                ...solve,
-                avg5: getAvg(5),
-                avg12: getAvg(12),
-                avg100: getAvg(100),
-                avg1000: getAvg(1000),
-            };
-        });
+    useEffect(() => {
+        // Send data to worker whenever 'solves' changes
+        if (workerRef.current) {
+            workerRef.current.postMessage(solves);
+        }
     }, [solves]);
+
+    return stats;
 }

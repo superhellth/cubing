@@ -4,7 +4,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
 import HCButton from "../components/HCButton";
 import AvgGraphs from "../components/timer/AvgGraphs";
@@ -25,18 +25,18 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const { solves, addSolve, deleteSolve, updateSolveStatus, currentScramble } =
         useSolveManager(selectedDiscipline, "default");
-
     const { timerStatus } = useTimerLogic(
         settings,
         selectedDiscipline
     );
+
     const percentile = useMemo(() => {
         if (solves.length === 0) return 100;
         if (solves[0].status === Status.DNF) return 0;
         const slowerSolvesCount = solves.filter(s => s.duration > solves[0].duration).length;
         const rawPercent = (slowerSolvesCount / solves.length) * 100;
         return Math.round(rawPercent);
-    }, [solves])
+    }, [solves]);
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
 
@@ -62,7 +62,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </ScrambleText>
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
-                    <Box sx={{ flex: 4, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingBottom: "25px"}}>
+                    <Box sx={{ flex: 4, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingBottom: "25px" }}>
                         <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
                             !inspectionlessDisciplines.includes(selectedDiscipline)} />
                         {!ACTIVE_TIMER_STATUS.includes(timerStatus) &&
@@ -79,7 +79,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </Box>
                 </Box>
                 <Box sx={{ flex: 1, }}>
-                    <AvgGraphs solves={solves} xByDate={settings.averageGraphXAxis == "date"} />
+                    <AvgGraphs solves={solves} xByDate={settings.averageGraphXAxis == "date"} display={["avg5", "avg12", "avg100"]} />
                 </Box>
             </TimerPanel>
             <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" />
@@ -87,7 +87,8 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                 <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} />
             </Box>
             {selectedSolve && (
-                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={(solvePk: bigint) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk) }} onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
+                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={(solvePk: bigint) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk) }}
+                    onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
             )}
             <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} settings={settings} updateSetting={updateSetting} />

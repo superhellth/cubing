@@ -1,11 +1,10 @@
 import type { ISolve } from "@cubing/shared";
-import { Card, Typography } from "@mui/material";
+import { Box, Card, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 import { useMemo } from "react";
 import { useOutlierDetection } from "../../hooks/useOutlierDetection";
 import BarChartIcon from '@mui/icons-material/BarChart';
-
-const key = "duration";
+import { GraphCard } from "../GraphCard";
 
 const DistributionCard = ({ solves }: any) => {
     const { nonOutliers } = useOutlierDetection(solves);
@@ -28,34 +27,16 @@ const DistributionCard = ({ solves }: any) => {
             range: `${(lowest + index * binSize).toFixed(2)} - ${(lowest + (index + 1) * binSize).toFixed(2)}`,
             entries: bin.length
         }));
-    }, [nBins, nonOutliers, key]);
+    }, [nBins, nonOutliers]);
 
     return (
-        <Card sx={{ height: "200px" }}>
-            <Typography
-                sx={{
-                    color: 'rgb(117, 117, 117)',
-                    fontSize: '0.9rem',
-                    pt: 1,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 1,
-                }}
-            >
-                <BarChartIcon
-                    fill="rgb(117, 117, 117)"
-                    width="8px"
-                    height="0.9rem"
-                />
-                Distribution of Solves
-            </Typography>
+        <GraphCard title={"Distribution of Solve Times"} icon={<BarChartIcon />}>
             <BarChart dataset={timeBins} hideLegend={true} series={[{
                 id: 'solves',
                 label: "Solves Count",
                 dataKey: "entries"
             }]} />
-        </Card>
+        </GraphCard>
     )
 }
 

@@ -2,11 +2,11 @@ import { Discipline, type ISolve } from "@cubing/shared";
 import { Grid } from "@mui/system";
 import { LTTB } from 'downsample';
 import { useMemo, useState } from "react";
-import ActivityCard from "../components/graphs/ActivityCard";
-import ImprovementChart from "../components/graphs/ImprovementChart";
-import VariabilityCard from "../components/graphs/VariabilityCard";
+import ActivityCard from "../components/statistics/ActivityCard";
+import DistributionCard from "../components/statistics/DistributionCard";
+import ImprovementChart from "../components/statistics/ImprovementChart";
+import VariabilityCard from "../components/statistics/VariabilityCard";
 import { useSolveManager } from "../hooks/useSolveManager";
-import DistributionCard from "../components/graphs/DistributionCard";
 
 const samplingThreshold: number = 500;
 const display: (keyof ISolve)[] = ["avg5", "avg12", "avg100", "avg1000"];

@@ -58,8 +58,8 @@ const theme = createTheme({
         graphColors: {
             pb: accent,
             avg5: "#0072B2",
-            avg12: "#D55E00",
-            avg100: "#009E73",
+            avg12: "#009E73",
+            avg100: "#D55E00",
             avg1000: "#CC79A7",
             duration: "#F0E442",
         }
