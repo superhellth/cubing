@@ -5,7 +5,7 @@ import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
-import { Box } from "@mui/system";
+import { Box, Stack } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
 import HCButton from "../components/HCButton";
@@ -70,17 +70,6 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                         <SettingsIcon />
                     </HCButton>
                 }
-                {/* {!hideElements &&
-                    <HCButton
-                        sx={{
-                            position: "absolute", right: 25, top: 25,
-                            userSelect: "none"
-                        }}
-                        onClick={toggleFullScreen} isSelected={true}>
-                        {isFullscreen ? (<FullscreenExitIcon sx={{ fontSize: "2rem" }} />) : (<FullscreenIcon sx={{ fontSize: "2rem" }} />)}
-
-                    </HCButton>
-                } */}
                 <Box sx={{ flex: 1 }}>
                     {!hideElements &&
                         <ScrambleText charCount={currentScramble.length}>
@@ -88,14 +77,17 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                         </ScrambleText>
                     }
                 </Box>
-                <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
-                    <Box sx={{ flex: 4, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingBottom: "25px" }}>
-                        <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
-                            !inspectionlessDisciplines.includes(selectedDiscipline)} />
+                <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-around", }}>
+                    {/* <Box sx={{ flex: 4, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}> */}
+                    <Stack spacing={2}>
+
                         {!hideGauge &&
                             <PercentileGauge percentile={percentile} />
                         }
-                    </Box>
+                        <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
+                            !inspectionlessDisciplines.includes(selectedDiscipline)} />
+                    </Stack>
+                    {/* </Box> */}
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         {!hideElements &&
                             <Box>

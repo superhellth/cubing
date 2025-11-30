@@ -1,16 +1,16 @@
 import { keyToLabels, type ISolve } from "@cubing/shared";
-import { Box, FormControl, InputLabel, MenuItem, Paper, Select, useTheme } from "@mui/material";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
 import { memo, useMemo, useState } from "react";
-import Timer from "../../utils/timer";
-import { CustomAnimatedLine, ForecastArea, ShadedBackground } from "../graphs/PredictionArea";
-import { useSolvesForecast } from "../../hooks/useSolveForecast";
-import { ImprovementChartLegend } from "./ImprovementChartLegend";
-import { ImprovementChartTooltip } from "./ImprovementChartTooltip";
-import ImprovementChartControl from "./ImprovementChartControl";
 import useDownsampling from "../../hooks/useDownsampling";
 import usePBStats from "../../hooks/usePBStats";
+import { useSolvesForecast } from "../../hooks/useSolveForecast";
 import { sortChronologically } from "../../utils/solveUtils";
+import Timer from "../../utils/timer";
+import { CustomAnimatedLine, ShadedBackground } from "../graphs/PredictionArea";
+import ImprovementChartControl from "./ImprovementChartControl";
+import { ImprovementChartLegend } from "./ImprovementChartLegend";
+import { ImprovementChartTooltip } from "./ImprovementChartTooltip";
 
 interface ImprovementChartProps {
     solves: ISolve[];
@@ -102,6 +102,8 @@ const ImprovementChart = memo(({
     return (
         <Paper sx={{
             height: "100%",
+            width: '100%',
+            overflow: 'hidden',
             display: "flex",
             flexDirection: "column",
             bgcolor: theme.palette.secondary.main,
@@ -110,11 +112,14 @@ const ImprovementChart = memo(({
             boxShadow: 'none',
             border: '1px solid #2C2C2C',
         }} >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <Typography variant="h4" sx={{ color: '#fff', mb: 3, fontWeight: 600 }} noWrap>Your Improvements</Typography>
+                <ImprovementChartControl numSolves={solves.length}
+                    display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
+                    predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}
+                    sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => setSamplingLimit(newValue)} />
+            </Box>
 
-            <ImprovementChartControl numSolves={solves.length}
-                display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
-                predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}
-                sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => setSamplingLimit(newValue)} />
             <ImprovementChartLegend series={seriesConfig} />
 
             <Box sx={{ flexGrow: 1, minHeight: 0 }}>

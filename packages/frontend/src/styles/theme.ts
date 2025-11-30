@@ -232,10 +232,29 @@ const theme = createTheme({
                     },
                     '& .MuiOutlinedInput-notchedOutline': {
                         borderColor: "rgba(255, 255, 255, 0.6)", // Change to your desired color
-                        borderWidth: '2px', // Optional: thicker border on focus
+                        borderWidth: '1px', // Optional: thicker border on focus
                     },
                 }),
             },
+        },
+        MuiToggleButton: {
+            styleOverrides: {
+                root: ({ theme }) => ({
+                    borderRadius: '6px !important',
+                    border: 'none',
+                    color: theme.palette.text.secondary,
+                    // color: "#A0A0A0",
+                    '&.Mui-selected': {
+                        backgroundColor: '#333333',
+                        color: '#FFFFFF',
+                        boxShadow: '0px 2px 4px rgba(0,0,0,0.4)',
+
+                        '&:hover': {
+                            backgroundColor: '#383838',
+                        },
+                    },
+                }),
+            }
         },
         MuiFormHelperText: {
             styleOverrides: {

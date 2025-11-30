@@ -1,7 +1,61 @@
 import { keyToLabels } from "@cubing/shared";
-import { Checkbox, FormControl, InputLabel, ListItemText, MenuItem, Select, SelectChangeEvent, Slider, Stack, ToggleButton, ToggleButtonGroup, useTheme } from "@mui/material";
+import { Box, Checkbox, FormControl, FormHelperText, InputLabel, ListItemText, MenuItem, Select, SelectChangeEvent, Slider, Stack, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { memo } from "react";
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+
+const OutlinedContainer = ({ label, children, focused }: any) => {
+    return (
+        <Box
+            component="fieldset"
+            sx={{
+                // 1. The Border & Shape
+                border: "1px solid rgba(255, 255, 255, 0.23)", // Standard MUI Dark border
+                borderRadius: "4px", // Matches default MUI radius
+                margin: 0,
+                padding: "8px 12px", // Matches standard input padding
+                backgroundColor: "transparent",
+
+                // 2. The Interaction (Hover & Focus)
+                transition: "border-color 0.2s",
+                "&:hover": {
+                    borderColor: "#FFFFFF", // Brighten on hover
+                },
+                "&:focus-within": {
+                    borderColor: "#60A5FA", // Primary Color (Sky Blue)
+                    borderWidth: "1px",     // Or "2px" if you want it thick like TextField
+                },
+
+                // Optional: If you want to force the focus style via prop
+                ...(focused && {
+                    borderColor: "#60A5FA",
+                    borderWidth: "1px",
+                }),
+            }}
+        >
+            {/* 3. The Label (The "Cut-Out" Title) */}
+            <Box
+                component="legend"
+                sx={{
+                    // Typography matching the "Shrunk" InputLabel
+                    fontSize: "0.75rem", // 12px
+                    color: "rgba(255, 255, 255, 0.6)", // Secondary Text
+                    padding: "0 4px", // Gap size around the text
+                    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif', // Inherit font
+
+                    // Color change on focus
+                    "*:focus-within &": {
+                        color: "#60A5FA"
+                    }
+                }}
+            >
+                {label}
+            </Box>
+
+            {/* 4. Your Toggle Buttons go here */}
+            {children}
+        </Box>
+    );
+};
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -36,7 +90,13 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
     }
 
     return (
-        <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
+        <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            width: "70%",
+            gap: 2,
+            paddingBottom: "1rem"
+        }}>
             <FormControl fullWidth>
                 <InputLabel>Display Times</InputLabel>
                 <Select
@@ -48,6 +108,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                     // input={<OutlinedInput label="Tag" />}
                     renderValue={(selected) => selected.map((value: string) => keyToLabels[value as keyof typeof keyToLabels]).join(', ')}
                     MenuProps={MenuProps}
+                // sx={{bgcolor: theme.palette.primary.main}}
                 >
                     {["avg5", "avg12", "avg100", "avg1000", "pb"].map((key) => (
                         <MenuItem key={key} value={key}>
@@ -64,31 +125,43 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                     ))}
                 </Select>
             </FormControl>
-            <ToggleButtonGroup
-                value={sampleThreshold}
-                exclusive
-                onChange={handleSampleThresholdChange}
-                sx={{
-                    justifyContent: 'center',
-                    width: '100%'
-                }}
-            >
-                <ToggleButton value={100} >
-                    Max
-                </ToggleButton>
-                <ToggleButton value={numSolves / 100}>
-                    Heavy
-                </ToggleButton>
-                <ToggleButton value={numSolves / 10}>
-                    Medium
-                </ToggleButton>
-                <ToggleButton value={numSolves / 3}>
-                    Slight
-                </ToggleButton>
-                <ToggleButton value={numSolves}>
-                    None
-                </ToggleButton>
-            </ToggleButtonGroup>
+            <FormControl fullWidth>
+                <OutlinedContainer label="Chart View">
+                    <ToggleButtonGroup
+                        value={sampleThreshold}
+                        exclusive
+                        onChange={handleSampleThresholdChange}
+                        sx={{
+                            justifyContent: 'center',
+                            width: '100%'
+                        }}
+                    >
+                        {/* <legend style={{
+                        fontSize: '0.75rem',
+                        color: '#A0A0A0',
+                        padding: '0 8px', // Space around text so border doesn't strike through
+                        marginLeft: '8px'
+                    }}>
+                        Sample Size
+                    </legend> */}
+                        <ToggleButton value={100} >
+                            Min
+                        </ToggleButton>
+                        <ToggleButton value={numSolves / 100}>
+                            Some
+                        </ToggleButton>
+                        <ToggleButton value={numSolves / 10}>
+                            Medium
+                        </ToggleButton>
+                        <ToggleButton value={numSolves / 3}>
+                            Lots
+                        </ToggleButton>
+                        <ToggleButton value={numSolves}>
+                            Max
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </OutlinedContainer>
+            </FormControl>
             <FormControl fullWidth >
                 {/* <InputLabel>Display Times</InputLabel> */}
                 <Slider
@@ -103,7 +176,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                     max={100}
                 />
             </FormControl>
-        </Stack>
+        </Box>
     );
 })
 

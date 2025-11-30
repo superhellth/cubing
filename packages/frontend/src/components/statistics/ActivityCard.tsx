@@ -8,21 +8,21 @@ const ActivityCard = () => {
     const heatmapData = [
         [5, 12, 15, 8, 4, 1, 0],
         [10, 25, 20, 15, 10, 5, 2],
-        [15, 30, 45, 30, 15, 8, 4],
-        [20, 25, 35, 40, 25, 10, 5]
+        [15, 20, 45, 30, 15, 8, 4],
+        [20, 25, 35, 10, 5, 1, 5]
     ];
 
     const days = ["M", "Tu", "W", "Th", "F", "Sa", "Su"];
     const weeks = ['This week', 'Last week', '2 Weeks ago', '3 Weeks ago'];
 
     return (
-        <GraphCard title={"Activity"} icon={<FitnessCenterIcon />}>
+        <GraphCard title={"Recent Activity"} icon={<FitnessCenterIcon />}>
             <Box>
                 <Heatmap
                     data={heatmapData}
                     xLabels={days}
                     yLabels={weeks}
-                    minColor={theme.palette.primary.main}
+                    minColor={"#00181a"}
                     maxColor={theme.palette.info.main}
                 />
             </Box>

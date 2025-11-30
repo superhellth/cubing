@@ -51,69 +51,76 @@ export const Heatmap: React.FC<HeatmapProps> = ({
                     height: '100%',
                     padding: "10px",
                     boxSizing: 'border-box',
+                    // Defines: 1st Col = Labels (auto width), Rest = Data (equal width)
                     gridTemplateColumns: `auto repeat(${xLabels.length}, 1fr)`,
+                    // Defines: 1st Row = Labels (auto height), Rest = Data (equal height)
                     gridTemplateRows: `auto repeat(${yLabels.length}, 1fr)`,
-                    
                     gap: 1,
                 }}
             >
+                {/* 1. TOP-LEFT EMPTY CORNER */}
                 <Box />
 
+                {/* 2. TOP ROW HEADERS (X-AXIS) */}
                 {xLabels.map((label, i) => (
-                    <Box key={`x-${i}`} sx={{ display: 'flex', alignItems: 'end', justifyContent: 'center', height: '100%' }}>
-                         <Typography
-                            variant="caption"
-                            align="center"
-                            sx={{ mb: 0.5 }}
-                        >
+                    <Box key={`x-${i}`} sx={{ display: 'flex', alignItems: 'end', justifyContent: 'center' }}>
+                        <Typography variant="caption" align="center" sx={{ mb: 0.5 }}>
                             {label}
                         </Typography>
                     </Box>
                 ))}
 
+                {/* 3. DATA ROWS */}
                 {data.map((row, rowIndex) => (
                     <React.Fragment key={`row-${rowIndex}`}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
-                            <Typography
-                                variant="caption"
-                                sx={{ mr: 1, whiteSpace: 'nowrap', textAlign: 'right' }}
-                            >
-                                {yLabels[rowIndex]}
+
+                        {/* === MISSING PIECE: THE Y-AXIS LABEL === */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'end', pr: 1 }}>
+                            <Typography variant="caption" align="right">
+                                {/* {yLabels[rowIndex]} */}
                             </Typography>
                         </Box>
 
-                        {/* Cells */}
                         {row.map((value, colIndex) => {
                             const range = maxValue - minValue;
                             const intensity = range === 0 ? 0 : (value - minValue) / range;
                             const cellColor = interpolateColor(minColor, maxColor, intensity);
 
                             return (
-                                <Tooltip
+                                <Box
                                     key={`cell-${rowIndex}-${colIndex}`}
-                                    title={`${yLabels[rowIndex]}, ${xLabels[colIndex]}: ${value} solves`}
-                                    arrow
-                                    placement="top"
-                                    style={{ width: '100%', height: '100%' }} 
+                                    sx={{
+                                        width: '100%',
+                                        aspectRatio: '1 / 1',
+                                        display: 'flex',
+                                    }}
                                 >
-                                    <Box
-                                        sx={{
-                                            width: '100%',
-                                            height: '100%', 
-                                            backgroundColor: cellColor,
-                                            borderRadius: 1,
-                                            cursor: 'pointer',
-                                            transition: theme.transitions.create(['transform', 'box-shadow', 'z-index'], {
-                                                duration: theme.transitions.duration.shortest,
-                                            }),
-                                            '&:hover': {
-                                                transform: 'scale(1.1)',
-                                                zIndex: 10,
-                                                boxShadow: theme.shadows[4],
-                                            }
-                                        }}
-                                    />
-                                </Tooltip>
+                                    <Tooltip
+                                        title={`${yLabels[rowIndex]}, ${xLabels[colIndex]}: ${value}`}
+                                        arrow
+                                        placement="top"
+                                    >
+                                        <Box
+                                            sx={{
+                                                width: '100%',
+                                                height: '100%',
+                                                backgroundColor: cellColor,
+                                                borderRadius: '2px',
+                                                cursor: 'pointer',
+                                                transition: (theme) => theme.transitions.create(
+                                                    ['transform', 'box-shadow', 'z-index'],
+                                                    { duration: theme.transitions.duration.shortest }
+                                                ),
+                                                '&:hover': {
+                                                    transform: 'scale(1.15)',
+                                                    boxShadow: (theme) => theme.shadows[6],
+                                                    zIndex: 10,
+                                                    position: 'relative',
+                                                }
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </Box>
                             );
                         })}
                     </React.Fragment>
