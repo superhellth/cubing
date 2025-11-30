@@ -2,7 +2,7 @@ import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
-import { Box, Divider, Slide } from '@mui/material';
+import { Box, Divider, Paper, Slide, useTheme } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HCButton from '../HCButton';
@@ -20,6 +20,7 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange }: Side
     const ignoreMouseRef = useRef(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const theme = useTheme();
 
     const onMouseLeave = () => {
         ignoreMouseRef.current = false;
@@ -53,7 +54,13 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange }: Side
     return (
         <Box component="nav" sx={{ display: 'flex' }}> {/* Semantic Tag */}
             {/* Main Vertical Bar */}
-            <Box sx={{ width: "100px", display: "flex", flexDirection: "column", justifyContent: "space-around", zIndex: 5, bgcolor: "secondary.main" }}>
+            <Paper sx={{
+                width: "100px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-around", 
+                zIndex: 5,
+                bgcolor: theme.palette.secondary.main }}>
                 <Box onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
                     <HCButton onClick={() => navigate("/")} isSelected={location.pathname === "/"}>
                         <AlarmFilledIcon sx={{ fontSize: 30 }} />
@@ -65,7 +72,7 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange }: Side
                 <HCButton onClick={() => navigate("/licenses")} isSelected={location.pathname === "/licenses"}>
                     <InfoOutlinedIcon sx={{ fontSize: 30 }} />
                 </HCButton>
-            </Box>
+            </Paper>
 
             {/* Slide out Drawer */}
             {/* <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" /> */}
@@ -96,7 +103,7 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange }: Side
                         background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))',
                         pointerEvents: 'none'
                     }} />
-                    {/* <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" /> */}
+                    <Divider orientation="vertical" sx={{ bgcolor: theme.palette.secondary.main }} flexItem component="div" />
                 </Box>
             </Slide>
         </Box>

@@ -101,8 +101,14 @@ const ImprovementChart = memo(({
 
     return (
         <Paper sx={{
-            height: "100%", display: "flex", flexDirection: "column", p: 2,
-            bgcolor: theme.palette.primary.main, border: "1px solid", borderColor: theme.palette.secondary.main
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            bgcolor: theme.palette.secondary.main,
+            borderRadius: '16px',
+            p: 2,
+            boxShadow: 'none',
+            border: '1px solid #2C2C2C',
         }} >
 
             <ImprovementChartControl numSolves={solves.length}

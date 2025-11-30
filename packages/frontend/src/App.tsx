@@ -57,7 +57,7 @@ function App() {
       <CssBaseline />
       {backendOnline ? (
 
-        <Box sx={{ width: "100%", height: "100%", margin: "0 auto", bgcolor: "secondary.main", display: "flex" }}>
+        <Box sx={{ width: "100%", height: "100%", margin: "0 auto", bgcolor: "primary.main", display: "flex" }}>
           {sidebarVisible &&
             <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} />
 

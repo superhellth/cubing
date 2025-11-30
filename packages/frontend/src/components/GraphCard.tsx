@@ -19,11 +19,19 @@ export const GraphCard = ({
 }: ChartWidgetProps) => {
     const theme = useTheme();
     return (
-        <Paper sx={{ height: height, ...sx, display: "flex", flexDirection: "column",
-        bgcolor: theme.palette.primary.main, border: "1px solid", borderColor: theme.palette.secondary.main}} >
+        <Paper sx={{
+            bgcolor: theme.palette.secondary.main,
+            borderRadius: '16px',
+            height: "100%",
+            boxShadow: 'none',
+            border: '1px solid #2C2C2C',
+            display: "flex",
+            flexDirection: "column",
+            ...sx,
+        }} >
             <Typography
                 sx={{
-                    color: 'rgb(117, 117, 117)',
+                    color: theme.palette.text.secondary,
                     fontSize: '0.9rem',
                     pt: 1,
                     display: 'flex',
@@ -39,7 +47,7 @@ export const GraphCard = ({
                         alignItems: 'center',
 
                         '& svg': {
-                            fill: "rgb(117, 117, 117)",
+                            fill: theme.palette.text.secondary,
                             fontSize: "1rem",
                             width: "auto",
                             height: "0.9rem",
