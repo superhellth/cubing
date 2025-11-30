@@ -4,7 +4,7 @@ import { memo } from "react";
 import { getDisplayableTime, getDisplayTime } from "../../utils/solveUtils";
 
 export const SolveRow = memo(({ solve, bestStats }: any) => {
-    const isBestSingle = bestStats.single !== null && solve.duration === bestStats.single;
+    const isBestSingle = bestStats.duration !== null && solve.duration === bestStats.duration;
     const isBestAvg5 = bestStats.avg5 !== null && solve.avg5 === bestStats.avg5;
     const isBestAvg12 = bestStats.avg12 !== null && solve.avg12 === bestStats.avg12;
 

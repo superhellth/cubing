@@ -48,18 +48,22 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     return (
         <ScreenContainer>
             <TimerPanel>
-                <HCButton
-                    sx={{
-                        position: "absolute", right: 25, top: 25,
-                        userSelect: "none"
-                    }}
-                    onClick={() => { setSettingsOpen(true); }} isSelected={true}>
-                    <SettingsIcon />
-                </HCButton>
+                {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                    <HCButton
+                        sx={{
+                            position: "absolute", right: 25, top: 25,
+                            userSelect: "none"
+                        }}
+                        onClick={() => { setSettingsOpen(true); }} isSelected={true}>
+                        <SettingsIcon />
+                    </HCButton>
+                }
                 <Box sx={{ flex: 1 }}>
-                    <ScrambleText charCount={currentScramble.length}>
-                        {currentScramble}
-                    </ScrambleText>
+                    {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                        <ScrambleText charCount={currentScramble.length}>
+                            {currentScramble}
+                        </ScrambleText>
+                    }
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
                     <Box sx={{ flex: 4, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingBottom: "25px" }}>
@@ -70,26 +74,34 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                         }
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
-                        <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
-                            Ao5: {solves[0]?.avg5 ? getDisplayableTime(solves[0], "avg5") : "-"}
-                        </Typography>
-                        <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.dark" }}>
-                            Ao12: {solves[0]?.avg12 ? getDisplayableTime(solves[0], "avg12") : "-"}
-                        </Typography>
+                        {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                            <Box>
+                                <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
+                                    Ao5: {solves[0]?.avg5 ? getDisplayableTime(solves[0], "avg5") : "-"}
+                                </Typography>
+                                <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.dark" }}>
+                                    Ao12: {solves[0]?.avg12 ? getDisplayableTime(solves[0], "avg12") : "-"}
+                                </Typography>
+                            </Box>
+                        }
                     </Box>
                 </Box>
                 <Box sx={{ flex: 1, }}>
-                    <AvgGraphs solves={solves} settings={settings} />
+                    {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                        <AvgGraphs solves={solves} settings={settings} />
+                    }
                 </Box>
             </TimerPanel>
             {/* <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" /> */}
-            <Box sx={{
-                bgcolor: "secondary.main", height: "100%", flex: 1
-                // margin: 0,
-                // padding: 0
-            }}>
-                <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} />
-            </Box>
+            {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                <Box sx={{
+                    bgcolor: "secondary.main", height: "100%", flex: 1
+                    // margin: 0,
+                    // padding: 0
+                }}>
+                    <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} />
+                </Box>
+            }
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={(solvePk: bigint) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk) }}
                     onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}

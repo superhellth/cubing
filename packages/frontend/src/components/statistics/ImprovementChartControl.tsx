@@ -1,6 +1,6 @@
-import { ISolve, keyToLabels } from "@cubing/shared";
-import { Checkbox, FormControl, FormLabel, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, SelectChangeEvent, Slider, Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { memo, useState } from "react";
+import { keyToLabels } from "@cubing/shared";
+import { Checkbox, FormControl, InputLabel, ListItemText, MenuItem, Select, SelectChangeEvent, Slider, Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { memo } from "react";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;

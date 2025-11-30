@@ -55,13 +55,14 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
         setOrderBy(property);
     };
     return (
-        <Paper elevation={15} sx={{
-            flex: 1,
+        <Paper elevation={0} sx={{
+            flex: 4,
             marginTop: "1rem",
             bgcolor: theme.palette.primary.main,
             border: "1px solid #333",
             width: 'fit-content',
-            minWidth: '100%'
+            minWidth: '100%',
+            display: "flex"
         }}>
 
             <TableVirtuoso
@@ -74,10 +75,10 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                     Scroller: React.forwardRef((props, ref) => (
                         <TableContainer component={Paper} {...props} ref={ref} sx={{
                             overflowX: 'auto',
+                            flex: 1,
                             '&::-webkit-scrollbar': { display: 'none' },
                             scrollbarWidth: 'none',
                             overflow: 'visible',
-                            flexShrink: 0,
                             width: 'fit-content',
                             minWidth: '100%',
                             msOverflowStyle: 'none',

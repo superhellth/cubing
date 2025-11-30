@@ -90,6 +90,14 @@ const theme = createTheme({
         }
     },
     components: {
+        MuiDivider: {
+            styleOverrides: {
+                root: ({ theme }) => ({
+                    backgroundColor: "rgba(255, 255, 255, 0.06)",
+                    // left: "24px"
+                })
+            }
+        },
         MuiChartsTooltip: {
             styleOverrides: {
                 paper: ({ theme }) => ({
@@ -150,7 +158,7 @@ const theme = createTheme({
             styleOverrides: {
                 root: ({ theme }) => ({
                     // Default state (matches :not(.Mui-focused))
-                    color: theme.palette.text.primary,
+                    color: "rgba(255, 255, 255, 0.6)",
 
                     // Focused state
                     '&.Mui-focused': {
@@ -171,7 +179,7 @@ const theme = createTheme({
                         },
                     },
                     '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: theme.palette.text.primary, // Change to your desired color
+                        borderColor: "rgba(255, 255, 255, 0.6)", // Change to your desired color
                         borderWidth: '2px', // Optional: thicker border on focus
                     },
                 }),
@@ -181,7 +189,7 @@ const theme = createTheme({
             styleOverrides: {
                 root: ({ theme }) => ({
                     // Default state
-                    color: theme.palette.text.primary,
+                    color: "rgba(255, 255, 255, 0.6)",
 
                     // Focused state
                     '&.Mui-focused': {

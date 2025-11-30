@@ -11,6 +11,7 @@ import { getDisplayableTime } from '../../utils/solveUtils';
 import Timer from "../../utils/timer";
 import SolvesTable from './SolvesTable';
 import { useTheme } from '@mui/system';
+import usePBStats from '../../hooks/usePBStats';
 
 interface Stats {
     [key: string]: number | null;
@@ -28,6 +29,7 @@ export const HEAD_CELLS = [
 const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[], openSolveDetailsScreen: Function }) => {
     const theme = useTheme();
     const latestSolve = solves?.[0];
+    // const solvesWithPB = usePBStats(solves);
 
     const bestStats: any = useMemo(() => {
         const stats: Stats = { duration: null, avg5: null, avg12: null, avg100: null, avg1000: null };
@@ -46,27 +48,39 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
             updateBest('avg100', s.avg100);
             updateBest('avg1000', s.avg1000);
         }
+        // console.log(stats)
         return stats;
     }, [solves]);
 
 
 
     return (
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "1.5rem", overflow: "hidden" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "1.5rem" }}>
             {/* Best Statistics Table */}
             <h1>Your Solves</h1>
-            <Paper elevation={0} sx={{ bgcolor: theme.palette.primary.main, border: "1px solid #333" }}>
-                <Table sx={{
-                    [`& .${tableCellClasses.root}`]: { borderBottom: "none" }
+            <Paper elevation={0} sx={{ bgcolor: theme.palette.primary.main, border: "1px solid #333", flex: 1, display: "flex", padding: "1rem" }}>
+                <Table size='small' sx={{
+                    // height: "100%",
+                    [`& .${tableCellClasses.root}`]: {
+                        borderBottom: "none",
+                        padding: "0 0",
+                        paddingTop: "1rem",
+                        // height: "inherit"
+                    },
+                    [`& .${tableCellClasses.head}`]: {
+                        padding: "0 1rem",
+                        height: "auto",
+                        // lineHeight: "2",
+                    }
                 }}>
                     <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.3rem', fontWeight: "bold" } }} >
-                        <TableRow>
+                        <TableRow sx={{ height: "100%" }}>
                             <TableCell></TableCell>
                             <TableCell>Best</TableCell>
                             <TableCell>Current</TableCell>
                         </TableRow>
                     </TableHead>
-                    <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' } }}>
+                    <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' }, height: "100%" }}>
 
                         {HEAD_CELLS.slice(1).map((row) => {
                             if (solves.length < row.minSolves) return null;
