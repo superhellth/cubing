@@ -41,8 +41,8 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
 
     return (
         <Dialog open={isOpen} sx={{ color: "red" }}>
-            <DialogTitle sx={{ bgcolor: "primary.main", textAlign: "center", fontSize: "3rem", fontWeight: "bold" }}>Solve {solve.id}</DialogTitle>
-            <DialogContent sx={{ bgcolor: "primary.main", textAlign: "center", display: "flex", flexDirection: "column" }}>
+            <DialogTitle sx={{ textAlign: "center", fontSize: "3rem", fontWeight: "bold" }}>Solve {solve.id}</DialogTitle>
+            <DialogContent sx={{ textAlign: "center", display: "flex", flexDirection: "column" }}>
 
                 <IconButton
                     aria-label="close"

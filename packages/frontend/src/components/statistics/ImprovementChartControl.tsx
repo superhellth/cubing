@@ -1,6 +1,7 @@
 import { keyToLabels } from "@cubing/shared";
-import { Checkbox, FormControl, InputLabel, ListItemText, MenuItem, Select, SelectChangeEvent, Slider, Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Checkbox, FormControl, InputLabel, ListItemText, MenuItem, Select, SelectChangeEvent, Slider, Stack, ToggleButton, ToggleButtonGroup, useTheme } from "@mui/material";
 import { memo } from "react";
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -18,6 +19,7 @@ const AVERAGE_DISPLAY_ORDER = ["avg5", "avg12", "avg100", "avg1000", "pb"];
 const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionChanged,
     predict, onPredictionHorizonChanged,
     sampleThreshold, onSampleThresholdChanged }: any) => {
+    const theme = useTheme();
 
     const handleDisplayChange = (event: SelectChangeEvent<typeof display>) => {
         const { target: { value } } = event;
@@ -49,8 +51,15 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                 >
                     {["avg5", "avg12", "avg100", "avg1000", "pb"].map((key) => (
                         <MenuItem key={key} value={key}>
-                            <Checkbox checked={display.includes(key)} />
                             <ListItemText primary={keyToLabels[key as keyof typeof keyToLabels]} />
+                            {display.includes(key) && (
+                                <CheckRoundedIcon
+                                    sx={{
+                                        color: theme.palette.info.main,
+                                        fontSize: '1.2rem'
+                                    }}
+                                />
+                            )}
                         </MenuItem>
                     ))}
                 </Select>

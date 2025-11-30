@@ -1,6 +1,8 @@
 import { Discipline, inspectionlessDisciplines, Status, type ISolve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
 import SettingsIcon from "@mui/icons-material/Settings";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/system";
@@ -12,14 +14,14 @@ import LimitReachedDialog from "../components/timer/dialogs/LimitReachedDialog";
 import SolveDetailsScreen from "../components/timer/dialogs/SolveDetailsDialog";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerSettings from "../components/timer/TimerSettings";
-import TimerDisplay, { ACTIVE_TIMER_STATUS } from "../components/timer/TimerText";
+import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
 import { useTimerLogic } from "../hooks/useTimerLogic";
 import { useTimerSettings } from "../hooks/useTimerSettings";
 import { getDisplayableTime } from "../utils/solveUtils";
 import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
 import { useSolveManager } from "../hooks/useSolveManager";
 
-function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline }) {
+function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
     const { settings, updateSetting } = useTimerSettings();
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
@@ -29,6 +31,12 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
         settings,
         selectedDiscipline
     );
+    const hideGauge: boolean = useMemo(() => {
+        return ACTIVE_TIMER_STATUS.includes(timerStatus)
+    }, [timerStatus])
+    const hideElements: boolean = useMemo(() => {
+        return hideGauge && settings.hideElementsWhileSolving
+    }, [settings, hideGauge]);
 
     const percentile = useMemo(() => {
         if (solves.length === 0) return 100;
@@ -40,6 +48,10 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [selectedSolve, setSelectedSolve] = useState<ISolve | null>();
 
+    useEffect(() => {
+        updateSidebarVisibility(!hideElements);
+    }, [hideElements]);
+
     const openSolveDetailsScreen = useCallback((solve: ISolve) => {
         setSelectedSolve(solve);
         setOpenedSolveDetailsDialog(true);
@@ -48,7 +60,7 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
     return (
         <ScreenContainer>
             <TimerPanel>
-                {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                {!hideElements &&
                     <HCButton
                         sx={{
                             position: "absolute", right: 25, top: 25,
@@ -58,8 +70,19 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                         <SettingsIcon />
                     </HCButton>
                 }
+                {/* {!hideElements &&
+                    <HCButton
+                        sx={{
+                            position: "absolute", right: 25, top: 25,
+                            userSelect: "none"
+                        }}
+                        onClick={toggleFullScreen} isSelected={true}>
+                        {isFullscreen ? (<FullscreenExitIcon sx={{ fontSize: "2rem" }} />) : (<FullscreenIcon sx={{ fontSize: "2rem" }} />)}
+
+                    </HCButton>
+                } */}
                 <Box sx={{ flex: 1 }}>
-                    {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                    {!hideElements &&
                         <ScrambleText charCount={currentScramble.length}>
                             {currentScramble}
                         </ScrambleText>
@@ -69,12 +92,12 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     <Box sx={{ flex: 4, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "flex-end", paddingBottom: "25px" }}>
                         <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
                             !inspectionlessDisciplines.includes(selectedDiscipline)} />
-                        {!ACTIVE_TIMER_STATUS.includes(timerStatus) &&
+                        {!hideGauge &&
                             <PercentileGauge percentile={percentile} />
                         }
                     </Box>
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
-                        {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                        {!hideElements &&
                             <Box>
                                 <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
                                     Ao5: {solves[0]?.avg5 ? getDisplayableTime(solves[0], "avg5") : "-"}
@@ -87,13 +110,13 @@ function TimerScreen({ selectedDiscipline }: { selectedDiscipline: Discipline })
                     </Box>
                 </Box>
                 <Box sx={{ flex: 1, }}>
-                    {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+                    {!hideElements &&
                         <AvgGraphs solves={solves} settings={settings} />
                     }
                 </Box>
             </TimerPanel>
             {/* <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" /> */}
-            {!(ACTIVE_TIMER_STATUS.includes(timerStatus) && settings.hideElementsWhileSolving) &&
+            {!hideElements &&
                 <Box sx={{
                     bgcolor: "secondary.main", height: "100%", flex: 1
                     // margin: 0,

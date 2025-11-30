@@ -90,6 +90,23 @@ const theme = createTheme({
         }
     },
     components: {
+        MuiDialog: {
+            styleOverrides: {
+                paper: {
+                    // backgroundColor: primary,
+                    backgroundColor: "#27272A",
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '12px',
+                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
+                },
+                root: {
+                    '& .MuiBackdrop-root': {
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        backdropFilter: "blur(3px)",
+                    }
+                }
+            }
+        },
         MuiDivider: {
             styleOverrides: {
                 root: ({ theme }) => ({
@@ -101,8 +118,14 @@ const theme = createTheme({
         MuiChartsTooltip: {
             styleOverrides: {
                 paper: ({ theme }) => ({
-                    backgroundColor: theme.palette.secondary.main,
-                    color: theme.palette.text.primary,
+                    // backgroundColor: theme.palette.secondary.main,
+                    // color: theme.palette.text.primary,
+                    backgroundColor: "rgba(30, 30, 30, 0.90)",
+                    backdropFilter: "blur(4px)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                    borderRadius: "8px",
+                    boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.5)",
+                    padding: "12px",
                 }),
             },
         },
@@ -132,27 +155,56 @@ const theme = createTheme({
 
         //     }
         // },
+        MuiMenu: {
+            styleOverrides: {
+                paper: {
+                    backgroundColor: "#27272A",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+
+                    borderRadius: "12px",
+                    marginTop: "8px",
+                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
+
+                    "&::-webkit-scrollbar": {
+                        width: "6px"
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                        backgroundColor: "rgba(255,255,255,0.2)",
+                        borderRadius: "3px"
+                    },
+                    "&::-webkit-scrollbar-track": {
+                        background: "transparent"
+                    }
+                },
+                list: {
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                },
+
+            },
+        },
         MuiMenuItem: {
             styleOverrides: {
                 root: ({ theme }) => ({
-                    // 1. Hover state
-                    '&:hover': {
-                        backgroundColor: alpha(theme.palette.info.main, 0.3),
+                    color: "#D4D4D4",
+                    fontSize: "0.95rem",
+                    padding: "10px 16px",
+
+                    "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                        color: "#FFFFFF",
                     },
-                    // 2. Selected state
-                    '&.Mui-selected': {
-                        backgroundColor: theme.palette.info.dark,
-                        // 3. Hover state WHILE selected
-                        '&:hover': {
-                            backgroundColor: theme.palette.info.light,
-                        },
-                    },
-                    // Optional: You might want to unset the focus visible opacity if it conflicts
-                    '&.Mui-focusVisible': {
-                        backgroundColor: theme.palette.info.main,
+
+                    "&.Mui-selected": {
+                        backgroundColor: alpha(theme.palette.info.main, 0.15),
+                        color: "#FFFFFF",
+                        fontWeight: 600,
+                        "&:hover": {
+                            backgroundColor: alpha(theme.palette.info.main, 0.25),
+                        }
                     }
-                }),
-            },
+                })
+            }
         },
         MuiInputLabel: {
             styleOverrides: {
@@ -189,7 +241,7 @@ const theme = createTheme({
             styleOverrides: {
                 root: ({ theme }) => ({
                     // Default state
-                    color: "rgba(255, 255, 255, 0.6)",
+                    // color: "rgba(255, 255, 255, 0.6)",
 
                     // Focused state
                     '&.Mui-focused': {

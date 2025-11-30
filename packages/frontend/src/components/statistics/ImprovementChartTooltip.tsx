@@ -30,11 +30,12 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
         <Paper
             elevation={0}
             sx={{
-                m: 1,
-                p: 1.5,
-                border: 'solid',
-                borderWidth: 2,
-                borderColor: solve.newPB ? theme.palette.info.light : theme.palette.info.dark,
+                bgcolor: "rgba(30, 30, 30, 0.90)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                borderRadius: "8px",
+                boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.5)",
+                padding: "12px",
             }}
         >
             <Stack direction="row" alignItems="center">

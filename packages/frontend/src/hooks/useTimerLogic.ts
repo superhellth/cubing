@@ -31,8 +31,8 @@ export const useTimerLogic = (settings: any, selectedDiscipline: Discipline) => 
         } else if (event.key === 'Escape') {
             switch (timerStatus) {
                 case TimerStatus.Running:
-                    setTimerStatus(TimerStatus.Cancelled);
                     event.preventDefault();
+                    setTimerStatus(TimerStatus.Cancelled);
                     break;
                 case TimerStatus.Inspecting:
                     setTimerStatus(TimerStatus.InspectionCancelled);

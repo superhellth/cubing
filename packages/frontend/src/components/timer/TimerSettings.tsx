@@ -1,5 +1,6 @@
 import { keyToLabels } from "@cubing/shared";
 import CloseIcon from '@mui/icons-material/Close';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { Checkbox, ListItemText } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -33,7 +34,7 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
 
     return (
         <Dialog open={isOpen} sx={{ color: "red" }}>
-            <DialogTitle sx={{ bgcolor: "secondary.main", textAlign: "center", fontSize: "3rem", fontWeight: "bold" }}>Settings
+            <DialogTitle sx={{ textAlign: "center", fontSize: "3rem", fontWeight: "bold", color: "#FFFFFF" }}>Settings
                 <IconButton
                     aria-label="close"
                     onClick={() => onClose()}
@@ -47,9 +48,8 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                 </IconButton>
             </DialogTitle>
             <DialogContent sx={{
-                bgcolor: "secondary.main",
                 borderColor: "rgba(255, 255, 255, 0.06)",
-                color: "primary.contrastText"
+                color: "#E4E4E7"
             }} dividers>
                 <Stack spacing={2}>
                     <Box>
@@ -85,7 +85,7 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                 fullWidth
                                 value={settings.readyAfter}
                                 onChange={(e) => updateSetting('readyAfter', e.target.value)}
-                                helperText="The time you have to press spacebar before starting your solve."
+                                helperText="The time you have to press spacebar before starting your solve (ms)."
                             />
                         </Stack>
                     </Box>
@@ -106,9 +106,21 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                     renderValue={(selected) => selected.map((value: string) => keyToLabels[value as keyof typeof keyToLabels]).join(', ')}
                                 >
                                     {AVERAGE_DISPLAY_ORDER.map((key) => (
-                                        <MenuItem key={key} value={key}>
-                                            <Checkbox checked={settings.avgGraphDisplay.includes(key)} />
+                                        <MenuItem key={key} value={key} sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between', // Pushes text left, icon right
+                                            alignItems: 'center',
+                                            gap: 2 // Ensures text doesn't hit the checkmark
+                                        }}>
                                             <ListItemText primary={keyToLabels[key as keyof typeof keyToLabels]} />
+                                            {settings.avgGraphDisplay.indexOf(key) > -1 && (
+                                                <CheckRoundedIcon
+                                                    sx={{
+                                                        color: theme.palette.info.main,
+                                                        fontSize: '1.2rem'
+                                                    }}
+                                                />
+                                            )}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -121,13 +133,34 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                     variant="outlined"
                                     label="Graph Axis"
                                     onChange={(e) => { updateSetting('avgGraphXAxis', e.target.value) }}
+                                    renderValue={(selected) => selected == "id" ? "Solve ID" : "Date"}
                                 >
-                                    <MenuItem value={"date"}>Date</MenuItem>
-                                    <MenuItem value="id">Solve ID</MenuItem>
+                                    <MenuItem value={"date"}>
+                                        <ListItemText primary="Date" />
+                                        {settings.avgGraphXAxis == "date" && (
+                                            <CheckRoundedIcon
+                                                sx={{
+                                                    color: theme.palette.info.main,
+                                                    fontSize: '1.2rem'
+                                                }}
+                                            />
+                                        )}
+                                    </MenuItem>
+                                    <MenuItem value="id">
+                                        <ListItemText primary="Solve ID" />
+                                        {settings.avgGraphXAxis == "id" && (
+                                            <CheckRoundedIcon
+                                                sx={{
+                                                    color: theme.palette.info.main,
+                                                    fontSize: '1.2rem'
+                                                }}
+                                            />
+                                        )}
+                                    </MenuItem>
                                 </Select>
                                 <FormHelperText>Unit of the X-Axis of the Timer Graph.</FormHelperText>
                             </FormControl>
-                            
+
                         </Stack>
                     </Box>
                 </Stack>

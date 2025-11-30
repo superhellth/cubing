@@ -1,5 +1,6 @@
 import { Typography } from "@mui/material";
 import { Box, styled } from "@mui/system";
+import theme from "../styles/theme";
 
 export const ScreenContainer = styled(Box)(({ }) => ({
     display: 'flex',
@@ -33,6 +34,7 @@ export const ScrambleText = styled(Typography, {
     else if (charCount > 70) fontSize = '1.6rem';
 
     return {
+        // color: theme.palette.text.secondary,
         fontSize,
         fontFamily: '"Space Mono", monospace',
         textAlign: 'center',

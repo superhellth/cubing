@@ -33,6 +33,7 @@ function App() {
   const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);
   const [backendOnline, setBackendOnline] = useState(true);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(lastSelectedDiscipline);
+  const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
 
   // On Startup: Check if backend is online
   useEffect(() => {
@@ -55,12 +56,15 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {backendOnline ? (
-        <Box sx={{ width: "100%", height: "100%", margin: "0 auto", bgcolor: "secondary.main", display: "flex" }}>
-          <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} />
 
+        <Box sx={{ width: "100%", height: "100%", margin: "0 auto", bgcolor: "secondary.main", display: "flex" }}>
+          {sidebarVisible &&
+            <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} />
+
+          }
           <Box sx={{ flex: 20, height: "100%", bgcolor: "blue" }}>
             <Routes>
-              <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} />} />
+              <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)} />} />
               <Route path="/stats" element={<StatisticsScreen />} />
               <Route path="/licenses" element={<Licenses />} />
             </Routes>
