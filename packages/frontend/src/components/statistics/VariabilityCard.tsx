@@ -31,17 +31,12 @@ const VariabilityCard = memo(({ solvesChronological }: any) => {
     return (
         <GraphCard
             title={dataIndex === null ? 'Variability over Time' : longFormatter.format(solvesChronological[windowSize + dataIndex].date)} icon={<TimelineIcon />}>
-            <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                sx={{
-                    padding: "10px",
-                    flexGrow: 1,
-                    height: '100%',
-                    minHeight: 0
-                }}
-            >
+            <Box sx={{display: "flex", maxHeight: "300px", flexDirection: "column"}}>
+
+                <Typography sx={{ fontSize: '2rem', fontWeight: "bold", padding: ".4rem", paddingRight: "10px", paddingBottom: 0, whiteSpace: "nowrap" }}>
+                    {rollingStd[dataIndex ?? rollingStd.length - 1]?.toFixed(2) + "s"}
+                </Typography>
+
                 <svg style={{ height: 0, width: 0, position: 'absolute' }}>
                     <defs>
                         <linearGradient id={"fade"} x1="0" y1="0" x2="0" y2="1">
@@ -50,9 +45,6 @@ const VariabilityCard = memo(({ solvesChronological }: any) => {
                         </linearGradient>
                     </defs>
                 </svg>
-                <Typography sx={{ fontSize: '2rem', fontWeight: "bold", padding: ".4rem", paddingRight: "10px", paddingBottom: 0, whiteSpace: "nowrap" }}>
-                    {rollingStd[dataIndex ?? rollingStd.length - 1]?.toFixed(2) + "s"}
-                </Typography>
 
                 <SparkLineChart data={rollingStd} showHighlight axisHighlight={{ x: "line" }} color={theme.palette.info.main} area
                     baseline="min"
@@ -82,7 +74,7 @@ const VariabilityCard = memo(({ solvesChronological }: any) => {
                             strokeWidth: 2,
                         },
                     }} />
-            </Stack>
+            </Box>
         </GraphCard>
     );
 });

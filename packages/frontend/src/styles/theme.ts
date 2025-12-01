@@ -261,6 +261,7 @@ const theme = createTheme({
                 root: ({ theme }) => ({
                     // Default state
                     // color: "rgba(255, 255, 255, 0.6)",
+                    marginLeft: 0,
 
                     // Focused state
                     '&.Mui-focused': {

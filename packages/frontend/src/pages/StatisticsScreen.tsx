@@ -9,6 +9,7 @@ import VariabilityCard from "../components/statistics/VariabilityCard";
 import { useSolveManager } from "../hooks/useSolveManager";
 import { sortChronologically } from "../utils/solveUtils";
 import { Card, Typography } from "@mui/material";
+import DevelopmentCard from "../components/statistics/DevelopmentCard";
 
 const samplingThreshold: number = 500;
 const display: (keyof ISolve)[] = ["avg5", "avg12", "avg100", "avg1000"];
@@ -62,10 +63,10 @@ function StatisticsScreen() {
                 <Grid size={{ xs: 12, md: 2 }}>
                     <Stack spacing={2} sx={{ height: '500px' }}>
                         <Box sx={{ flex: 1 }}>
-                            <ActivityCard />
+                            <DevelopmentCard />
                         </Box>
                         <Box sx={{ flex: 1 }}>
-                            <DistributionCard solves={solves} />
+                            <ActivityCard />
                         </Box>
                     </Stack>
                 </Grid>

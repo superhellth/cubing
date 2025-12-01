@@ -105,7 +105,7 @@ export const Heatmap: React.FC<HeatmapProps> = ({
                                                 width: '100%',
                                                 height: '100%',
                                                 backgroundColor: cellColor,
-                                                borderRadius: '2px',
+                                                borderRadius: '4px',
                                                 cursor: 'pointer',
                                                 transition: (theme) => theme.transitions.create(
                                                     ['transform', 'box-shadow', 'z-index'],

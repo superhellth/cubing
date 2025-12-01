@@ -112,7 +112,7 @@ const ImprovementChart = memo(({
             boxShadow: 'none',
             border: '1px solid #2C2C2C',
         }} >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                 <Typography variant="h4" sx={{ color: '#fff', mb: 3, fontWeight: 600 }} noWrap>Your Improvements</Typography>
                 <ImprovementChartControl numSolves={solves.length}
                     display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
