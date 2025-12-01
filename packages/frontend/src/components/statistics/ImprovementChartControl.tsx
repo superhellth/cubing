@@ -1,5 +1,5 @@
 import { keyToLabels } from "@cubing/shared";
-import { Box, Checkbox, FormControl, FormHelperText, InputLabel, ListItemText, MenuItem, Select, SelectChangeEvent, Slider, Stack, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { Box, Checkbox, FormControl, FormHelperText, InputLabel, ListItemText, MenuItem, Select, SelectChangeEvent, Slider, Stack, Table, TableBody, TableCell, tableCellClasses, TableRow, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { memo } from "react";
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import OutlinedContainer from "../OutlinedContainer";
@@ -41,85 +41,110 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
         <Box sx={{
             display: 'flex',
             alignItems: 'flex-start',
-            width: "70%",
             gap: 2,
             paddingBottom: "1rem"
         }}>
-
-
-            <FormControl fullWidth>
-                {/* <InputLabel>Display Times</InputLabel> */}
-                <FormHelperText>Display Times</FormHelperText>
-                <Select
-                    multiple
-                    value={display}
-                    variant="standard"
-                    onChange={handleDisplayChange}
-                    // input={<OutlinedInput label="Tag" />}
-                    renderValue={(selected) => selected.map((value: string) => keyToLabels[value as keyof typeof keyToLabels]).join(', ')}
-                    MenuProps={MenuProps}
-                // sx={{bgcolor: theme.palette.primary.main}}
-                >
-                    {["avg5", "avg12", "avg100", "avg1000", "pb"].map((key) => (
-                        <MenuItem key={key} value={key}>
-                            <ListItemText primary={keyToLabels[key as keyof typeof keyToLabels]} />
-                            {display.includes(key) && (
-                                <CheckRoundedIcon
+            <Table size='small' sx={{ width: "auto",
+                [`& .${tableCellClasses.root}`]: {
+                    borderBottom: "none",
+                    padding: "0 16px",
+                    minWidth: "300px"
+                },
+            }}>
+                <TableBody>
+                    <TableRow>
+                        <TableCell>
+                            <FormHelperText>Display Times</FormHelperText>
+                        </TableCell>
+                        <TableCell>
+                            <FormHelperText>Details</FormHelperText>
+                        </TableCell>
+                        <TableCell>
+                            <FormHelperText>Prediction Horizon</FormHelperText>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell align="left">
+                            <FormControl fullWidth >
+                                <Select
+                                    multiple
+                                    value={display}
+                                    variant="standard"
+                                    onChange={handleDisplayChange}
+                                    // input={<OutlinedInput label="Tag" />}
+                                    renderValue={(selected) => selected.map((value: string) => keyToLabels[value as keyof typeof keyToLabels]).join(', ')}
+                                    MenuProps={MenuProps}
+                                // sx={{bgcolor: theme.palette.primary.main}}
+                                >
+                                    {["avg5", "avg12", "avg100", "avg1000", "pb"].map((key) => (
+                                        <MenuItem key={key} value={key}>
+                                            <ListItemText primary={keyToLabels[key as keyof typeof keyToLabels]} />
+                                            {display.includes(key) && (
+                                                <CheckRoundedIcon
+                                                    sx={{
+                                                        color: theme.palette.info.main,
+                                                        fontSize: '1.2rem'
+                                                    }}
+                                                />
+                                            )}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </TableCell>
+                        <TableCell>
+                            <FormControl>
+                                <ToggleButtonGroup
+                                    value={sampleThreshold}
+                                    exclusive
+                                    onChange={handleSampleThresholdChange}
                                     sx={{
-                                        color: theme.palette.info.main,
-                                        fontSize: '1.2rem'
+                                        justifyContent: 'center',
+                                        // bgcolor: "blue",
+                                        // p: 0,
                                     }}
+                                >
+                                    <ToggleButton value={100} >
+                                        Min
+                                    </ToggleButton>
+                                    <ToggleButton value={numSolves / 100}>
+                                        Some
+                                    </ToggleButton>
+                                    <ToggleButton value={numSolves / 10}>
+                                        Medium
+                                    </ToggleButton>
+                                    <ToggleButton value={numSolves / 3}>
+                                        Lots
+                                    </ToggleButton>
+                                    <ToggleButton value={numSolves}>
+                                        Max
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                            </FormControl>
+                        </TableCell>
+                        <TableCell>
+                            <FormControl fullWidth >
+
+                                {/* <InputLabel>Display Times</InputLabel> */}
+                                <Slider
+                                    value={predict}
+                                    onChange={handlePredictionHorizonChange}
+                                    valueLabelDisplay="auto"
+                                    shiftStep={30}
+                                    step={5}
+                                    marks
+                                    color="info"
+                                    min={0}
+                                    max={100}
                                 />
-                            )}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-            <FormControl fullWidth>
-                <FormHelperText>Details</FormHelperText>
-                <ToggleButtonGroup
-                    value={sampleThreshold}
-                    exclusive
-                    onChange={handleSampleThresholdChange}
-                    sx={{
-                        justifyContent: 'center',
-                        width: '100%',
-                        // bgcolor: "blue",
-                        // p: 0,
-                    }}
-                >
-                    <ToggleButton value={100} >
-                        Min
-                    </ToggleButton>
-                    <ToggleButton value={numSolves / 100}>
-                        Some
-                    </ToggleButton>
-                    <ToggleButton value={numSolves / 10}>
-                        Medium
-                    </ToggleButton>
-                    <ToggleButton value={numSolves / 3}>
-                        Lots
-                    </ToggleButton>
-                    <ToggleButton value={numSolves}>
-                        Max
-                    </ToggleButton>
-                </ToggleButtonGroup>
-            </FormControl>
-            <FormControl fullWidth >
-                <FormHelperText>Prediction Horizon</FormHelperText>
-                {/* <InputLabel>Display Times</InputLabel> */}
-                <Slider
-                    value={predict}
-                    onChange={handlePredictionHorizonChange}
-                    valueLabelDisplay="auto"
-                    shiftStep={30}
-                    step={5}
-                    marks
-                    color="info"
-                    min={0}
-                    max={100}
-                />
-            </FormControl>
+                            </FormControl>
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+
+
+
         </Box>
     );
 })

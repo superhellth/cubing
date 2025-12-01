@@ -58,8 +58,6 @@ export const Heatmap: React.FC<HeatmapProps> = ({
                     gap: 1,
                 }}
             >
-                {/* 1. TOP-LEFT EMPTY CORNER */}
-                <Box />
 
                 {/* 2. TOP ROW HEADERS (X-AXIS) */}
                 {xLabels.map((label, i) => (
@@ -75,10 +73,10 @@ export const Heatmap: React.FC<HeatmapProps> = ({
                     <React.Fragment key={`row-${rowIndex}`}>
 
                         {/* === MISSING PIECE: THE Y-AXIS LABEL === */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'end', pr: 1 }}>
-                            <Typography variant="caption" align="right">
-                                {/* {yLabels[rowIndex]} */}
-                            </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'end', p: 0, m: 0, width: 0 }}>
+                            {/* <Typography variant="caption" align="right">
+                                {yLabels[rowIndex]}
+                            </Typography> */}
                         </Box>
 
                         {row.map((value, colIndex) => {

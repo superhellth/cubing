@@ -10,9 +10,9 @@ export function calculateAverageOptimized(
     allSolves: ISolve[],
     startIndex: number,
     size: number
-): number | undefined {
+): number | null {
     // 1. Bounds check
-    if (startIndex + size > allSolves.length) return undefined;
+    if (startIndex + size > allSolves.length) return null;
 
     let dnfCount = 0;
     let validCount = 0;

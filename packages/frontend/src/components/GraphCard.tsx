@@ -27,6 +27,7 @@ export const GraphCard = ({
             border: '1px solid #2C2C2C',
             display: "flex",
             flexDirection: "column",
+            padding: 1,
             ...sx,
         }} >
             <Typography
