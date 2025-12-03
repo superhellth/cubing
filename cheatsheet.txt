@@ -6,6 +6,10 @@ NGINX Webserver config:
 sudo certbot --nginx -d yourdomain.com
 sudo nano /etc/nginx/sites-available/highpercube
 
+UFW Firewall config:
+ufw allow from <IP> to any port <PORT>
+ufw status numbered + ufw delete <number>
+
 PM2 for backend:
 pm2 start ./dist/app.js --name "highpercube"
 pm2 save

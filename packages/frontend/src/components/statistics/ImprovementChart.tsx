@@ -1,5 +1,5 @@
 import { keyToLabels, type ISolve } from "@cubing/shared";
-import { Box, Paper, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Paper, Typography, useTheme } from "@mui/material";
 import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
 import { memo, useMemo, useState } from "react";
 import useDownsampling from "../../hooks/useDownsampling";
@@ -28,8 +28,7 @@ const ImprovementChart = memo(({
     const [samplingLimit, setSamplingLimit] = useState<number>(100);
 
     // Data cleaning
-    const solvesWithPbs: ISolve[] = usePBStats(solves);
-    const sampledSolves: ISolve[] = useDownsampling(solvesWithPbs, samplingLimit, true);
+    const sampledSolves: ISolve[] = useDownsampling(solves, samplingLimit, true);
     const solvesChronological: ISolve[] = useMemo(() => { return sortChronologically(sampledSolves) }, [sampledSolves]);
     const lastIndex: number = sampledSolves.length - 1;
 
@@ -119,6 +118,8 @@ const ImprovementChart = memo(({
                     predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}
                     sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => setSamplingLimit(newValue)} />
             </Box>
+
+            {/* <Divider sx={{mb: 1,  }}/> */}
 
             <ImprovementChartLegend series={seriesConfig} />
 

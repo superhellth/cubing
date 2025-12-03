@@ -23,20 +23,21 @@ const VariabilityCard = memo(({ solvesChronological }: any) => {
         const stds: number[] = [];
         for (let i = windowSize; i < sampledSolves.length; i++) {
             const solvesInWindow = sampledSolves.slice(i - windowSize, i);
-            const meanDuration: number = solvesInWindow.reduce((accumulator: number, solve: ISolve) => accumulator + solve.duration, 0)
+            const meanDuration: number = solvesInWindow.reduce((accumulator: number, solve: ISolve) => accumulator + solve.duration, 0);
             const sse = solvesInWindow.reduce((accumulator: number, solve: ISolve) => accumulator + (solve.duration - meanDuration) ** 2, 0);
-            stds.push(Math.sqrt((1 / (windowSize - 1)) * sse) / 1000000);
+            stds.push(1 / (Math.sqrt((1 / (windowSize - 1)) * sse) / 1000000));
         }
         return stds;
     }, [sampledSolves]);
 
     return (
         <GraphCard
-            title={dataIndex === null ? 'Variability over Time' : longFormatter.format(sampledSolves[windowSize + dataIndex].date)} icon={<TimelineIcon />}>
-            <Box sx={{display: "flex", maxHeight: "300px", flexDirection: "column"}}>
+            hint={"Still have to figure out, what this value is exactly."}
+            title={dataIndex === null ? 'Consistency' : longFormatter.format(sampledSolves[windowSize + dataIndex].date)} icon={<TimelineIcon />}>
+            <Box sx={{ display: "flex", maxHeight: "300px", flexDirection: "column" }}>
 
                 <Typography sx={{ fontSize: '2rem', fontWeight: "bold", padding: ".4rem", paddingRight: "10px", paddingBottom: 0, whiteSpace: "nowrap" }}>
-                    {rollingStd[dataIndex ?? rollingStd.length - 1]?.toFixed(2) + "s"}
+                    {rollingStd[dataIndex ?? rollingStd.length - 1]?.toFixed(2)}
                 </Typography>
 
                 <svg style={{ height: 0, width: 0, position: 'absolute' }}>

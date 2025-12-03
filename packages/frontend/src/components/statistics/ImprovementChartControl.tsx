@@ -1,5 +1,5 @@
 import { keyToLabels } from "@cubing/shared";
-import { Box, Checkbox, FormControl, FormHelperText, InputLabel, ListItemText, MenuItem, Select, SelectChangeEvent, Slider, Stack, Table, TableBody, TableCell, tableCellClasses, TableRow, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { Box, Checkbox, FormControl, FormHelperText, InputLabel, ListItemText, MenuItem, Paper, Select, SelectChangeEvent, Slider, Stack, Table, TableBody, TableCell, tableCellClasses, TableRow, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { memo } from "react";
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import OutlinedContainer from "../OutlinedContainer";
@@ -41,14 +41,15 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
         <Box sx={{
             display: 'flex',
             alignItems: 'flex-start',
+            borderRadius: 2,
             gap: 2,
             paddingBottom: "1rem"
         }}>
-            <Table size='small' sx={{ width: "auto",
+            <Table size='small' sx={{
+                width: "auto",
                 [`& .${tableCellClasses.root}`]: {
                     borderBottom: "none",
                     padding: "0 16px",
-                    minWidth: "300px"
                 },
             }}>
                 <TableBody>
@@ -57,27 +58,26 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                             <FormHelperText>Display Times</FormHelperText>
                         </TableCell>
                         <TableCell>
-                            <FormHelperText>Details</FormHelperText>
+                            <FormHelperText>Prediction Horizon</FormHelperText>
                         </TableCell>
                         <TableCell>
-                            <FormHelperText>Prediction Horizon</FormHelperText>
+                            <FormHelperText>Details</FormHelperText>
                         </TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell align="left">
-                            <FormControl fullWidth >
+                        <TableCell align="left" sx={{ minWidth: "300px" }}>
+                            <FormControl fullWidth sx={{ bgcolor: theme.palette.primary.main, p: 1, borderRadius: 2 }}>
                                 <Select
+                                    
                                     multiple
                                     value={display}
                                     variant="standard"
                                     onChange={handleDisplayChange}
-                                    // input={<OutlinedInput label="Tag" />}
                                     renderValue={(selected) => selected.map((value: string) => keyToLabels[value as keyof typeof keyToLabels]).join(', ')}
                                     MenuProps={MenuProps}
-                                // sx={{bgcolor: theme.palette.primary.main}}
                                 >
                                     {["avg5", "avg12", "avg100", "avg1000", "pb"].map((key) => (
-                                        <MenuItem key={key} value={key}>
+                                        <MenuItem key={key} value={key} sx={{ bgcolor: theme.palette.secondary.main }}>
                                             <ListItemText primary={keyToLabels[key as keyof typeof keyToLabels]} />
                                             {display.includes(key) && (
                                                 <CheckRoundedIcon
@@ -92,38 +92,8 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                                 </Select>
                             </FormControl>
                         </TableCell>
-                        <TableCell>
-                            <FormControl>
-                                <ToggleButtonGroup
-                                    value={sampleThreshold}
-                                    exclusive
-                                    onChange={handleSampleThresholdChange}
-                                    sx={{
-                                        justifyContent: 'center',
-                                        // bgcolor: "blue",
-                                        // p: 0,
-                                    }}
-                                >
-                                    <ToggleButton value={100} >
-                                        Min
-                                    </ToggleButton>
-                                    <ToggleButton value={numSolves / 100}>
-                                        Some
-                                    </ToggleButton>
-                                    <ToggleButton value={numSolves / 10}>
-                                        Medium
-                                    </ToggleButton>
-                                    <ToggleButton value={numSolves / 3}>
-                                        Lots
-                                    </ToggleButton>
-                                    <ToggleButton value={numSolves}>
-                                        Max
-                                    </ToggleButton>
-                                </ToggleButtonGroup>
-                            </FormControl>
-                        </TableCell>
-                        <TableCell>
-                            <FormControl fullWidth >
+                        <TableCell sx={{ minWidth: "300px" }}>
+                            <FormControl fullWidth sx={{ bgcolor: theme.palette.primary.main, p: 1, borderRadius: 2 }}>
 
                                 {/* <InputLabel>Display Times</InputLabel> */}
                                 <Slider
@@ -137,6 +107,36 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                                     min={0}
                                     max={100}
                                 />
+                            </FormControl>
+                        </TableCell>
+                        <TableCell>
+                            <FormControl sx={{ bgcolor: theme.palette.primary.main, borderRadius: 2 }}>
+                                <ToggleButtonGroup
+                                    value={sampleThreshold}
+                                    exclusive
+                                    onChange={handleSampleThresholdChange}
+                                    sx={{
+                                        justifyContent: 'center',
+                                        // bgcolor: "blue",
+                                        // p: 0,
+                                    }}
+                                >
+                                    <ToggleButton value={100} >
+                                        Min
+                                    </ToggleButton>
+                                    {/* <ToggleButton value={numSolves / 100}>
+                                        Some
+                                    </ToggleButton> */}
+                                    <ToggleButton value={numSolves / 10}>
+                                        Medium
+                                    </ToggleButton>
+                                    {/* <ToggleButton value={numSolves / 3}>
+                                        Lots
+                                    </ToggleButton> */}
+                                    <ToggleButton value={numSolves}>
+                                        Max
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
                             </FormControl>
                         </TableCell>
                     </TableRow>

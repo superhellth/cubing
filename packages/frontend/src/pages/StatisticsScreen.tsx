@@ -8,6 +8,7 @@ import DistributionCard from "../components/statistics/DistributionCard";
 import ImprovementChart from "../components/statistics/ImprovementChart";
 import VariabilityCard from "../components/statistics/VariabilityCard";
 import { useSolveManager } from "../hooks/useSolveManager";
+import usePBStats from "../hooks/usePBStats";
 
 function StatisticsScreen() {
     const theme = useTheme();
@@ -15,6 +16,7 @@ function StatisticsScreen() {
     const [selectedSession] = useState<string>("default");
     const { solves } =
         useSolveManager(selectedDiscipline, selectedSession);
+    const solvesWithPbs = usePBStats(solves);
 
     return (
         <Box sx={{ height: "100%", padding: 3, bgcolor: theme.palette.primary.main }}>
@@ -22,24 +24,20 @@ function StatisticsScreen() {
                 Analytics
             </Typography>
             <Grid container spacing={2}>
-                <Grid size={{ xs: 12, md: 10 }} sx={{ height: '500px' }}>
-                    <ImprovementChart solves={solves} />
+                <Grid size={{ xs: 12, md: 9.7 }} sx={{ height: '500px' }}>
+                    <ImprovementChart solves={solvesWithPbs} />
                 </Grid>
-                <Grid size={{ xs: 12, md: 2 }}>
-                    <Stack spacing={2} sx={{ height: '500px' }}>
-                        <Box sx={{ flex: 1 }}>
-                            <DevelopmentCard solves={solves} />
-                        </Box>
-                        <Box sx={{ flex: 1 }}>
-                            <ActivityCard />
-                        </Box>
-                    </Stack>
+                <Grid size={{ xs: 12, md: 2.3 }}>
+                    <DevelopmentCard solves={solvesWithPbs} />
                 </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 4.85 }}>
                     <VariabilityCard solvesChronological={solves} />
                 </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 4.85 }}>
                     <DistributionCard solves={solves} />
+                </Grid>
+                <Grid size={{ xs: 12, md: 2.3 }}>
+                    <ActivityCard />
                 </Grid>
             </Grid >
         </Box>

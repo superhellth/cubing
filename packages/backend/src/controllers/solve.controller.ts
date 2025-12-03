@@ -72,10 +72,10 @@ export const updateSolveStatus = async (req: Request, res: Response) => {
 
         const queryText = `
             UPDATE solves SET status = $1 
-            WHERE pk = $2
+            WHERE pk = $2 AND uuid = $3
             RETURNING *`;
 
-        const result = await pool.query(queryText, [solve.status, solve.pk]);
+        const result = await pool.query(queryText, [solve.status, solve.pk, solve.uuid]);
         res.status(200).json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ message: 'Failed to update solve.' });
@@ -85,9 +85,10 @@ export const updateSolveStatus = async (req: Request, res: Response) => {
 export const deleteSolve = async (req: Request, res: Response) => {
     try {
         const solvePk = BigInt(req.body.pk);
+        const uuid = String(req.body.uuid);
         if (solvePk == null) throw new Error("Invalid Pk");
 
-        const result = await pool.query("DELETE FROM solves WHERE pk = $1 RETURNING pk", [solvePk]);
+        const result = await pool.query("DELETE FROM solves WHERE pk = $1 AND uuid = $2 RETURNING pk", [solvePk, uuid]);
         res.status(200).json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete solve.' });

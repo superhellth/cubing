@@ -17,15 +17,16 @@ const ActivityCard = () => {
 
     return (
         <GraphCard title={"Recent Activity"} icon={<FitnessCenterIcon />}>
-            <Box>
-                <Heatmap
-                    data={heatmapData}
-                    xLabels={days}
-                    yLabels={weeks}
-                    minColor={"#00181a"}
-                    maxColor={theme.palette.info.main}
-                />
+            <Box sx={{
+                flex: 1,
+                width: "100%",
+                height: "100%",
+                display: "grid",
+                placeItems: "center"
+            }}>
+                <Typography>Coming Soon...</Typography>
             </Box>
+
         </GraphCard>
     );
 }

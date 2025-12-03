@@ -1,21 +1,76 @@
+import { ISolve } from '@cubing/shared';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { Divider, Table, TableBody, TableCell, tableCellClasses, TableRow, Typography, useTheme } from "@mui/material";
-import { Box } from "@mui/system";
+import { Divider, FormControl, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
+import { Box, Grid } from "@mui/system";
+import { LTTB } from 'downsample';
+import { useMemo, useState } from 'react';
 import useImprovementStats from '../../hooks/useImprovementStats';
 import { GraphCard } from "../GraphCard";
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import { keyToLabels } from '@cubing/shared';
+import TrendCard from './TrendCard';
 
-const displayed = ["avg5", "avg12", "avg100", "avg1000"];
+const displayed = ["duration", "pb", "avg5", "avg12", "avg100", "avg1000"];
+
+function calculateDerivative(data: number[], window: number = 1): (number | null)[] {
+    const results: (number | null)[] = [];
+    let sumX = 0;
+    let sumXSq = 0;
+    for (let i = 0; i < window; i++) {
+        sumX += i;
+        sumXSq += i * i;
+    }
+    const denominator = (window * sumXSq) - (sumX * sumX);
+
+    for (let i = 0; i < data.length; i++) {
+        if (i < window - 1) {
+            results.push(null);
+            continue;
+        }
+        const windowY = data.slice(i - window + 1, i + 1);
+
+        let sumY = 0;
+        let sumXY = 0;
+        for (let j = 0; j < window; j++) {
+            const y = windowY[j];
+            sumY += y;
+            sumXY += j * y;
+        }
+        const slope = ((window * sumXY) - (sumX * sumY)) / denominator;
+
+        results.push(slope);
+    }
+
+    return results;
+}
 
 const DevelopmentCard = ({ solves }: any) => {
+    if (solves.length <= 0) return null;
+    const recentSolve = solves[solves.length - 1];
     const theme = useTheme();
+    const [timeFrame, setTimeFrame] = useState("recent");
     const trends = useImprovementStats(solves);
+    const impRate = useMemo(() => {
+        return timeFrame == "all" ? -trends.all.duration.slope : -trends.recent.duration.slope
+    }, [solves, timeFrame])
+    const impRateSeries = useMemo(() => {
+        const rawSeries = calculateDerivative(solves.map((solve: ISolve) => solve.duration), 500).filter(Boolean);
+        console.log(rawSeries.length)
+        if (rawSeries.length > 200) {
+            const mappedData = rawSeries.map((v: any, index: number) => ({
+                x: index,
+                y: -v
+            }));
+            console.log(mappedData)
+            const sampledPoints: any = LTTB(mappedData, 100);
+            const sampledValues = sampledPoints.map((point: any) => point.y);
+            return sampledValues;
+        }
+        return rawSeries;
+    }, [solves]);
+    const xLabels = impRateSeries.map((_: any, i: any) => i + 1);
 
     return (
         <GraphCard title={"Improvement speed"} icon={<AutoAwesomeIcon />}>
-            <Typography sx={{ color: theme.palette.text.primary, fontSize: "2rem", p: 0, }}>{-1 * trends.duration.slope}
+            <Typography variant="h4" sx={{ color: impRate < 0 ? theme.palette.error.main : '#fff', m: 1, fontWeight: 700 }}>{impRate}
                 <Box
                     component="span"
                     sx={{
@@ -30,42 +85,69 @@ const DevelopmentCard = ({ solves }: any) => {
                 </Box>
             </Typography>
             <Divider />
-            <Table size='small' sx={{
-                padding: 2,
-                // height: "100%",
-                [`& .${tableCellClasses.root}`]: {
-                    borderBottom: "none",
-                    padding: "0 4px",
-                    paddingTop: "1rem",
-                    // height: "inherit"
-                },
-            }}>
-                <TableBody>
-                    {displayed.map((key: string) => {
-                        const trend = trends[key as keyof typeof trends];
-                        return (
-                            <TableRow>
-                                <TableCell>{keyToLabels[key as keyof typeof keyToLabels]}</TableCell>
-                                <TableCell sx={{ color: trend.absoluteChange < 0 ? theme.palette.success.main : theme.palette.error.main }}>
-                                    {(trend.absoluteChange / 1000).toFixed(2)}s
-                                </TableCell>
-                                <TableCell
-                                    sx={{ color: trend.relativeChange < 0 ? theme.palette.success.main : theme.palette.error.main }}
-                                >
-                                    {(-1 * trend.relativeChange * 100).toFixed(2)}%
-                                </TableCell>
-                                <TableCell sx={{ color: trend.relativeChange < 0 ? theme.palette.success.main : theme.palette.error.main }}>
-                                    {trend.relativeChange > 0 ? (
-                                        <TrendingDownIcon fontSize="small" />
-                                    ) : (
-                                        <TrendingUpIcon fontSize="small" />
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        )
-                    })}
-                </TableBody>
-            </Table>
+            <FormControl sx={{ p: 2 }}>
+                <ToggleButtonGroup
+                    value={timeFrame}
+                    exclusive
+                    onChange={(_event: any, v: any) => { if (v !== null) { setTimeFrame(v); } }}
+                    sx={{
+                        justifyContent: 'center',
+                        height: "20px"
+                    }}
+                >
+                    <ToggleButton value={"recent"}>
+                        Recent
+                    </ToggleButton>
+                    <ToggleButton value={"all"} >
+                        All
+                    </ToggleButton>
+
+                </ToggleButtonGroup>
+            </FormControl>
+            <Grid container spacing={1.5}>
+                {displayed.map((key: string) => {
+                    const trend: any = timeFrame == "all" ? trends.all[key as keyof typeof trends.all] : trends.recent[key as keyof typeof trends.all];
+                    return (
+                        <Grid size={{ xs: 12, md: 6, sm: 6 }}>
+                            <TrendCard trend={trend} headerKey={key} current={recentSolve[key]} />
+                        </Grid>
+                    );
+                })}
+            </Grid>
+            {/* <LineChart
+                // 1. The Data
+                series={[
+                    {
+                        data: impRateSeries,
+                        label: 'Improvement Rate',
+                        color: theme.palette.info.main,
+                        showMark: false,
+                        curve: "catmullRom",
+                        area: true,
+                    },
+                ]}
+                yAxis={[{ position: 'none' }]}
+                xAxis={[{ data: xLabels, scaleType: 'point', hideTooltip: true }]}
+                hideLegend={true}
+
+                sx={{
+                    maxHeight: "30%",
+                    [`.${axisClasses.root}`]: {
+                        [`.${axisClasses.line}, .${axisClasses.tick}`]: { stroke: 'transparent' },
+                    },
+                }}
+                margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
+            >
+
+                <ChartsReferenceLine
+                    y={0}
+                    lineStyle={{
+                        stroke: theme.palette.text.secondary,
+                        strokeWidth: 2,
+                        opacity: 0.5
+                    }}
+                />
+            </LineChart> */}
         </GraphCard>
     );
 }

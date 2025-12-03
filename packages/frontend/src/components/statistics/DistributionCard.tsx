@@ -1,34 +1,59 @@
 import type { ISolve } from "@cubing/shared";
-import { Box, Card, Typography } from "@mui/material";
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { BarChart } from "@mui/x-charts";
 import { useMemo } from "react";
 import { useOutlierDetection } from "../../hooks/useOutlierDetection";
-import BarChartIcon from '@mui/icons-material/BarChart';
-import { GraphCard } from "../GraphCard";
 import Timer from "../../utils/timer";
+import { GraphCard } from "../GraphCard";
 
 const DistributionCard = ({ solves }: any) => {
     const { nonOutliers } = useOutlierDetection(solves);
-    const nBins: number = 20;
     const timeBins = useMemo(() => {
         if (!nonOutliers || nonOutliers.length <= 1) return [];
-        const highest: number = Math.max(...nonOutliers.map((solve: ISolve) => solve.duration));
-        const lowest: number = Math.min(...nonOutliers.map((solve: ISolve) => solve.duration));
-        const binSize: number = (highest - lowest) / nBins;
+
+        // 1. Find Raw min/max
+        const rawHighest = Math.max(...nonOutliers.map((s) => s.duration));
+        const rawLowest = Math.min(...nonOutliers.map((s) => s.duration));
+        const rawRange = rawHighest - rawLowest;
+
+        // 2. Define "Pretty" Bin Sizes (in milliseconds)
+        // These are the steps that look clean on a graph axis.
+        const PRETTY_SIZES = [
+            100,   // 0.1s (Precision speedsolving)
+            250,   // 0.25s
+            500,   // 0.5s
+            1000,  // 1s
+            2000,  // 2s
+            5000,  // 5s
+            10000, // 10s
+            30000, // 30s
+            60000  // 1m
+        ];
+        const TARGET_BAR_COUNT = 30;
+        const idealBinSize = rawRange / TARGET_BAR_COUNT;
+        let binSize = PRETTY_SIZES.find(size => size >= idealBinSize) || PRETTY_SIZES[PRETTY_SIZES.length - 1];
+
+        const start = Math.floor(rawLowest / binSize) * binSize;
+        const end = Math.ceil(rawHighest / binSize) * binSize;
+        const nBins = Math.max(1, Math.round((end - start) / binSize));
+
         const bins: number[][] = Array.from({ length: nBins }, () => []);
 
         for (let solve of nonOutliers) {
-            let index: number = Math.floor((solve.duration - lowest) / binSize)
+            let index = Math.floor((solve.duration - start) / binSize);
+
             if (index >= nBins) index = nBins - 1;
+            if (index < 0) index = 0;
+
             bins[index].push(solve.duration);
         }
 
         return bins.map((bin: number[], index: number) => ({
             id: index,
-            range: `${Timer.formatTime(lowest + index * binSize)} - ${Timer.formatTime(lowest + (index + 1) * binSize)}`,
+            range: `${Timer.formatTime(start + index * binSize)} - ${Timer.formatTime(start + (index + 1) * binSize)}`,
             entries: bin.length
         }));
-    }, [nBins, nonOutliers]);
+    }, [nonOutliers]);
 
     return (
         <GraphCard title={"Distribution of Solve Times"} icon={<BarChartIcon />}>

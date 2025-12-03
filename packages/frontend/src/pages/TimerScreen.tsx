@@ -118,7 +118,8 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                 </Box>
             }
             {selectedSolve && (
-                <SolveDetailsScreen solve={selectedSolve} onDeleteSolve={(solvePk: bigint) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk) }}
+                <SolveDetailsScreen solve={selectedSolve}
+                onDeleteSolve={(solvePk: bigint, uuid: string) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk, uuid) }}
                     onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
             )}

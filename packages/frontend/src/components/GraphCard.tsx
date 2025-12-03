@@ -1,22 +1,16 @@
 import React, { isValidElement } from 'react';
-import { Box, Card, Paper, Typography, useTheme } from '@mui/material';
+import { Box, Card, Paper, Tooltip, Typography, useTheme } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
-// If you are using TypeScript, uncomment the interface below
-interface ChartWidgetProps {
-    title: string;
-    icon?: React.ReactNode;
-    children: React.ReactNode;
-    height?: string | number;
-    sx?: any;
-}
+
 
 export const GraphCard = ({
     title,
     icon,
     children,
-    height = "200px",
+    hint = "",
     sx = {}
-}: ChartWidgetProps) => {
+}: any) => {
     const theme = useTheme();
     return (
         <Paper sx={{
@@ -28,8 +22,38 @@ export const GraphCard = ({
             display: "flex",
             flexDirection: "column",
             padding: 1,
+            position: "relative",
             ...sx,
         }} >
+            {hint !== "" &&
+                <Tooltip
+                    title={hint}
+                    placement="top"
+                    arrow
+                >
+                    <Box
+                        component="span"
+                        sx={{
+                            display: 'inline-flex',
+                            position: "absolute", right: 10, top: 10,
+                            alignItems: 'center',
+                            cursor: 'help',
+                            verticalAlign: 'middle'
+                        }}
+                    >
+                        <HelpOutlineIcon
+                            sx={{
+                                fontSize: '1rem',
+                                color: 'text.secondary',
+                                transition: 'color 0.2s',
+                                '&:hover': {
+                                    color: 'text.primary'
+                                }
+                            }}
+                        />
+                    </Box>
+                </Tooltip>
+            }
             <Typography
                 sx={{
                     color: theme.palette.text.secondary,

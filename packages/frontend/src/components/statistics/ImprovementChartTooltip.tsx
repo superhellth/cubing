@@ -31,7 +31,7 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
             elevation={0}
             sx={{
                 bgcolor: "rgba(30, 30, 30, 0.90)",
-                backdropFilter: "blur(8px)",
+                backdropFilter: "blur(4px)",
                 border: "1px solid rgba(255, 255, 255, 0.15)",
                 borderRadius: "8px",
                 boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.5)",

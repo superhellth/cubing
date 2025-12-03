@@ -72,7 +72,7 @@ const theme = createTheme({
     },
     typography: {
         fontFamily: [
-            "Space Mono",
+            "Inter",
             '-apple-system',
             'BlinkMacSystemFont',
             '"Segoe UI"',
@@ -142,19 +142,22 @@ const theme = createTheme({
         MuiTooltip: {
             styleOverrides: {
                 tooltip: ({ theme }) => ({
-                    backgroundColor: theme.palette.secondary.main,
+                    backgroundColor: theme.palette.primary.main,
                     fontSize: "1rem"
                 }),
                 arrow: ({ theme }) => ({
-                    color: theme.palette.secondary.main
+                    color: theme.palette.primary.main
                 })
             }
         },
-        // MuiSlider: {
-        //     styleOverrides: {
-
-        //     }
-        // },
+        MuiSlider: {
+            styleOverrides: {
+                valueLabel: ({ theme }) => ({
+                    backgroundColor: theme.palette.primary.main,
+                    fontSize: "1rem"
+                }),
+            }
+        },
         MuiMenu: {
             styleOverrides: {
                 paper: {

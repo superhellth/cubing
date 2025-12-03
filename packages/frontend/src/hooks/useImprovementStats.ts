@@ -46,32 +46,49 @@ const calculateTrend = (data: number[]): ImprovementStats => {
 const useImprovementStats = (solves: ISolve[]) => {
     return useMemo(() => {
         const solvesChronologically = sortChronologically(solves);
-        const singles: number[] = [];
-        const avg5s: number[] = [];
-        const avg12s: number[] = [];
-        const avg100s: number[] = [];
-        const avg1000s: number[] = [];
-        for (let i = 0; i < solvesChronologically.length; i++) {
-            const solve: ISolve = solvesChronologically[i];
-            singles.push(solve.duration);
-            avg5s.push(solve.avg5!);
-            avg12s.push(solve.avg12!);
-            avg100s.push(solve.avg100!);
-            avg1000s.push(solve.avg1000!);
+
+        const columns = {
+            duration: [] as number[],
+            pb: [] as number[],
+            avg5: [] as number[],
+            avg12: [] as number[],
+            avg100: [] as number[],
+            avg1000: [] as number[],
+        };
+
+        for (const solve of solvesChronologically) {
+            columns.pb.push(solve.pb!);
+            columns.duration.push(solve.duration);
+            columns.avg5.push(solve.avg5!);
+            columns.avg12.push(solve.avg12!);
+            columns.avg100.push(solve.avg100!);
+            columns.avg1000.push(solve.avg1000!);
         }
-        const trendSingle: any = calculateTrend(singles.filter(Boolean));
-        const trendAvg5: any = calculateTrend(avg5s.filter(Boolean));
-        const trendAvg12: any = calculateTrend(avg12s.filter(Boolean));
-        const trendAvg100: any = calculateTrend(avg100s.filter(Boolean));
-        const trendAvg1000: any = calculateTrend(avg1000s.filter(Boolean));
+
+        const getTrend = (data: number[]) => {
+            return calculateTrend(data.filter(Boolean));
+        };
+
+        const RECENT_LIMIT = 100;
 
         return {
-            "duration": trendSingle,
-            "avg5": trendAvg5,
-            "avg12": trendAvg12,
-            "avg100": trendAvg100,
-            "avg1000": trendAvg1000
-        }
+            all: {
+                pb: getTrend(columns.pb),
+                duration: getTrend(columns.duration),
+                avg5: getTrend(columns.avg5),
+                avg12: getTrend(columns.avg12),
+                avg100: getTrend(columns.avg100),
+                avg1000: getTrend(columns.avg1000),
+            },
+            recent: {
+                pb: getTrend(columns.pb.slice(-RECENT_LIMIT)),
+                duration: getTrend(columns.duration.slice(-RECENT_LIMIT)),
+                avg5: getTrend(columns.avg5.slice(-RECENT_LIMIT)),
+                avg12: getTrend(columns.avg12.slice(-RECENT_LIMIT)),
+                avg100: getTrend(columns.avg100.slice(-RECENT_LIMIT)),
+                avg1000: getTrend(columns.avg1000.slice(-RECENT_LIMIT)),
+            }
+        };
     }, [solves]);
 }
 

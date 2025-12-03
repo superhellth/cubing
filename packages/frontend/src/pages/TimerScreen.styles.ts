@@ -1,6 +1,5 @@
 import { Typography } from "@mui/material";
 import { Box, styled } from "@mui/system";
-import theme from "../styles/theme";
 
 export const ScreenContainer = styled(Box)(({ }) => ({
     display: 'flex',

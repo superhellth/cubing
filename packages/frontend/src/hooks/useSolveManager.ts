@@ -73,8 +73,8 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         }
     }, [userID, currentScramble, selectedDiscipline]);
 
-    const deleteSolve = useCallback((solvePk: bigint) => {
-        dbWriter.deleteSolve(solvePk);
+    const deleteSolve = useCallback((solvePk: bigint, uuid: string) => {
+        dbWriter.deleteSolve(solvePk, uuid);
         setRawSolves(prev => prev.filter(s => s.pk !== solvePk));
     }, []);
 
