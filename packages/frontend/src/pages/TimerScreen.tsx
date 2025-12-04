@@ -31,12 +31,12 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
         settings,
         selectedDiscipline
     );
-    const hideGauge: boolean = useMemo(() => {
-        return ACTIVE_TIMER_STATUS.includes(timerStatus)
-    }, [timerStatus])
     const hideElements: boolean = useMemo(() => {
-        return hideGauge && settings.hideElementsWhileSolving
-    }, [settings, hideGauge]);
+        return ACTIVE_TIMER_STATUS.includes(timerStatus)
+        && settings.hideElementsWhileSolving
+        && ((timerStatus !== TimerStatus.ReadyForInspection && settings.inspection)
+        || (timerStatus !== TimerStatus.Ready && !settings.inspection))
+    }, [settings, timerStatus]);
 
     const percentile = useMemo(() => {
         if (solves.length === 0) return 100;
@@ -77,11 +77,10 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                         </ScrambleText>
                     }
                 </Box>
-                <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-around", }}>
-                    {/* <Box sx={{ flex: 4, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}> */}
+                <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
                     <Stack spacing={2}>
 
-                        {!hideGauge &&
+                        {!hideElements &&
                             <PercentileGauge percentile={percentile} />
                         }
                         <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
@@ -91,10 +90,10 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                     <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
                         {!hideElements &&
                             <Box>
-                                <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.light" }}>
+                                <Typography sx={{ fontSize: "3rem", color: "info.light" }}>
                                     Ao5: {solves[0]?.avg5 ? getDisplayableTime(solves[0], "avg5") : "-"}
                                 </Typography>
-                                <Typography sx={{ fontSize: "3rem", fontFamily: "Space Mono", color: "info.dark" }}>
+                                <Typography sx={{ fontSize: "3rem", color: "info.dark" }}>
                                     Ao12: {solves[0]?.avg12 ? getDisplayableTime(solves[0], "avg12") : "-"}
                                 </Typography>
                             </Box>
@@ -107,19 +106,21 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                     }
                 </Box>
             </TimerPanel>
-            {/* <Divider orientation="vertical" sx={{ bgcolor: "info.main" }} flexItem component="div" /> */}
+
             {!hideElements &&
                 <Box sx={{
-                    bgcolor: "secondary.main", height: "100%", flex: 1
-                    // margin: 0,
-                    // padding: 0
+                    bgcolor: "secondary.main",
+                    flex: 10,
+                    borderRadius: "24px",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    m: "16px 16px",
                 }}>
                     <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} />
                 </Box>
             }
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve}
-                onDeleteSolve={(solvePk: bigint, uuid: string) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk, uuid) }}
+                    onDeleteSolve={(solvePk: bigint, uuid: string) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk, uuid) }}
                     onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
             )}

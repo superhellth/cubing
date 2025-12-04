@@ -66,7 +66,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                     </TableRow>
                     <TableRow>
                         <TableCell align="left" sx={{ minWidth: "300px" }}>
-                            <FormControl fullWidth sx={{ bgcolor: theme.palette.primary.main, p: 1, borderRadius: 2 }}>
+                            <FormControl fullWidth sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2 }}>
                                 <Select
                                     
                                     multiple
@@ -77,7 +77,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                                     MenuProps={MenuProps}
                                 >
                                     {["avg5", "avg12", "avg100", "avg1000", "pb"].map((key) => (
-                                        <MenuItem key={key} value={key} sx={{ bgcolor: theme.palette.secondary.main }}>
+                                        <MenuItem key={key} value={key} sx={{ bgcolor: "#090909" }}>
                                             <ListItemText primary={keyToLabels[key as keyof typeof keyToLabels]} />
                                             {display.includes(key) && (
                                                 <CheckRoundedIcon
@@ -93,7 +93,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                             </FormControl>
                         </TableCell>
                         <TableCell sx={{ minWidth: "300px" }}>
-                            <FormControl fullWidth sx={{ bgcolor: theme.palette.primary.main, p: 1, borderRadius: 2 }}>
+                            <FormControl fullWidth sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2 }}>
 
                                 {/* <InputLabel>Display Times</InputLabel> */}
                                 <Slider
@@ -110,7 +110,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                             </FormControl>
                         </TableCell>
                         <TableCell>
-                            <FormControl sx={{ bgcolor: theme.palette.primary.main, borderRadius: 2 }}>
+                            <FormControl sx={{ bgcolor: "#090909", border: "1px solid #333333", borderRadius: 2 }}>
                                 <ToggleButtonGroup
                                     value={sampleThreshold}
                                     exclusive

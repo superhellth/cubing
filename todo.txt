@@ -2,3 +2,5 @@ app
 mobile website
 user page: activity graph like github
 statistics page: avg100/avg1000 prediction logistic regression (see mui line charts), warm up analysis
+Modern Touch: You can add a very subtle, blurred "gradient orb" behind the timer in the background to give the page a glow without changing the surface color.
+Remove the Grid Lines

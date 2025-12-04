@@ -49,7 +49,7 @@ const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any 
             <LineChart
                 dataset={chartData}
                 xAxis={[{
-                    label: xByDate ? "Date" : "Solve ID",
+                    label: xByDate ? "Date" : "Solve",
                     dataKey: xByDate ? "date" : "id",
                     scaleType: xByDate ? 'time' : 'linear',
                     valueFormatter: xByDate
@@ -63,8 +63,7 @@ const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any 
                         },
                     },
                 }}
-                grid={{ horizontal: true }}
-                yAxis={[{ label: 'Time', valueFormatter: (v: number) => (v / 1000).toFixed(0) }]}
+                yAxis={[{ label: 'Time (s)', valueFormatter: (v: number) => (v / 1000).toFixed(0) }]}
                 hideLegend={true}
                 series={series}
                 height={200}

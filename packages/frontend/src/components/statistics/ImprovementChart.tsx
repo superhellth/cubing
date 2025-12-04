@@ -105,11 +105,11 @@ const ImprovementChart = memo(({
             overflow: 'hidden',
             display: "flex",
             flexDirection: "column",
-            bgcolor: theme.palette.secondary.main,
+            bgcolor: theme.palette.primary.main,
             borderRadius: '16px',
             p: 2,
             boxShadow: 'none',
-            border: '1px solid #2C2C2C',
+            border: '1px solid #27272a',
         }} >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                 <Typography variant="h4" sx={{ color: '#fff', mb: 3, fontWeight: 600 }} noWrap>Your Improvements</Typography>

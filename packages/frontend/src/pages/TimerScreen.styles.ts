@@ -1,22 +1,23 @@
 import { Typography } from "@mui/material";
 import { Box, styled } from "@mui/system";
 
-export const ScreenContainer = styled(Box)(({ }) => ({
+export const ScreenContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: "row",
     // justifyContent: 'space-between',
+    backgroundColor: theme.palette.primary.main,
     height: '100%',
     width: '100%',
     overflow: 'hidden',
 }));
 
 export const TimerPanel = styled(Box)(({ theme }) => ({
-    flex: 3,
+    flex: 35,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
     backgroundColor: theme.palette.primary.main,
-    padding: theme.spacing(4, 9),
+    padding: "16px 16px",
     position: 'relative',
 }));
 
@@ -40,9 +41,3 @@ export const ScrambleText = styled(Typography, {
         width: '100%',
     };
 });
-
-export const StatText = styled(Typography)(({ }) => ({
-    fontSize: '3rem',
-    fontFamily: '"Space Mono", monospace',
-    lineHeight: 1.2,
-}));

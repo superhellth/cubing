@@ -9,19 +9,21 @@ import { memo } from 'react';
 
 const TrendCard = memo(({ trend, headerKey, current }: any) => {
     const theme = useTheme();
-    console.log(trend)
     return (
         <Paper
             elevation={0}
             sx={{
                 p: 1,
                 borderRadius: 2,
-                bgcolor: theme.palette.primary.main,
-                border: '1px solid',
-                borderColor: 'divider',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 0.5,
+                border: "1px solid",
+                borderColor: "transparent",
+                "&:hover": {
+                    borderColor: "rgba(255, 255, 255, 0.03)",
+                    color: "#FFFFFF",
+                },
             }}
         >
             <Typography

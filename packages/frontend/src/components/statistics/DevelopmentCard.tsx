@@ -53,13 +53,11 @@ const DevelopmentCard = ({ solves }: any) => {
     }, [solves, timeFrame])
     const impRateSeries = useMemo(() => {
         const rawSeries = calculateDerivative(solves.map((solve: ISolve) => solve.duration), 500).filter(Boolean);
-        console.log(rawSeries.length)
         if (rawSeries.length > 200) {
             const mappedData = rawSeries.map((v: any, index: number) => ({
                 x: index,
                 y: -v
             }));
-            console.log(mappedData)
             const sampledPoints: any = LTTB(mappedData, 100);
             const sampledValues = sampledPoints.map((point: any) => point.y);
             return sampledValues;
@@ -91,8 +89,11 @@ const DevelopmentCard = ({ solves }: any) => {
                     exclusive
                     onChange={(_event: any, v: any) => { if (v !== null) { setTimeFrame(v); } }}
                     sx={{
-                        justifyContent: 'center',
-                        height: "20px"
+                        // justifyContent: 'center',
+                        borderRadius: 2,
+                        maxHeight: "25px",
+                        bgcolor: "#090909",
+                        border: "1px solid #333333"
                     }}
                 >
                     <ToggleButton value={"recent"}>
@@ -105,8 +106,9 @@ const DevelopmentCard = ({ solves }: any) => {
                 </ToggleButtonGroup>
             </FormControl>
             <Grid container spacing={1.5}>
-                {displayed.map((key: string) => {
+                {displayed.map((key: string, index: number) => {
                     const trend: any = timeFrame == "all" ? trends.all[key as keyof typeof trends.all] : trends.recent[key as keyof typeof trends.all];
+                    const left: boolean = index % 2 == 0;
                     return (
                         <Grid size={{ xs: 12, md: 6, sm: 6 }}>
                             <TrendCard trend={trend} headerKey={key} current={recentSolve[key]} />

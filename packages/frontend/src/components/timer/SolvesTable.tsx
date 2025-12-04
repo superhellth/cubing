@@ -57,31 +57,23 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
     return (
         <Paper elevation={0} sx={{
             flex: 4,
-            marginTop: "1rem",
+            marginTop: "1.5rem",
             bgcolor: theme.palette.primary.main,
-            border: "1px solid #333",
-            width: 'fit-content',
-            minWidth: '100%',
+            border: "1px solid #333333",
+            borderRadius: "8px",
             display: "flex"
         }}>
-
             <TableVirtuoso
-                style={{
-                    width: 'fit-content',
-                    minWidth: '100%'
-                }}
                 data={sortedSolves}
                 components={{
                     Scroller: React.forwardRef((props, ref) => (
                         <TableContainer component={Paper} {...props} ref={ref} sx={{
-                            overflowX: 'auto',
                             flex: 1,
                             '&::-webkit-scrollbar': { display: 'none' },
                             scrollbarWidth: 'none',
                             overflow: 'visible',
                             width: 'fit-content',
-                            minWidth: '100%',
-                            msOverflowStyle: 'none',
+                            borderRadius: "8px",
                             bgcolor: "transparent",
                         }} />
                     )),
@@ -90,17 +82,23 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                         <Table
                             {...props}
                             stickyHeader
-                            sx={{
-                                width: 'auto', minWidth: '100%',
-                                tableLayout: 'fixed',
-                                '& .MuiTableCell-root': { paddingLeft: "auto", paddingRight: '0px' },
-                                userSelect: "none",
-                            }}
+                        // sx={{
+                        //     tableLayout: 'fixed',
+                        //     userSelect: "none",
+                        // }}
                         />
                     ),
                     TableHead: TableHead,
                     TableBody: React.forwardRef((props, ref) => (
-                        <TableBody {...props} ref={ref} sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.1rem' } }} />
+                        <TableBody {...props} ref={ref} sx={{
+                            '& .MuiTableCell-root': {
+                                textAlign: 'right',
+                                fontSize: '1.05rem',
+                                // p: 0,
+                                fontFamily: '"JetBrains Mono", monospace',
+                            },
+                            // '&:last-child': { paddingRight: '16px', },
+                        }} />
                     )),
                     TableRow: (props) => {
                         const index = props['data-item-index'];
@@ -119,7 +117,7 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                     '.MuiTableCell-root': {
                                         bgcolor: "transparent"
                                     },
-                                    height: "60px"
+                                    height: "50px"
                                 }}
                             />
                         );
@@ -131,18 +129,20 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                     <TableRow>
                         {HEAD_CELLS.slice(0, -2).map((headCell) => {
                             if (sortedSolves.length < headCell.minSolves) return null;
-
                             return (
                                 <TableCell
+                                    size='small'
                                     key={headCell.id}
                                     sortDirection={orderBy === headCell.id ? order : undefined}
+                                    align={"right"}
                                     sx={{
                                         whiteSpace: 'nowrap',
-                                        textAlign: 'center',
-                                        fontSize: '1.3rem',
+                                        fontSize: '1.2rem',
+                                        paddingLeft: 0,
+                                        paddingTop: "16px",
+                                        width: "10%",
+                                        paddingBottom: "16px",
                                         fontWeight: "bold",
-                                        // border: "2px solid #333",
-                                        // borderColor: theme.palette.info.main,
                                         bgcolor: theme.palette.primary.main,
                                     }}
                                 >
@@ -151,6 +151,10 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                         direction={orderBy === headCell.id ? (order === 'desc' ? 'desc' : 'asc') : "asc"}
                                         onClick={() => handleSortRequest(headCell.id)}
                                         sx={{
+                                            // flexDirection: "row-reverse",
+                                            margin: 0,
+                                            padding: 0,
+                                            maxWidth: "60px",
                                             color: headCell.color,
                                             '&.Mui-active': { color: headCell.color },
                                             '&:hover': { color: headCell.color, opacity: 0.3 },

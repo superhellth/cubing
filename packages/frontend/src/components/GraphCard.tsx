@@ -14,11 +14,11 @@ export const GraphCard = ({
     const theme = useTheme();
     return (
         <Paper sx={{
-            bgcolor: theme.palette.secondary.main,
+            bgcolor: theme.palette.primary.main,
             borderRadius: '16px',
             height: "100%",
             boxShadow: 'none',
-            border: '1px solid #2C2C2C',
+            border: '1px solid #27272a',
             display: "flex",
             flexDirection: "column",
             padding: 1,
