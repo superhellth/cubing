@@ -15,9 +15,10 @@ export const TimerPanel = styled(Box)(({ theme }) => ({
     flex: 35,
     display: 'flex',
     flexDirection: 'column',
+    alignItems: "center",
     justifyContent: 'space-between',
     backgroundColor: theme.palette.primary.main,
-    padding: "16px 16px",
+    padding: "16px 40px",
     position: 'relative',
 }));
 
@@ -36,7 +37,7 @@ export const ScrambleText = styled(Typography, {
     return {
         // color: theme.palette.text.secondary,
         fontSize,
-        fontFamily: '"Space Mono", monospace',
+        fontFamily: 'IBM Plex Mono',
         textAlign: 'center',
         width: '100%',
     };

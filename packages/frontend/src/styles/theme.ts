@@ -72,7 +72,7 @@ const theme = createTheme({
     },
     typography: {
         fontFamily: [
-            "Inter",
+            "IBM Plex Sans",
             '-apple-system',
             'BlinkMacSystemFont',
             '"Segoe UI"',
@@ -142,11 +142,22 @@ const theme = createTheme({
         MuiTooltip: {
             styleOverrides: {
                 tooltip: ({ theme }) => ({
-                    backgroundColor: theme.palette.primary.main,
-                    fontSize: "1rem"
+                    fontSize: "1rem",
+                    backgroundColor: "rgba(30, 30, 30, 0.90)",
+                    backdropFilter: "blur(4px)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                    borderRadius: "8px",
+                    boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.5)",
+                    padding: "12px",
                 }),
                 arrow: ({ theme }) => ({
-                    color: theme.palette.primary.main
+                    color: "rgba(30, 30, 30, 0.90)",
+                    "&::before": {
+                        // Apply the same border and backdrop properties
+                        border: "1px solid rgba(255, 255, 255, 0.15)",
+                        backgroundColor: "rgba(30, 30, 30, 0.90)",
+                        boxSizing: "border-box",
+                    },
                 })
             }
         },

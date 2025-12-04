@@ -33,9 +33,9 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
     );
     const hideElements: boolean = useMemo(() => {
         return ACTIVE_TIMER_STATUS.includes(timerStatus)
-        && settings.hideElementsWhileSolving
-        && ((timerStatus !== TimerStatus.ReadyForInspection && settings.inspection)
-        || (timerStatus !== TimerStatus.Ready && !settings.inspection))
+            && settings.hideElementsWhileSolving
+            && ((timerStatus !== TimerStatus.ReadyForInspection && settings.inspection)
+                || (timerStatus !== TimerStatus.Ready && !settings.inspection))
     }, [settings, timerStatus]);
 
     const percentile = useMemo(() => {
@@ -70,47 +70,36 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                         <SettingsIcon />
                     </HCButton>
                 }
-                <Box sx={{ flex: 1 }}>
-                    {!hideElements &&
-                        <ScrambleText charCount={currentScramble.length}>
-                            {currentScramble}
-                        </ScrambleText>
-                    }
+                <Box sx={{ flex: 1, visibility: hideElements ? "hidden" : "visible" }}>
+                    <ScrambleText charCount={currentScramble.length}>
+                        {currentScramble}
+                    </ScrambleText>
                 </Box>
-                <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
-                    <Stack spacing={2}>
-
-                        {!hideElements &&
-                            <PercentileGauge percentile={percentile} />
-                        }
-                        <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
-                            !inspectionlessDisciplines.includes(selectedDiscipline)} />
-                    </Stack>
+                <Box sx={{ flex: 5, visibility: hideElements ? "hidden" : "visible", alignContent: "center" }}>
+                    <PercentileGauge percentile={percentile} />
+                </Box>
+                <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
+                        !inspectionlessDisciplines.includes(selectedDiscipline)} />
                     {/* </Box> */}
-                    <Box sx={{ flex: 1, display: "grid", alignItems: "center", marginBottom: "3rem" }}>
-                        {!hideElements &&
-                            <Box>
-                                <Typography sx={{ fontSize: "3rem", color: "info.light" }}>
-                                    Ao5: {solves[0]?.avg5 ? getDisplayableTime(solves[0], "avg5") : "-"}
-                                </Typography>
-                                <Typography sx={{ fontSize: "3rem", color: "info.dark" }}>
-                                    Ao12: {solves[0]?.avg12 ? getDisplayableTime(solves[0], "avg12") : "-"}
-                                </Typography>
-                            </Box>
-                        }
-                    </Box>
                 </Box>
-                <Box sx={{ flex: 1, }}>
-                    {!hideElements &&
-                        <AvgGraphs solves={solves} settings={settings} />
-                    }
+                {/* <Box sx={{ flex: 5, width: "100%", visibility: hideElements ? "hidden" : "visible" }}>
+                    <Typography sx={{ fontSize: "3rem", color: "info.light" }}>
+                        Ao5: {solves[0]?.avg5 ? getDisplayableTime(solves[0], "avg5") : "-"}
+                    </Typography>
+                    <Typography sx={{ fontSize: "3rem", color: "info.dark" }}>
+                        Ao12: {solves[0]?.avg12 ? getDisplayableTime(solves[0], "avg12") : "-"}
+                    </Typography>
+                </Box> */}
+                <Box sx={{ flex: 10, visibility: hideElements ? "hidden" : "visible", width: "100%", alignContent: "flex-end"}}>
+                    <AvgGraphs solves={solves} settings={settings} />
                 </Box>
             </TimerPanel>
-
             {!hideElements &&
                 <Box sx={{
                     bgcolor: "secondary.main",
                     flex: 10,
+                    visibility: hideElements ? "hidden" : "visible",
                     borderRadius: "24px",
                     border: "1px solid rgba(255, 255, 255, 0.1)",
                     m: "16px 16px",

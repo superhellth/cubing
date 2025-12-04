@@ -59,8 +59,7 @@ function App() {
 
         <Box sx={{ width: "100%", height: "100%", margin: "0 auto", bgcolor: "primary.main", display: "flex" }}>
           {sidebarVisible &&
-            <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} />
-
+            <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} isVisible={sidebarVisible} />
           }
           <Box sx={{ flex: 20, height: "100%", bgcolor: "blue" }}>
             <Routes>

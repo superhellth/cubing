@@ -6,13 +6,14 @@ import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Box from '@mui/system/Box';
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { getDisplayableTime } from '../../utils/solveUtils';
 import Timer from "../../utils/timer";
 import SolvesTable from './SolvesTable';
 import { useTheme } from '@mui/system';
 import usePBStats from '../../hooks/usePBStats';
-import { Typography } from '@mui/material';
+import { Collapse, IconButton, Typography } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 interface Stats {
     [key: string]: number | null;
@@ -29,8 +30,8 @@ export const HEAD_CELLS = [
 
 const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[], openSolveDetailsScreen: Function }) => {
     const theme = useTheme();
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const latestSolve = solves?.[0];
-    // const solvesWithPB = usePBStats(solves);
 
     const bestStats: any = useMemo(() => {
         const stats: Stats = { duration: null, avg5: null, avg12: null, avg100: null, avg1000: null };
@@ -56,7 +57,10 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
 
 
     return (
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "1.5rem" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100%", padding: "1.5rem", position: "relative" }}>
+            <IconButton sx={{ position: "absolute", top: "25px", right: "25px", color: theme.palette.text.secondary }}>
+                <VisibilityIcon />
+            </IconButton>
             {/* Best Statistics Table */}
             <Typography variant='h4' sx={{ padding: 2, paddingTop: 0 }}>Your Solves</Typography>
             <Paper elevation={0} sx={{
@@ -75,18 +79,18 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
                         paddingTop: "1rem",
                     },
                     [`& .${tableCellClasses.head}`]: {
-                        padding: "0 1rem",
+                        padding: 0,
                         height: "auto",
                     }
                 }}>
-                    <TableHead sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1.2rem', fontWeight: "bold" } }} >
+                    <TableHead sx={{ '& .MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }} >
                         <TableRow sx={{ height: "100%" }}>
                             <TableCell></TableCell>
-                            <TableCell>Best</TableCell>
-                            <TableCell>Current</TableCell>
+                            <TableCell align='right'>Best</TableCell>
+                            <TableCell align='right'>Current</TableCell>
                         </TableRow>
                     </TableHead>
-                    <TableBody sx={{ '& .MuiTableCell-root': { textAlign: 'center', fontSize: '1rem' }, height: "100%" }}>
+                    <TableBody sx={{ height: "100%" }}>
 
                         {HEAD_CELLS.slice(1).map((row) => {
                             if (solves.length < row.minSolves) return null;
@@ -94,17 +98,17 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
                             return (
                                 <TableRow key={row.id} sx={{ '& .MuiTableCell-root': { color: row.color } }}>
                                     {/* Label */}
-                                    <TableCell sx={{ '&.MuiTableCell-root': { fontSize: '1.3rem', fontWeight: "bold" } }}>
+                                    <TableCell sx={{ fontSize: '1.3rem', fontWeight: "bold" }}>
                                         {row.label}
                                     </TableCell>
 
                                     {/* Best Stat */}
-                                    <TableCell>
+                                    <TableCell sx={{ fontFamily: "IBM Plex Mono", fontSize: "1.05rem" }} align='right'>
                                         {Timer.formatTime(bestStats[row.id])}
                                     </TableCell>
 
                                     {/* Current Stat */}
-                                    <TableCell>
+                                    <TableCell sx={{ fontFamily: "IBM Plex Mono", fontSize: "1.05rem" }} align='right'>
                                         {latestSolve ? getDisplayableTime(latestSolve, row.id as keyof ISolve) : "-"}
                                     </TableCell>
                                 </TableRow>
@@ -115,7 +119,16 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen }: { solves: ISolve[]
             </Paper>
 
             {/* Main History Table */}
-            <SolvesTable solves={solves} bestStats={bestStats} openSolveDetailsScreen={openSolveDetailsScreen} />
+            <Paper elevation={0} sx={{
+                flex: 4,
+                marginTop: "1.5rem",
+                bgcolor: theme.palette.primary.main,
+                border: "1px solid #333333",
+                borderRadius: "8px",
+                display: "flex",
+            }}>
+                <SolvesTable solves={solves} bestStats={bestStats} openSolveDetailsScreen={openSolveDetailsScreen} />
+            </Paper>
         </Box>
     );
 });
