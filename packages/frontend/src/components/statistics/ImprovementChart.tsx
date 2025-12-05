@@ -1,7 +1,7 @@
 import { keyToLabels, type ISolve } from "@cubing/shared";
 import { Box, Divider, Paper, Typography, useTheme } from "@mui/material";
 import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import useDownsampling from "../../hooks/useDownsampling";
 import usePBStats from "../../hooks/usePBStats";
 import { useSolvesForecast } from "../../hooks/useSolveForecast";
@@ -23,7 +23,7 @@ const ImprovementChart = memo(({
     const theme = useTheme();
 
     // Chart Controller
-    const [display, setDisplay] = useState<string[]>(["avg100", "avg1000", "pb"]);
+    const [display, setDisplay] = useState<string[]>(["avg5", "avg12", "avg100", "avg1000", "pb"]);
     const [predictionHorizon, setPredictionHorizon] = useState<number>(20);
     const [samplingLimit, setSamplingLimit] = useState<number>(100);
 
@@ -36,7 +36,7 @@ const ImprovementChart = memo(({
     const { predictions, confidences } = useSolvesForecast(sortChronologically(solves),
         display.filter((s: string) => s !== "pb"), predictionHorizon, "linear");
 
-    // Chart Configuration (Memoized)
+    // Chart Configuration
     const historyAndPredictions: ISolve[] = useMemo(() => {
         const foundIndex = solvesChronological.findIndex(solve =>
             display.some(key => solve[key as keyof ISolve] != null)
@@ -55,7 +55,6 @@ const ImprovementChart = memo(({
                 dataPoints.push({ x: i, y: solve.duration });
             }
         }
-        // console.log()
         return dataPoints;
     }, [solvesChronological]);
     const seriesConfig: any = useMemo(() => {
@@ -93,6 +92,10 @@ const ImprovementChart = memo(({
         return lines;
     }, [display, solves, theme, pbData]);
 
+    useEffect(() => {
+        setSamplingLimit(solves.length / 10)
+    }, []);
+
     const chartSurfaceSx = {
         '& .line-after path': { strokeDasharray: '10 5' },
         '& .MuiLineElement-series-pb-line': { strokeDasharray: '10 5' },
@@ -111,8 +114,8 @@ const ImprovementChart = memo(({
             boxShadow: 'none',
             border: '1px solid #27272a',
         }} >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
-                <Typography variant="h4" sx={{ color: '#fff', mb: 3, fontWeight: 600 }} noWrap>Your Improvements</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Typography variant="h4" sx={{ color: '#fff', mb: 3, fontWeight: "bold" }} noWrap>Your Improvements</Typography>
                 <ImprovementChartControl numSolves={solves.length}
                     display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
                     predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}

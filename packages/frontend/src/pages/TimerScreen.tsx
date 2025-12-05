@@ -66,7 +66,7 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                 {!hideElements &&
                     <HCButton
                         sx={{
-                            position: "absolute", left: 0, top: "16px",
+                            position: "absolute", left: "40px", top: "16px",
                             userSelect: "none"
                         }}
                         onClick={() => { setSettingsOpen(true); }} isSelected={true}>

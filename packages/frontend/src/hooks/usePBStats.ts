@@ -6,7 +6,7 @@ const usePBStats = (solves: ISolve[]) => {
     return useMemo(() => {
 
         let currentPb = Infinity;
-        
+
         return sortChronologically(solves).map((s: any, i: any) => {
             const isNewPB = s.duration < currentPb;
             if (isNewPB) currentPb = s.duration;

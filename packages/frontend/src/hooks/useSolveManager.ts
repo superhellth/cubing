@@ -12,7 +12,7 @@ const scrambleGenerator = new Scrambler();
 
 export const useSolveManager = (selectedDiscipline: Discipline, selectedSession: string) => {
     const [rawSolves, setRawSolves] = useState<ISolve[]>([]);
-    const [currentScramble, setCurrentScramble] = useState<string>("");
+    const [currentScramble, setCurrentScramble] = useState<string>("Loading...");
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
 
     const [userID] = useState<string>(() => {

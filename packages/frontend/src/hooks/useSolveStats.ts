@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { ISolve } from "@cubing/shared";
 
 export function useSolveStats(solves: ISolve[]) {
-    // Start with empty stats, or current solves if you want immediate render 
-    // (though they won't have averages yet)
     const [stats, setStats] = useState<ISolve[]>([]);
     
     const workerRef = useRef<Worker | null>(null);
