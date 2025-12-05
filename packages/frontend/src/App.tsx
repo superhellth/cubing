@@ -57,11 +57,11 @@ function App() {
       <CssBaseline />
       {backendOnline ? (
 
-        <Box sx={{ width: "100%", height: "100%", margin: "0 auto", bgcolor: "primary.main", display: "flex" }}>
-          {sidebarVisible &&
-            <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} isVisible={sidebarVisible} />
-          }
-          <Box sx={{ flex: 20, height: "100%", bgcolor: "blue" }}>
+        <Box sx={{
+          width: "100%", height: "100%", bgcolor: "primary.main", display: "flex", gridAutoFlow: 'column', gridTemplateRows: '100%'
+        }}>
+          <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} isVisible={sidebarVisible} />
+          <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
             <Routes>
               <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)} />} />
               <Route path="/stats" element={<StatisticsScreen />} />

@@ -5,6 +5,7 @@ export const ScreenContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: "row",
     // justifyContent: 'space-between',
+    
     backgroundColor: theme.palette.primary.main,
     height: '100%',
     width: '100%',
@@ -15,9 +16,10 @@ export const TimerPanel = styled(Box)(({ theme }) => ({
     flex: 35,
     display: 'flex',
     flexDirection: 'column',
+    // backgroundColor: "red",
+    backgroundColor: theme.palette.primary.main,
     alignItems: "center",
     justifyContent: 'space-between',
-    backgroundColor: theme.palette.primary.main,
     padding: "16px 40px",
     position: 'relative',
 }));

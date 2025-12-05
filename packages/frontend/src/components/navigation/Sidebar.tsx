@@ -1,8 +1,8 @@
 import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
-import { Box, Collapse, Divider, Paper, Slide, useTheme } from '@mui/material';
+import { Box, Collapse, Divider, Fade, IconButton, Paper, Slide, useTheme } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HCButton from '../HCButton';
@@ -21,89 +21,101 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
     const navigate = useNavigate();
     const location = useLocation();
     const theme = useTheme();
+    const [isScrolling, setIsScrolling] = useState(false);
+    const scrollTimeout: any = useRef(null);
 
+    const handleScroll = () => {
+        if (!isScrolling) setIsScrolling(true);
+
+        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        scrollTimeout.current = setTimeout(() => {
+            setIsScrolling(false);
+        }, 150);
+    };
     const handleDisciplineClick = (disc: Discipline) => {
         setOpenDrawer(false);
         onDisciplineChange(disc);
     };
 
+
     return (
-        <Box component="nav" sx={{ display: 'flex', visibility: isVisible ? "visible" : "hidden" }}>
+        <Box component="nav" sx={{ display: "flex", visibility: isVisible ? "visible" : "hidden", position: "relative", padding: "16px" }}>
             {/* Main Vertical Bar */}
             <Paper sx={{
                 width: "75px",
-                marginLeft: "16px",
-                marginTop: "16px",
-                marginBottom: "16px",
                 borderRadius: "24px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-around",
-                zIndex: 5,
-                bgcolor: theme.palette.secondary.main
+                bgcolor: theme.palette.secondary.main,
+                zIndex: 20,
             }}>
                 <Box>
-                    <HCButton onClick={() => { if (location.pathname !== "/") { navigate("/") } else { setOpenDrawer(!openDrawer) } }} isSelected={location.pathname === "/"}>
+                    <HCButton isSelected={location.pathname === "/"} onClick={() => navigate("/")}>
                         <AlarmFilledIcon sx={{ fontSize: 30 }} />
                     </HCButton>
+                    <IconButton sx={{ borderRadius: 0, height: 20, color: theme.palette.info.dark }} disabled={location.pathname !== "/"}
+                        onClick={() => { if (location.pathname !== "/") { navigate("/") } else { setOpenDrawer(!openDrawer) } }}>
+                        <KeyboardArrowRightIcon sx={{
+                            fontSize: 20,
+                            transform: openDrawer ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                        }} />
+                    </IconButton>
                 </Box>
                 <HCButton onClick={() => { setOpenDrawer(false); navigate("/stats") }} isSelected={location.pathname === "/stats"}>
                     <QueryStatsOutlinedIcon sx={{ fontSize: 30 }} />
                 </HCButton>
-                {/* <HCButton onClick={() => navigate("/licenses")} isSelected={location.pathname === "/licenses"}>
-                    <InfoOutlinedIcon sx={{ fontSize: 30 }} />
-                </HCButton> */}
             </Paper>
 
-            {/* Slide out Drawer */}
-            <Collapse in={openDrawer} orientation='horizontal' sx={{
-                maxHeight: "100%",
-                '& .MuiCollapse-wrapper': { maxHeight: '100%' },
-                '& .MuiCollapse-wrapperInner': { maxHeight: '100%' },
-                marginTop: "16px",
-                marginBottom: "16px",
-                marginLeft: "12px",
-                position: "relative",
-            }}>
+            <Fade in={openDrawer} >
                 <Box sx={{
-                    // position: "relative",
-                    borderRadius: "24px",
-                    maxHeight: "100%",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    bgcolor: theme.palette.secondary.main,
+                    position: "absolute",
+                    zIndex: 10,
+                    left: "103px",
+                    top: "16px",
+                    bottom: "16px",
                     width: "65px",
-                    overflowY: "auto",
-                    scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }
+                    bgcolor: theme.palette.secondary.main,
+                    borderRadius: "24px",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    overflow: "hidden"
                 }}>
-                    {/* <Box sx={{
-                        overflowY: "auto", display: "flex", flexDirection: "column",
-                        scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none', }
-                    }}> */}
-                    {EVENTS_AND_DISCIPLINES.map(([event, disc]) => (
-                        <DisciplineButton
-                            key={event}
-                            name={event}
-                            size={40}
-                            disc={disc as Discipline}
-                            isSelected={selectedDiscipline === disc}
-                            onClick={handleDisciplineClick}
-                        />
-                    ))}
-                    {/* </Box> */}
-                    <Box sx={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: '50px',
-                        borderRadius: "24px",
-                        background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))',
-                        pointerEvents: 'none'
-                    }} />
+                    <Box onScroll={handleScroll} sx={{
+                        height: "100%",
+                        overflowY: "auto",
+                        scrollbarWidth: 'none',
+                        '&::-webkit-scrollbar': { display: 'none' },
+
+                    }}>
+
+                        {EVENTS_AND_DISCIPLINES.map(([event, disc]) => (
+                            <DisciplineButton
+                                key={event}
+                                name={event}
+                                size={40}
+                                disc={disc as Discipline}
+                                isSelected={selectedDiscipline === disc}
+                                tooltipDisabled={isScrolling}
+                                onClick={handleDisciplineClick}
+                            />
+                        ))}
+                        {/* </Box> */}
+                        <Box sx={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: '50px',
+                            borderRadius: "24px",
+                            background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))',
+                            pointerEvents: 'none'
+                        }} />
+                    </Box>
                     <Divider orientation="vertical" sx={{ bgcolor: theme.palette.secondary.main }} flexItem component="div" />
                 </Box>
-            </Collapse>
+            </Fade>
         </Box>
     );
 }

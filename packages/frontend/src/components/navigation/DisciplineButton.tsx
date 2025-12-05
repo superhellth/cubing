@@ -18,9 +18,10 @@ interface DisciplineButtonProps {
     disc: Discipline;
     isSelected: boolean;
     onClick: (disc: Discipline) => void;
+    tooltipDisabled: boolean;
 }
 
-const DisciplineButton = ({ name, size, disc, isSelected, onClick }: DisciplineButtonProps) => (
+const DisciplineButton = ({ name, size, disc, isSelected, onClick, tooltipDisabled }: DisciplineButtonProps) => (
     <Tooltip title={disc} placement='right' arrow>
         <StyledDisciplineButton isSelected={isSelected} onClick={() => onClick(disc)}>
             <i className={`cubing-icon event-${name}`} style={{ fontSize: size }} />
