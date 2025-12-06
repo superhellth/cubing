@@ -1,5 +1,6 @@
 class CubeScrambler {
     private static readonly FACES = ["U", "D", "L", "R", "F", "B"];
+    private static readonly AXES = ["U", "F", "R"];
     private static readonly MODIFIERS = ["", "'", "2"];
 
     constructor() {
@@ -9,6 +10,7 @@ class CubeScrambler {
         let scramble: string[] = [];
         let lastFace: string = "";
         while (scramble.length < length) {
+            // let 
             let face: string = CubeScrambler.FACES[Math.floor(Math.random() * CubeScrambler.FACES.length)];
 
             if (face === lastFace) {

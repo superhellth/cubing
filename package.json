@@ -21,6 +21,7 @@
     "@react-spring/web": "^10.0.3",
     "@types/tinycolor2": "^1.4.6",
     "chart.js": "^4.5.1",
+    "cubing": "^0.61.0",
     "d3-shape": "^3.2.0",
     "downsample": "^1.4.0",
     "downsample-lttb": "^0.0.1",

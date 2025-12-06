@@ -20,7 +20,7 @@ export function CustomAnimatedLine(props: CustomAnimatedLineProps) {
         return <AnimatedLine {...other} />;
     }
 
-    const limitPosition = scale(limit); // Convert value to x coordinate.
+    const limitPosition = scale(limit);
 
     if (limitPosition === undefined) {
         return <AnimatedLine {...other} />;
@@ -28,23 +28,25 @@ export function CustomAnimatedLine(props: CustomAnimatedLineProps) {
 
     const clipIdleft = `${chartId}-${props.ownerState.id}-line-limit-${limit}-1`;
     const clipIdRight = `${chartId}-${props.ownerState.id}-line-limit-${limit}-2`;
+    const chartRightEdge = left + width;
+    const leftRectWidth = Math.max(0, Math.min(limitPosition, chartRightEdge) - left);
+    const rightRectWidth = Math.max(0, chartRightEdge - Math.max(limitPosition, left));
+
     return (
         <React.Fragment>
-            {/* Clip to show the line before the limit */}
             <clipPath id={clipIdleft}>
                 <rect
                     x={left}
                     y={0}
-                    width={limitPosition - left}
+                    width={leftRectWidth}
                     height={top + height + bottom}
                 />
             </clipPath>
-            {/* Clip to show the line after the limit */}
             <clipPath id={clipIdRight}>
                 <rect
-                    x={limitPosition}
+                    x={Math.max(left, limitPosition)}
                     y={0}
-                    width={left + width - limitPosition}
+                    width={rightRectWidth}
                     height={top + height + bottom}
                 />
             </clipPath>

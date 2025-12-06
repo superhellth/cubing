@@ -127,7 +127,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                                     {/* <ToggleButton value={numSolves / 100}>
                                         Some
                                     </ToggleButton> */}
-                                    <ToggleButton value={numSolves / 10}>
+                                    <ToggleButton value={Math.floor(numSolves / 10)}>
                                         Medium
                                     </ToggleButton>
                                     {/* <ToggleButton value={numSolves / 3}>

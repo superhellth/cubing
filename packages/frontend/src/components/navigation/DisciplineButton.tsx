@@ -5,7 +5,8 @@ interface StyledDisciplineButtonProps extends ButtonProps {
     isSelected?: boolean;
 }
 
-const StyledDisciplineButton = styled(Button)<StyledDisciplineButtonProps>(({ theme, isSelected }) => ({
+
+const StyledDisciplineButton = styled(Button, { shouldForwardProp: (prop) => prop !== 'isSelected', })<StyledDisciplineButtonProps>(({ theme, isSelected }) => ({
     color: isSelected ? theme.palette.info.light : theme.palette.text.primary,
     '&:hover': {
         color: theme.palette.info.dark,

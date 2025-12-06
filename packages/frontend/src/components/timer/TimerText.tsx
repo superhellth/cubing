@@ -141,18 +141,14 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                     position: 'absolute',
                     top: '50%',
                     left: '50%',
-                    transform: 'translate(-50%, -50%)', // Centers the orb perfectly
-                    width: '120%', // Make it slightly larger than the content
+                    transform: 'translate(-50%, -50%) translateZ(0)',
+                    width: '120%',
                     height: '120%',
-
-                    // The Magic Gradient: Solid center fading to transparent edges
                     background: `radial-gradient(circle, ${alpha(theme.palette.text.primary, 0.1)} 0%, transparent 70%)`,
-
-                    // The Blur: This creates the "atmosphere" look
                     filter: 'blur(40px)',
-
-                    zIndex: 0, // Sits behind the text
-                    pointerEvents: 'none', // Ensures it doesn't block clicks
+                    pointerEvents: 'none',
+                    backfaceVisibility: 'hidden',
+                    zIndex: -1,
                 }}
             />
             <Typography sx={{

@@ -104,7 +104,7 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                 visibility: !hideElements ? "visible" : "hidden",
                 flex: solveTableVisible ? 10 : 0,
                 minWidth: !solveTableVisible ? "87px" : 0,
-                transition: "flex 0.3s cubic-bezier(0.19, 1, 0.22, 1)",
+                transition: "all 0.3s cubic-bezier(0.19, 1, 0.22, 1), visibility 0s",
                 m: "16px 16px",
             }}>
                 <TimeDisplay solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={!solveTableVisible}

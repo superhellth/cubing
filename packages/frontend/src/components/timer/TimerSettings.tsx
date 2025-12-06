@@ -92,7 +92,7 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                     <Divider />
                     <Box>
                         <Typography variant="overline" display="block" gutterBottom >
-                            Display
+                            Graph
                         </Typography>
                         <Stack spacing={2}>
                             <FormControl fullWidth size="small">
@@ -105,7 +105,7 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                     onChange={handleDisplayChange}
                                     renderValue={(selected) => selected.map((value: string) => keyToLabels[value as keyof typeof keyToLabels]).join(', ')}
                                 >
-                                    {AVERAGE_DISPLAY_ORDER.map((key) => (
+                                    {AVERAGE_DISPLAY_ORDER.filter(v => v !== "pb").map((key) => (
                                         <MenuItem key={key} value={key} sx={{
                                             display: 'flex',
                                             justifyContent: 'space-between', // Pushes text left, icon right
@@ -126,7 +126,7 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                 </Select>
                                 <FormHelperText>Which values to display in the Timer Graph.</FormHelperText>
                             </FormControl>
-                            <FormControl fullWidth size="small">
+                            {/* <FormControl fullWidth size="small">
                                 <InputLabel>Graph Axis</InputLabel>
                                 <Select
                                     value={settings.avgGraphXAxis}
@@ -159,13 +159,11 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                     </MenuItem>
                                 </Select>
                                 <FormHelperText>Unit of the X-Axis of the Timer Graph.</FormHelperText>
-                            </FormControl>
+                            </FormControl> */}
 
                         </Stack>
                     </Box>
                 </Stack>
-                {/* avgGraphDisplay: ["avg5", "avg12"],
-    avgGraphNumSolves: 50 */}
             </DialogContent>
         </Dialog>
     );

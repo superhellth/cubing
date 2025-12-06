@@ -32,12 +32,6 @@ const ImprovementChart = memo(({
     const solvesChronological: ISolve[] = useMemo(() => { return sortChronologically(sampledSolves) }, [sampledSolves]);
     const lastIndex: number = useMemo(() => {return sampledSolves.length - 1}, [sampledSolves]) ;
 
-    useEffect(() => {
-        // console.log(solves.length)
-        console.log(sampledSolves.length)
-        // console.log(lastIndex)
-    }, [samplingLimit])
-
     // Prediction
     const { predictions, confidences } = useSolvesForecast(sortChronologically(solves),
         display.filter((s: string) => s !== "pb"), predictionHorizon, "linear");
@@ -99,7 +93,6 @@ const ImprovementChart = memo(({
     }, [display, solves, theme, pbData]);
 
     useEffect(() => {
-        // console.log("changes")
         setSamplingLimit(Math.floor(solves.length / 10))
     }, []);
 

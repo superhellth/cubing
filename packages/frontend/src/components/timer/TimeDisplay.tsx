@@ -84,7 +84,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
                     width: '100%', height: "100%",
                     opacity: isCollapsed ? 0 : 1,
                     transition: !isCollapsed
-                        ? `opacity 0.3s cubic-bezier(0.19, 1, 0.22, 1) 0.1s`
+                        ? `opacity 1s cubic-bezier(0.19, 1, 0.22, 1) 0.1s`
                         : `opacity 0.1s cubic-bezier(0.19, 1, 0.22, 1) 0s`,
                     pointerEvents: isCollapsed ? 'none' : 'auto',
                 }}>

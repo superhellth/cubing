@@ -5,6 +5,7 @@ import DBWriter from '../services/dbWriter';
 import Scrambler from '../utils/scrambling/scrambler';
 import { solveWithUpdatedStatus } from '../utils/solveUtils';
 import { useSolveStats } from './useSolveStats';
+import { getScramble } from "../utils/scrambling/new_scrambler";
 
 const dbWriter = DBWriter.instance;
 const dbReader = DBReader.instance;
@@ -34,7 +35,9 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
                 const fetchedSolves = await dbReader.getSolvesByDisciplineAndSession(userID, selectedDiscipline, selectedSession);
                 if (mounted) {
                     setRawSolves(fetchedSolves);
-                    setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
+                    const newScramble: string = await getScramble("333");
+                    setCurrentScramble(newScramble);
+                    // setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
                 }
             } catch (error) {
                 console.error("Failed to fetch solves:", error);
@@ -62,7 +65,9 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
 
             setRawSolves(prev => [newSolve, ...prev]);
 
-            setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
+            const newScramble: string = await getScramble("333");
+            setCurrentScramble(newScramble);
+            // setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
         } catch (error: any) {
             if (error.message === 'LIMIT_REACHED') {
