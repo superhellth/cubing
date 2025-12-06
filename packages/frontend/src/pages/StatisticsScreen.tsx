@@ -27,14 +27,14 @@ function StatisticsScreen() {
 
     return (
         <Box sx={{ height: "100%", padding: 3, bgcolor: theme.palette.primary.main, display: "flex", flexDirection: "column" }}>
-            <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600 }}>
+            <Typography variant="h3" sx={{ color: '#fff', mb: 3, fontWeight: 600}}>
                 Analytics
             </Typography>
             {isLoading ? (
                 <CalculationLoader />
             ) : (
-                <Grid container spacing={2}>
-                    <Grid size={{ xs: 12, md: 9.7 }} sx={{ height: '500px' }}>
+                <Grid container spacing={2} sx={{ flex: 6}}>
+                    <Grid size={{ xs: 12, md: 9.7 }} sx={{ minHeight: '500px', flex: 4}}>
                         <ImprovementChart solves={solvesWithPbs} />
                     </Grid>
                     <Grid size={{ xs: 12, md: 2.3 }}>

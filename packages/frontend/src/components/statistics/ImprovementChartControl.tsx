@@ -34,7 +34,9 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
         onPredictionHorizonChanged(newValue);
     };
     const handleSampleThresholdChange = (_event: any, newValue: any) => {
-        onSampleThresholdChanged(newValue);
+        if (newValue !== null) {
+            onSampleThresholdChanged(newValue);
+        }
     }
 
     return (

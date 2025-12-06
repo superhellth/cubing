@@ -35,6 +35,10 @@ function App() {
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(lastSelectedDiscipline);
   const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
 
+  (BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
+
   // On Startup: Check if backend is online
   useEffect(() => {
     const checkStatus = async () => {

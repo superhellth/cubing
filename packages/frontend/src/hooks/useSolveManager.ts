@@ -2,18 +2,16 @@ import { Discipline, Status, type ISolve } from "@cubing/shared";
 import { useCallback, useEffect, useState } from 'react';
 import DBReader from '../services/dbReader';
 import DBWriter from '../services/dbWriter';
-import Scrambler from '../utils/scrambling/scrambler';
-import { solveWithUpdatedStatus } from '../utils/solveUtils';
+import { EVENT_TO_SCRAMBLE_KEY } from "../utils/constants";
+import { generateScramble, solveWithUpdatedStatus } from '../utils/solveUtils';
 import { useSolveStats } from './useSolveStats';
-import { getScramble } from "../utils/scrambling/new_scrambler";
 
 const dbWriter = DBWriter.instance;
 const dbReader = DBReader.instance;
-const scrambleGenerator = new Scrambler();
 
 export const useSolveManager = (selectedDiscipline: Discipline, selectedSession: string) => {
     const [rawSolves, setRawSolves] = useState<ISolve[]>([]);
-    const [currentScramble, setCurrentScramble] = useState<string>("Loading...");
+    const [currentScramble, setCurrentScramble] = useState<string>("Generating Scramble...");
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
 
     const [userID] = useState<string>(() => {
@@ -35,9 +33,8 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
                 const fetchedSolves = await dbReader.getSolvesByDisciplineAndSession(userID, selectedDiscipline, selectedSession);
                 if (mounted) {
                     setRawSolves(fetchedSolves);
-                    const newScramble: string = await getScramble("333");
+                    const newScramble: string = await generateScramble(EVENT_TO_SCRAMBLE_KEY.get(selectedDiscipline));
                     setCurrentScramble(newScramble);
-                    // setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
                 }
             } catch (error) {
                 console.error("Failed to fetch solves:", error);
@@ -65,9 +62,8 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
 
             setRawSolves(prev => [newSolve, ...prev]);
 
-            const newScramble: string = await getScramble("333");
+            const newScramble: string = await generateScramble(EVENT_TO_SCRAMBLE_KEY.get(selectedDiscipline));
             setCurrentScramble(newScramble);
-            // setCurrentScramble(scrambleGenerator.generateScramble(selectedDiscipline));
 
         } catch (error: any) {
             if (error.message === 'LIMIT_REACHED') {

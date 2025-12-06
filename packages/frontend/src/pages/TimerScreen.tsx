@@ -1,6 +1,7 @@
 import { Discipline, inspectionlessDisciplines, Status, type ISolve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { Divider, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
@@ -14,10 +15,8 @@ import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/ti
 import { useSolveManager } from "../hooks/useSolveManager";
 import { useTimerLogic } from "../hooks/useTimerLogic";
 import { useTimerSettings } from "../hooks/useTimerSettings";
-import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
-import { boolean } from "zod";
-import { Divider, Typography } from "@mui/material";
 import { getDisplayableTime } from "../utils/solveUtils";
+import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
 
 function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
     const { settings, updateSetting } = useTimerSettings();
@@ -73,12 +72,12 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                         <SettingsIcon />
                     </HCButton>
                 }
-                <Box sx={{ flex: 1, visibility: hideElements ? "hidden" : "visible" }}>
+                <Box sx={{ flex: 1, visibility: hideElements ? "hidden" : "visible", paddingLeft: "60px" }}>
                     <ScrambleText charCount={currentScramble.length}>
                         {currentScramble}
                     </ScrambleText>
                 </Box>
-                <Box sx={{ flex: 5, visibility: hideElements ? "hidden" : "visible", alignContent: "center" }}>
+                <Box sx={{ flex: 7, visibility: hideElements ? "hidden" : "visible", alignContent: "center" }}>
                     <PercentileGauge percentile={percentile} />
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "center" }}>

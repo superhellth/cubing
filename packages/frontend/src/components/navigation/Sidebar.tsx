@@ -2,13 +2,12 @@ import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
-import { Box, Collapse, Divider, Fade, IconButton, Paper, Slide, useTheme } from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { Box, Divider, Fade, IconButton, Paper, useTheme } from '@mui/material';
+import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
 import HCButton from '../HCButton';
-import { EVENTS_AND_DISCIPLINES } from '../../utils/constants';
 import DisciplineButton from './DisciplineButton';
-import { isBandScale } from '@mui/x-charts/internals';
 
 interface SidebarProps {
     selectedDiscipline: Discipline;
@@ -90,7 +89,7 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
 
                     }}>
 
-                        {EVENTS_AND_DISCIPLINES.map(([event, disc]) => (
+                        {[...EVENT_AND_DISCIPLINES_MAP].map(([disc, event]) => (
                             <DisciplineButton
                                 key={event}
                                 name={event}

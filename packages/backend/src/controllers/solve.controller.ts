@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { pool } from '../config/db';
-import { Discipline, SolveSchema, NewSolveSchema, INewSolve, ISolve } from "@cubing/shared";
+import { Discipline, SolveSchema, NewSolveSchema, INewSolve, ISolve, Status } from "@cubing/shared";
 import { z } from "zod";
 
 const GetAllSolvesQS = z.object({ uuid: z.uuid() });
@@ -39,6 +39,7 @@ export const getAllSolves = async (req: Request, res: Response) => {
         const result = await pool.query(queryText, [uuid]);
         res.status(200).json(result.rows);
     } catch (error) {
+        console.error('Error fetching solves:', error);
         res.status(500).json({ message: 'Failed to load solves.' });
     }
 };
@@ -61,23 +62,26 @@ export const insertSolve = async (req: Request, res: Response) => {
             res.status(403).json({ message: 'Limit reached.' });
             return;
         }
-        console.error(error);
+        console.error('Error inserting solve:', error);
         res.status(500).json({ message: 'Failed to insert solve.' });
     }
 };
 
 export const updateSolveStatus = async (req: Request, res: Response) => {
     try {
-        const solve: ISolve = SolveSchema.parse(req.body.solve);
-
+        const solvePk = BigInt(req.body.pk);
+        const uuid = String(req.body.uuid);
+        const status = req.body.status as Status;
+        
         const queryText = `
             UPDATE solves SET status = $1 
             WHERE pk = $2 AND uuid = $3
             RETURNING *`;
 
-        const result = await pool.query(queryText, [solve.status, solve.pk, solve.uuid]);
+        const result = await pool.query(queryText, [status, solvePk, uuid]);
         res.status(200).json(result.rows[0]);
     } catch (error) {
+        console.error('Error updating solve status:', error);
         res.status(500).json({ message: 'Failed to update solve.' });
     }
 };
@@ -91,6 +95,7 @@ export const deleteSolve = async (req: Request, res: Response) => {
         const result = await pool.query("DELETE FROM solves WHERE pk = $1 AND uuid = $2 RETURNING pk", [solvePk, uuid]);
         res.status(200).json(result.rows[0]);
     } catch (error) {
+        console.error('Error deleting solve:', error);
         res.status(500).json({ message: 'Failed to delete solve.' });
     }
 };

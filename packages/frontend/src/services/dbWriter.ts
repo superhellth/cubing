@@ -21,7 +21,9 @@ class DBWriter {
     public async updateSolveStatus(solve: ISolve) {
         try {
             const response = await axios.post(DBWriter.UPDATE_SOLVE_URL, {
-                solve: solve
+                pk: solve.pk,
+                uuid: solve.uuid,
+                status: solve.status
             })
             const updatedSolve: ISolve = response.data as ISolve;
             return updatedSolve;

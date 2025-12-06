@@ -1,19 +1,18 @@
 import { Status, type ISolve } from "@cubing/shared";
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Divider, IconButton, Paper } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import IconButton from "@mui/material/IconButton";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
-import { Box } from "@mui/system";
+import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
 import { getDisplayableTime, getDisplayTime } from "../../../utils/solveUtils";
 
@@ -21,6 +20,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
     solve: ISolve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
     onDeleteSolve: Function
 }) {
+    const theme = useTheme();
     const [status, setStatus] = useState<Status>(solve.status);
     const date: Date = new Date(solve.date);
     const longFormatter = new Intl.DateTimeFormat('en-US', {
@@ -35,114 +35,166 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
     }, [solve]);
 
     const handleStatusChange = (_event: React.MouseEvent<HTMLElement>, newStatus: Status) => {
-        setStatus(newStatus);
-        onUpdateStatus(solve, newStatus);
+        if (newStatus !== null) {
+            setStatus(newStatus);
+            onUpdateStatus(solve, newStatus);
+        }
     };
 
     return (
-        <Dialog open={isOpen} sx={{ color: "red" }}>
-            <DialogTitle sx={{ textAlign: "center", fontSize: "3rem", fontWeight: "bold" }}>Solve {solve.id}</DialogTitle>
-            <DialogContent sx={{ textAlign: "center", display: "flex", flexDirection: "column" }}>
-
-                <IconButton
-                    aria-label="close"
-                    onClick={() => onClose()}
-                    sx={{
-                        position: 'absolute',
-                        right: 8,
-                        top: 8, color: "secondary.light",
-                    }}
-                >
-                    <CloseIcon />
-                </IconButton>
-                <p>Scramble: {solve.scramble}</p>
-                <p>Date: {longFormatter.format(date)}</p>
-                <Box>
-                    <Typography sx={{ color: "text.primary" }}>Single: {getDisplayTime(solve)}</Typography>
-                    <Typography sx={{ color: "info.light" }}>Avg5: {getDisplayableTime(solve, "avg5")}</Typography>
-                    <Typography sx={{ color: "info.dark" }}>Avg12: {getDisplayableTime(solve, "avg12")}</Typography>
-                </Box>
-                <FormControl sx={{
-                    width: '100%',
-                    alignItems: 'center',
-                    marginTop: "1rem"
-                }}>
-                    <FormLabel sx={{ color: "text.primary", fontWeight: 'bold' }}>Solve Status</FormLabel>
-                    <ToggleButtonGroup
-                        value={status}
-                        exclusive
-                        onChange={handleStatusChange}
+        <>
+            <Dialog
+                open={isOpen}
+                onClose={() => onClose()}
+                fullWidth
+                maxWidth="xs"
+            >
+                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
+                    <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 1.5 }}>
+                        Solve {solve.id}
+                    </Typography>
+                    <IconButton
+                        aria-label="close"
+                        onClick={() => onClose()}
                         sx={{
-                            justifyContent: 'center',
-                            width: '100%'
+                            position: 'absolute',
+                            right: 8,
+                            top: 8, color: "secondary.light",
                         }}
                     >
-                        <ToggleButton value={Status.Valid} sx={{
-                            '&.Mui-selected': {
-                                backgroundColor: '#e8f5e9', color: 'green', '&:hover': {
-                                    backgroundColor: '#e8f5e9',
-                                }
-                            }
-                        }}>
-                            Valid
-                        </ToggleButton>
-                        <ToggleButton value={Status.PlusTwo} sx={{
-                            '&.Mui-selected': {
-                                backgroundColor: '#fffde7', color: 'warning.main', '&:hover': {
-                                    backgroundColor: '#e8f5e9',
-                                }
-                            }
-                        }}>
-                            +2
-                        </ToggleButton>
-                        <ToggleButton value={Status.DNF} sx={{
-                            '&.Mui-selected': {
-                                backgroundColor: '#ffebee', color: 'error.main', '&:hover': {
-                                    backgroundColor: '#e8f5e9',
-                                }
-                            }
-                        }}>
-                            DNF
-                        </ToggleButton>
-                    </ToggleButtonGroup>
-                </FormControl>
-                <Button
-                    sx={{ marginTop: "1rem" }}
-                    onClick={() => setOpenDeleteDialog(true)}
-                    variant="outlined"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                >
-                    Delete
-                </Button>
-            </DialogContent>
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+
+                <DialogContent>
+                    <Stack spacing={3} mt={1}>
+                        <Box textAlign="center">
+                            <Typography variant="h2" fontWeight="700" color="text.primary">
+                                {getDisplayTime(solve)}
+                            </Typography>
+                            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" mt={1}>
+                                <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                                <Typography variant="caption" color="text.secondary">
+                                    {longFormatter.format(date)}
+                                </Typography>
+                            </Stack>
+                        </Box>
+
+                        {/* SCRAMBLE BOX */}
+                        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', borderColor: 'divider' }}>
+                            <Typography
+                                variant="body2"
+                                fontFamily="monospace"
+                                textAlign="center"
+                                color={theme.palette.text.primary}
+                                sx={{ wordBreak: 'break-word' }}
+                            >
+                                {solve.scramble}
+                            </Typography>
+                        </Paper>
+
+                        {/* STATS GRID */}
+                        <Stack direction="row" justifyContent="space-around" divider={<Divider orientation="vertical" flexItem />}>
+                            <Box textAlign="center">
+                                <Typography variant="caption" color={theme.palette.text.secondary}>Single</Typography>
+                                <Typography variant="h6">{getDisplayTime(solve)}</Typography>
+                            </Box>
+                            <Box textAlign="center">
+                                <Typography variant="caption" color="text.secondary">Ao5</Typography>
+                                <Typography variant="h6" color={theme.palette.info.light}>{getDisplayableTime(solve, "avg5")}</Typography>
+                            </Box>
+                            <Box textAlign="center">
+                                <Typography variant="caption" color="text.secondary">Ao12</Typography>
+                                <Typography variant="h6" color={theme.palette.info.dark}>{getDisplayableTime(solve, "avg12")}</Typography>
+                            </Box>
+                        </Stack>
+
+                        <Divider />
+
+                        {/* CONTROLS */}
+                        <Box>
+                            <Typography variant="subtitle2" gutterBottom>Status</Typography>
+                            <ToggleButtonGroup
+                                value={status}
+                                exclusive
+                                onChange={handleStatusChange}
+                                fullWidth
+                                size="small"
+                                sx={{ display: 'flex', gap: 1 }}
+                            >
+                                <ToggleButton value={Status.Valid} color={theme.palette.success} sx={{
+                                    flex: 1,
+                                    '&.Mui-selected': {
+                                        color: theme.palette.success.main,
+                                    }
+                                }}>
+                                    OK
+                                </ToggleButton>
+                                <ToggleButton value={Status.PlusTwo} color={theme.palette.warning} sx={{
+                                    flex: 1,
+                                    '&.Mui-selected': {
+                                        color: theme.palette.warning.main,
+                                    }
+                                }}>
+                                    +2
+                                </ToggleButton>
+                                <ToggleButton value={Status.DNF} color="error" sx={{
+                                    flex: 1,
+                                    '&.Mui-selected': {
+                                        color: theme.palette.error.main,
+                                    }
+                                }}>
+                                    DNF
+                                </ToggleButton>
+                            </ToggleButtonGroup>
+                        </Box>
+
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => setOpenDeleteDialog(true)}
+                            fullWidth
+                            sx={{ borderRadius: 2, textTransform: 'none' }}
+                        >
+                            Delete Result
+                        </Button>
+                    </Stack>
+                </DialogContent>
+            </Dialog>
+
+            {/* DELETE CONFIRMATION */}
             <Dialog
                 open={openDeleteDialog}
                 onClose={() => setOpenDeleteDialog(false)}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
+                PaperProps={{ sx: { borderRadius: 3, border: `1px solid ${theme.palette.error.dark}` } }}
             >
-                <DialogTitle sx={{color: "error.main"}}>
-                    Delete this solve?
+                <DialogTitle sx={{ color: "error.main", display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <DeleteIcon /> Delete Solve?
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure you want to delete this solve? This action cannot be undone.
+                        This will permanently remove this time from your history and recalculate your averages.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenDeleteDialog(false)} color="primary" autoFocus>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setOpenDeleteDialog(false)} color="inherit">
                         Cancel
                     </Button>
-                    <Button onClick={() => {
-                        onDeleteSolve(solve.pk, solve.uuid);
-                        setOpenDeleteDialog(false)
-                    }} color="error">
-                        Delete
+                    <Button
+                        onClick={() => {
+                            onDeleteSolve(solve.pk, solve.uuid);
+                            setOpenDeleteDialog(false);
+                        }}
+                        variant="contained"
+                        color="error"
+                        disableElevation
+                    >
+                        Confirm Delete
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Dialog>
+        </>
     );
 }
 

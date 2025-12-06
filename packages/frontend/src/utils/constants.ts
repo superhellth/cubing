@@ -1,20 +1,39 @@
 import { Discipline } from '@cubing/shared';
 
-export const EVENTS_AND_DISCIPLINES = [
-    ["222", Discipline.TwoByTwo],
-    ["333", Discipline.ThreeByThree],
-    ["444", Discipline.FourByFour],
-    ["555", Discipline.FiveByFive],
-    ["666", Discipline.SixBySix],
-    ["777", Discipline.SevenBySeven],
-    ["333oh", Discipline.OneHanded],
-    //, ["333fm", Discipline.FewestMoves]
-    ["333bf", Discipline.ThreeBlind],
-    ["444bf", Discipline.FourBlind],
-    ["555bf", Discipline.FiveBlind],
-    ["clock", Discipline.Clock],
-    ["pyram", Discipline.Pyraminx],
-    ["minx", Discipline.Megaminx],
-    ["skewb", Discipline.Skewb],
-    ["sq1", Discipline.Square1]
-] as const;
+export const EVENT_AND_DISCIPLINES_MAP = new Map<Discipline, string>([
+    [Discipline.TwoByTwo, "222"],
+    [Discipline.ThreeByThree, "333"],
+    [Discipline.FourByFour, "444"],
+    [Discipline.FiveByFive, "555"],
+    [Discipline.SixBySix, "666"],
+    [Discipline.SevenBySeven, "777"],
+    [Discipline.OneHanded, "333oh"],
+    // [Discipline.FewestMoves, "333fm"],
+    [Discipline.ThreeBlind, "333bf"],
+    [Discipline.FourBlind, "444bf"],
+    [Discipline.FiveBlind, "555bf"],
+    [Discipline.Clock, "clock"],
+    [Discipline.Pyraminx, "pyram"],
+    [Discipline.Megaminx, "minx"],
+    [Discipline.Skewb, "skewb"],
+    [Discipline.Square1, "sq1"]
+]);
+
+export const EVENT_TO_SCRAMBLE_KEY = new Map<Discipline, string>([
+    [Discipline.TwoByTwo, "222"],
+    [Discipline.ThreeByThree, "333"],
+    [Discipline.FourByFour, "444"],
+    [Discipline.FiveByFive, "555"],
+    [Discipline.SixBySix, "666"],
+    [Discipline.SevenBySeven, "777"],
+    [Discipline.OneHanded, "333"],
+    // [Discipline.FewestMoves, "333fm"],
+    [Discipline.ThreeBlind, "333"],
+    [Discipline.FourBlind, "444"],
+    [Discipline.FiveBlind, "555"],
+    [Discipline.Clock, "clock"],
+    [Discipline.Pyraminx, "pyram"],
+    [Discipline.Megaminx, "minx"],
+    [Discipline.Skewb, "skewb"],
+    [Discipline.Square1, "sq1"]
+]);

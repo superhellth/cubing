@@ -1,5 +1,10 @@
 import { Status, type ISolve } from "@cubing/shared";
 import Timer from "./timer";
+import { randomScrambleForEvent } from "cubing/scramble";
+
+export async function generateScramble(event: string = "333") {
+    return (await randomScrambleForEvent(event)).toString();
+}
 
 export function getDisplayableTime(solve: ISolve, key: keyof ISolve) {
     if (key == "duration") return getDisplayTime(solve);
@@ -27,10 +32,10 @@ export function solveWithUpdatedStatus(solve: ISolve, newStatus: Status) {
     }
 }
 
-export function sortChronologically(solves: ISolve[], order="asc") {
+export function sortChronologically(solves: ISolve[], order = "asc") {
     if (order === "asc") {
-        return solves.sort((a: ISolve, b: ISolve) => {return a.date.getTime() - b.date.getTime()})
+        return solves.sort((a: ISolve, b: ISolve) => { return a.date.getTime() - b.date.getTime() })
     } else {
-        return solves.sort((a: ISolve, b: ISolve) => {return b.date.getTime() - a.date.getTime()})
+        return solves.sort((a: ISolve, b: ISolve) => { return b.date.getTime() - a.date.getTime() })
     }
 }
