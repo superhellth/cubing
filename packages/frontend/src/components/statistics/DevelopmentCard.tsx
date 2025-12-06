@@ -110,7 +110,7 @@ const DevelopmentCard = ({ solves }: any) => {
                     const trend: any = timeFrame == "all" ? trends.all[key as keyof typeof trends.all] : trends.recent[key as keyof typeof trends.all];
                     const left: boolean = index % 2 == 0;
                     return (
-                        <Grid size={{ xs: 12, md: 6, sm: 6 }}>
+                        <Grid size={{ xs: 12, md: 6, sm: 6 }} key={key}>
                             <TrendCard trend={trend} headerKey={key} current={recentSolve[key]} />
                         </Grid>
                     );

@@ -25,12 +25,18 @@ const ImprovementChart = memo(({
     // Chart Controller
     const [display, setDisplay] = useState<string[]>(["avg5", "avg12", "avg100", "avg1000", "pb"]);
     const [predictionHorizon, setPredictionHorizon] = useState<number>(20);
-    const [samplingLimit, setSamplingLimit] = useState<number>(100);
+    const [samplingLimit, setSamplingLimit] = useState<number>(0);
 
     // Data cleaning
     const sampledSolves: ISolve[] = useDownsampling(solves, samplingLimit, true);
     const solvesChronological: ISolve[] = useMemo(() => { return sortChronologically(sampledSolves) }, [sampledSolves]);
-    const lastIndex: number = sampledSolves.length - 1;
+    const lastIndex: number = useMemo(() => {return sampledSolves.length - 1}, [sampledSolves]) ;
+
+    useEffect(() => {
+        // console.log(solves.length)
+        console.log(sampledSolves.length)
+        // console.log(lastIndex)
+    }, [samplingLimit])
 
     // Prediction
     const { predictions, confidences } = useSolvesForecast(sortChronologically(solves),
@@ -93,7 +99,8 @@ const ImprovementChart = memo(({
     }, [display, solves, theme, pbData]);
 
     useEffect(() => {
-        setSamplingLimit(solves.length / 10)
+        // console.log("changes")
+        setSamplingLimit(Math.floor(solves.length / 10))
     }, []);
 
     const chartSurfaceSx = {
@@ -119,7 +126,7 @@ const ImprovementChart = memo(({
                 <ImprovementChartControl numSolves={solves.length}
                     display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
                     predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}
-                    sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => setSamplingLimit(newValue)} />
+                    sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => {setSamplingLimit(newValue)}} />
             </Box>
 
             {/* <Divider sx={{mb: 1,  }}/> */}

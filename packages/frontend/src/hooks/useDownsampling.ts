@@ -9,6 +9,7 @@ interface LTTBPoint {
 }
 
 const useDownsampling = (solves: ISolve[], samplingThreshold: number, keepPbs: boolean) => {
+    // console.log(samplingThreshold)
     return useMemo(() => {
         let pbs: ISolve[] = [];
         if (keepPbs) {

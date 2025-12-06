@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
 import Timer from "../../utils/timer";
-import { Box } from "@mui/system";
+import { alpha, Box, useTheme } from "@mui/system";
 
 export enum TimerStatus {
     Idle = "IDLE",
@@ -27,6 +27,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
     const startTimeRef = useRef<number>(0);
     const requestRef = useRef<number>(undefined);
     const checkerRef = useRef<number>(undefined);
+    const theme = useTheme();
 
     useEffect(() => {
 
@@ -135,6 +136,25 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
 
     return (
         <Box sx={{ transform: "translateZ(0)", willChange: "transform", padding: 0, margin: 0 }}>
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)', // Centers the orb perfectly
+                    width: '120%', // Make it slightly larger than the content
+                    height: '120%',
+
+                    // The Magic Gradient: Solid center fading to transparent edges
+                    background: `radial-gradient(circle, ${alpha(theme.palette.text.primary, 0.1)} 0%, transparent 70%)`,
+
+                    // The Blur: This creates the "atmosphere" look
+                    filter: 'blur(40px)',
+
+                    zIndex: 0, // Sits behind the text
+                    pointerEvents: 'none', // Ensures it doesn't block clicks
+                }}
+            />
             <Typography sx={{
                 WebkitFontSmoothing: "antialiased",
                 MozOsxFontSmoothing: "none",

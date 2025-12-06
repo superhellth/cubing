@@ -49,7 +49,7 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
                     <Grid size={10}>
                         {display.filter((v: string) => v !== "pb").map((key: keyof ISolve) => (
                             solve[key] ? (
-                                <Stack direction="row" spacing={2} alignItems="center">
+                                <Stack direction="row" spacing={2} alignItems="center" key={key}>
                                     <Box sx={{
                                         width: 20,
                                         height: 3,

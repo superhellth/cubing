@@ -65,21 +65,14 @@ export function ForecastArea({ limit, forecast }: { limit: number; forecast: { y
     const xScale = useXScale();
     const yScale = useYScale();
 
-    // Safety check
     if (!xAxis.data || !yScale || !xScale) return null;
 
-    // Get the X-axis points starting from the limit
     const xAxisData: number[] = xAxis.data.slice(limit);
 
     return (
         <React.Fragment>
             {lineSeries.map((series) => {
-                // 👇 UPDATED MAPPING LOGIC
                 const data = xAxisData.map((v, i) => {
-                    // We try to grab the forecast point.
-                    // If the slice included an extra "connecting point" at the start,
-                    // we might need to shift the index or clamp it.
-                    // For now, let's just use the current index `i`.
                     const point = forecast[i];
 
                     // If we run out of forecast data, return null to skip
@@ -109,17 +102,22 @@ export function ForecastArea({ limit, forecast }: { limit: number; forecast: { y
 export function ShadedBackground({ limit }: { limit: number }) {
     const { top, bottom, height, left, width } = useDrawingArea();
     const scale = useXScale();
-    const limitPosition = scale(limit)!;
     const theme = useTheme();
-    const fill = theme.palette.secondary.light;
+
+    const limitPosition = scale(limit) ?? 0;
+    const chartRight = left + width;
+    const startX = Math.max(left, limitPosition);
+    const rectWidth = Math.max(0, chartRight - startX);
+
+    if (rectWidth <= 0) return null;
 
     return (
         <rect
             x={limitPosition}
             y={0}
-            width={left + width - limitPosition}
+            width={rectWidth}
             height={top + height + bottom}
-            fill={fill}
+            fill={theme.palette.secondary.light}
             opacity={0.4}
         />
     );
