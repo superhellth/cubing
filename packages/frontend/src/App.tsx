@@ -69,7 +69,7 @@ function App() {
             <Routes>
               <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)} />} />
               <Route path="/stats" element={<StatisticsScreen />} />
-              <Route path="/licenses" element={<Licenses />} />
+              <Route path="/privacy-policy" element={<Licenses />} />
             </Routes>
           </Box>
         </Box>

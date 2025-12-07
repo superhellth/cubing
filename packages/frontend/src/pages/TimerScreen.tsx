@@ -22,11 +22,13 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
     const { settings, updateSetting } = useTimerSettings();
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
-    const { solves, addSolve, deleteSolve, updateSolveStatus, currentScramble } =
+    const { solves, addSolve, deleteSolve, updateSolveStatus, currentScramble, pb } =
         useSolveManager(selectedDiscipline, "default");
+    const [reset, setReset] = useState(false);
     const { timerStatus } = useTimerLogic(
         settings,
-        selectedDiscipline
+        selectedDiscipline,
+        reset
     );
     const hideElements: boolean = useMemo(() => {
         return ACTIVE_TIMER_STATUS.includes(timerStatus)
@@ -53,7 +55,7 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
     const openSolveDetailsScreen = useCallback((solve: ISolve) => {
         setSelectedSolve(solve);
         setOpenedSolveDetailsDialog(true);
-    }, []);
+    }, [reset]);
 
     const onSolveTableVisibilityChange = (newState: boolean) => {
         setSolveTableVisible(newState);
@@ -82,14 +84,16 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                 </Box>
                 <Box sx={{ flex: 5, display: "flex", flexDirection: "column", justifyContent: "center" }}>
                     <TimerDisplay timerStatus={timerStatus} onSolveComplete={addSolve} inspectionEnabled={settings.inspection &&
-                        !inspectionlessDisciplines.includes(selectedDiscipline)} />
+                        !inspectionlessDisciplines.includes(selectedDiscipline)} pb={pb} reset={reset} />
                 </Box>
-                <Box sx={{ flex: 5, width: "100%",
-                    visibility: hideElements ? "hidden" : "visible", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                <Box sx={{
+                    flex: 5, width: "100%",
+                    visibility: hideElements ? "hidden" : "visible", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center"
+                }}>
                     <Typography sx={{ fontSize: "3rem", color: "info.light" }}>
                         Ao5: {solves[0]?.avg5 ? getDisplayableTime(solves[0], "avg5") : "-"}
                     </Typography>
-                    <Divider orientation="vertical" sx={{m: "1.5rem", height: "3rem"}} />
+                    <Divider orientation="vertical" sx={{ m: "1.5rem", height: "3rem" }} />
                     <Typography sx={{ fontSize: "3rem", color: "info.dark" }}>
                         Ao12: {solves[0]?.avg12 ? getDisplayableTime(solves[0], "avg12") : "-"}
                     </Typography>
@@ -112,7 +116,14 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
 
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve}
-                    onDeleteSolve={(solvePk: bigint, uuid: string) => { setOpenedSolveDetailsDialog(false); deleteSolve(solvePk, uuid) }}
+                    onDeleteSolve={(solvePk: bigint, uuid: string) => {
+                        setOpenedSolveDetailsDialog(false);
+                        deleteSolve(solvePk, uuid);
+                        if (solvePk === solves[0].pk) {
+                            setReset(!reset);
+                        }
+                    }
+                    }
                     onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
             )}

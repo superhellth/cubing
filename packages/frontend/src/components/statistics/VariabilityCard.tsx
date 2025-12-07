@@ -23,16 +23,19 @@ const VariabilityCard = memo(({ solvesChronological }: any) => {
         const stds: number[] = [];
         for (let i = windowSize; i < sampledSolves.length; i++) {
             const solvesInWindow = sampledSolves.slice(i - windowSize, i);
-            const meanDuration: number = solvesInWindow.reduce((accumulator: number, solve: ISolve) => accumulator + solve.duration, 0);
+            const meanDuration: number = solvesInWindow.reduce((accumulator: number, solve: ISolve) => accumulator + solve.duration, 0) / windowSize;
             const sse = solvesInWindow.reduce((accumulator: number, solve: ISolve) => accumulator + (solve.duration - meanDuration) ** 2, 0);
-            stds.push(1 / (Math.sqrt((1 / (windowSize - 1)) * sse) / 1000000));
+            const variance = sse / (windowSize - 1);
+            const stdDev = Math.sqrt(variance);
+            const consistencyScore = stdDev === 0 ? 100 : (meanDuration / stdDev);
+            stds.push(consistencyScore);
         }
         return stds;
     }, [sampledSolves]);
 
     return (
         <GraphCard
-            hint={"Still have to figure out, what this value is exactly."}
+            hint={"This value represents how consistent you are. In the future you will be able to compare your stats to other people's. For now: Zero is bad, 3-5 good, 5-10 excellent, 10+ superhuman"}
             title={dataIndex === null ? 'Consistency' : longFormatter.format(sampledSolves[windowSize + dataIndex].date)} icon={<TimelineIcon />}>
             <Box sx={{ display: "flex", maxHeight: "300px", flexDirection: "column" }}>
 

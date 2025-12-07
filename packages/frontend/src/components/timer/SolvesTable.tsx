@@ -51,6 +51,7 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
     const handleSortRequest = (property: string) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
+        console.log(property)
         setOrderBy(property);
     };
     return (
@@ -91,8 +92,7 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                     }} />
                 )),
                 TableRow: (props) => {
-                    const index = props['data-item-index'];
-                    const solve = solves[index];
+                    const solve = props.item;
 
                     return (
                         <TableRow

@@ -1,5 +1,5 @@
 import { Discipline, Status, type ISolve } from "@cubing/shared";
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import DBReader from '../services/dbReader';
 import DBWriter from '../services/dbWriter';
 import { EVENT_TO_SCRAMBLE_KEY } from "../utils/constants";
@@ -24,6 +24,16 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         return uID;
     });
     const solves: ISolve[] = useSolveStats(rawSolves);
+    const pb = useMemo(() => {
+        let currentPb: number = Infinity;
+        for (let i = 0; i < solves.length; i++) {
+            const solve: ISolve = solves[i];
+            if (solve.duration < currentPb && solve.status === Status.Valid) {
+                currentPb = solve.duration;
+            }
+        }
+        return currentPb;
+    }, [solves]);
 
     useEffect(() => {
         let mounted = true;
@@ -95,5 +105,6 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         addSolve,
         deleteSolve,
         updateSolveStatus,
+        pb
     };
 };

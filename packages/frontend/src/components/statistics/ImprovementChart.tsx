@@ -25,12 +25,15 @@ const ImprovementChart = memo(({
     // Chart Controller
     const [display, setDisplay] = useState<string[]>(["avg5", "avg12", "avg100", "avg1000", "pb"]);
     const [predictionHorizon, setPredictionHorizon] = useState<number>(20);
-    const [samplingLimit, setSamplingLimit] = useState<number>(0);
+    const [samplingLimit, setSamplingLimit] = useState<number>(Math.floor(solves.length / 10));
+    useEffect(() => {
+        setSamplingLimit(Math.floor(solves.length / 10));
+    }, [solves])
 
     // Data cleaning
     const sampledSolves: ISolve[] = useDownsampling(solves, samplingLimit, true);
     const solvesChronological: ISolve[] = useMemo(() => { return sortChronologically(sampledSolves) }, [sampledSolves]);
-    const lastIndex: number = useMemo(() => {return sampledSolves.length - 1}, [sampledSolves]) ;
+    const lastIndex: number = useMemo(() => {return sampledSolves.length - 1}, [sampledSolves]);
 
     // Prediction
     const { predictions, confidences } = useSolvesForecast(sortChronologically(solves),

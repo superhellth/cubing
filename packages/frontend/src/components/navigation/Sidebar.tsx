@@ -2,12 +2,13 @@ import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
-import { alpha, Box, Divider, Fade, IconButton, Paper, useTheme } from '@mui/material';
+import { alpha, Box, Button, Divider, Fade, IconButton, Paper, useTheme } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
 import HCButton from '../HCButton';
 import DisciplineButton from './DisciplineButton';
+import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 
 interface SidebarProps {
     selectedDiscipline: Discipline;
@@ -49,6 +50,7 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
                 justifyContent: "space-around",
                 bgcolor: theme.palette.secondary.main,
                 zIndex: 20,
+                position: "relative"
             }}>
                 <Box>
                     <HCButton isSelected={location.pathname === "/"} onClick={() => navigate("/")}>
@@ -66,6 +68,40 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
                 <HCButton onClick={() => { setOpenDrawer(false); navigate("/stats") }} isSelected={location.pathname === "/stats"}>
                     <QueryStatsOutlinedIcon sx={{ fontSize: 30 }} />
                 </HCButton>
+                <IconButton
+                    onClick={() => window.open('/privacy-policy', '_blank')}
+                    sx={{
+                        textTransform: 'none',
+                        fontSize: '0.85rem',
+                        fontWeight: 500,
+                        color: 'text.secondary',
+                        borderRadius: '20px',
+                        padding: 0,
+                        // minWidth: 'auto',
+                        position: "absolute",
+                        bottom: "5px",
+                        left: "25px",
+                        transition: 'all 0.3s ease',
+                        border: '1px solid transparent',
+
+                        '&:hover': {
+                            color: '#fff', // Text turns white
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)', // Subtle glass background
+                            backdropFilter: 'blur(4px)', // Blurs what's behind it (modern feel)
+                            borderColor: 'rgba(255, 255, 255, 0.1)', // Faint border appears
+                            transform: 'translateY(-1px)', // Tiny lift effect
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)' // Soft shadow
+                        },
+
+                        // 5. Active/Click State
+                        '&:active': {
+                            transform: 'translateY(0px)',
+                            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                        }
+                    }}
+                >
+                    <PrivacyTipIcon sx={{ fontSize: '16px !important' }} />
+                </IconButton>
             </Paper>
 
             <Fade in={openDrawer} >
@@ -80,7 +116,7 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
                     overflow: "hidden",
                     background: `linear-gradient(180deg, ${alpha(theme.palette.secondary.main, 0.3)} 0%, ${alpha(theme.palette.secondary.main, 0.1)} 100%)`,
                     border: "1px solid rgba(255, 255, 255, 0.2)",
-                    boxShadow: "0px 10px 40px -10px rgba(0,0,0,0.7)"
+                    boxShadow: "0px 5px 20px -5px rgba(60,60,60,0.1)"
                 }} >
                     <Box onScroll={handleScroll} sx={{
                         height: "100%",
@@ -113,7 +149,7 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
                             pointerEvents: 'none'
                         }} />
                     </Box>
-                    <Divider orientation="vertical" sx={{ bgcolor: theme.palette.secondary.main }} flexItem component="div" />
+                    {/* <Divider orientation="vertical" sx={{ bgcolor: theme.palette.secondary.main }} flexItem component="div" /> */}
                 </Box>
             </Fade>
         </Box>

@@ -75,7 +75,13 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
 
                 <Box sx={{ p: 0 }}>
                     <IconButton onClick={() => { onSolveTableVisibilityChange(isCollapsed) }}
-                        sx={{ position: "absolute", top: "0px", right: "0px", color: theme.palette.text.secondary }}>
+                        sx={{
+                            position: "absolute", top: "0px", right: "0px",
+                            color: theme.palette.text.secondary, width: '40px',
+                            height: '40px',
+                            zIndex: 10,
+                            borderRadius: '50%'
+                        }}>
                         {!isCollapsed ? (<UnfoldLessIcon />) : (<UnfoldMoreIcon />)}
                     </IconButton>
                 </Box>
@@ -96,10 +102,9 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
                             borderRadius: "8px",
                             flex: 1,
                             display: "flex",
-                            padding: "1rem"
+                            padding: "1rem",
                         }}>
                             <Table size='small' sx={{
-                                // height: "100%",
                                 [`& .${tableCellClasses.root}`]: {
                                     borderBottom: "none",
                                     padding: "0 0",

@@ -41,7 +41,7 @@ const Licenses = () => {
                     Privacy Policy and Software Licenses
                 </Typography>
                 <Typography variant="h6" component="h1" fontWeight="bold" gutterBottom>
-                    Effective Date: 21.11.2025
+                    Effective Date: 07.12.2025
                 </Typography>
             </Box>
 

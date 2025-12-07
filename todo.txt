@@ -2,5 +2,10 @@ app
 mobile website
 user page: activity graph like github
 statistics page: avg100/avg1000 prediction logistic regression (see mui line charts), warm up analysis
-Modern Touch: You can add a very subtle, blurred "gradient orb" behind the timer in the background to give the page a glow without changing the surface color.
-Remove the Grid Lines
+const getConsistencyTier = (score) => {
+    if (score > 4) return "🤖 Machine"; // < 0.25s SD
+    if (score > 2) return "💎 Elite";   // < 0.5s SD
+    if (score > 1) return "🔥 Solid";   // < 1.0s SD
+    if (score > 0.5) return "⚖️ Okay";  // < 2.0s SD
+    return "🎲 Volatile";
+};

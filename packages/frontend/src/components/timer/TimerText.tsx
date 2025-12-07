@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
+import { Box, keyframes } from "@mui/system";
 import { useEffect, useRef, useState } from "react";
 import Timer from "../../utils/timer";
-import { alpha, Box, keyframes, useTheme } from "@mui/system";
 
 export enum TimerStatus {
     Idle = "IDLE",
@@ -10,31 +10,38 @@ export enum TimerStatus {
     Cancelled = "CANCELLED",
     Inspecting = "INSPECTING",
     ReadyForInspection = "INSPECT_READY",
-    InspectionCancelled = "INSPECT_DNF"
+    InspectionCancelled = "INSPECT_DNF",
 }
 
 export const ACTIVE_TIMER_STATUS = [TimerStatus.Ready, TimerStatus.ReadyForInspection, TimerStatus.Inspecting, TimerStatus.Running];
 
 const shimmerAnimation = keyframes`
-  0% { background-position: 200% center; }
-  100% { background-position: -200% center; }
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 `;
 
 interface Props {
     timerStatus: TimerStatus;
     onSolveComplete: (finalTime: number, dnf: boolean) => void;
     inspectionEnabled: boolean;
+    pb: number;
+    reset: boolean;
 }
 
 const inspectionTime: number = 15000;
 
-function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props) {
+function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled, pb, reset }: Props) {
     const [time, setTime] = useState<number>(0);
     const startTimeRef = useRef<number>(0);
     const requestRef = useRef<number>(undefined);
     const checkerRef = useRef<number>(undefined);
-    const theme = useTheme();
-    const [trigger, setTrigger] = useState(false);
+    const [pbTrigger, setPbTrigger] = useState<boolean>(false);
+
+    useEffect(() => {
+        startTimeRef.current = 0;
+        setTime(0);
+        setPbTrigger(false);
+    }, [reset])
 
     useEffect(() => {
 
@@ -44,7 +51,6 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                 requestRef.current = undefined;
             }
         };
-        setTrigger(false);
 
         const stopInspectionCheck = () => {
             if (checkerRef.current) {
@@ -100,15 +106,18 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
 
                 if (startTimeRef.current > 0) {
                     const finalTime = Date.now() - startTimeRef.current;
+                    if (timerStatus === TimerStatus.Idle && finalTime < pb) {
+                        setPbTrigger(true);
+                    }
                     setTime(finalTime);
                     onSolveComplete(finalTime, timerStatus !== TimerStatus.Idle);
                     startTimeRef.current = 0;
-                    setTrigger(true);
                 }
                 break;
 
             case TimerStatus.Ready:
                 stopTicker();
+                setPbTrigger(false);
 
                 if (inspectionEnabled) {
                     const readyTick = () => {
@@ -123,6 +132,10 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                 }
                 break;
 
+            case TimerStatus.ReadyForInspection:
+                setPbTrigger(false);
+                break;
+
             default:
                 break;
         }
@@ -130,7 +143,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
             stopTicker();
             stopInspectionCheck();
         };
-    }, [timerStatus, onSolveComplete]);
+    }, [timerStatus]);
 
     const getColor = () => {
         if (timerStatus === TimerStatus.Ready) return "success.main";
@@ -144,7 +157,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
 
     return (
         <Box sx={{ transform: "translateZ(0)", willChange: "transform", padding: 0, margin: 0 }}>
-            <Box
+            {/* <Box
                 sx={{
                     position: 'absolute',
                     top: '50%',
@@ -158,7 +171,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                     backfaceVisibility: 'hidden',
                     zIndex: -1,
                 }}
-            />
+            /> */}
             <Typography sx={{
                 WebkitFontSmoothing: "antialiased",
                 MozOsxFontSmoothing: "none",
@@ -169,16 +182,16 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                 display: "block",
                 lineHeight: 1,
                 textAlign: "center",
-                color: trigger ? "transparent" : getColor(),
+                color: pbTrigger ? "transparent" : getColor(),
                 userSelect: "none",
-                ...(trigger && {
-                    background: "linear-gradient(120deg, #5C6BC0 0%, #E3F2FD 50%, #5C6BC0 100%)",
+                ...(pbTrigger && {
+                    background: "linear-gradient(110deg, #009aa3 30%, #ffffff 50%, #009aa3 70%)", // Widened stops (30-70 instead of 40-60)
                     backgroundSize: "200% auto",
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
                     textFillColor: "transparent",
                     WebkitTextFillColor: "transparent",
-                    animation: `${shimmerAnimation} 2s ease-out forwards`,
+                    animation: `${shimmerAnimation} 3s linear infinite`,
                 })
             }}>
                 {timerStatus === TimerStatus.Inspecting || (timerStatus === TimerStatus.Ready && inspectionEnabled) ? Math.floor((time % 60000) / 1000) : Timer.formatTime(time)}
