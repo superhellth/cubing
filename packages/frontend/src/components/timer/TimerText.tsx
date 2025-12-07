@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
 import { useEffect, useRef, useState } from "react";
 import Timer from "../../utils/timer";
-import { alpha, Box, useTheme } from "@mui/system";
+import { alpha, Box, keyframes, useTheme } from "@mui/system";
 
 export enum TimerStatus {
     Idle = "IDLE",
@@ -12,7 +12,13 @@ export enum TimerStatus {
     ReadyForInspection = "INSPECT_READY",
     InspectionCancelled = "INSPECT_DNF"
 }
+
 export const ACTIVE_TIMER_STATUS = [TimerStatus.Ready, TimerStatus.ReadyForInspection, TimerStatus.Inspecting, TimerStatus.Running];
+
+const shimmerAnimation = keyframes`
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+`;
 
 interface Props {
     timerStatus: TimerStatus;
@@ -28,6 +34,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
     const requestRef = useRef<number>(undefined);
     const checkerRef = useRef<number>(undefined);
     const theme = useTheme();
+    const [trigger, setTrigger] = useState(false);
 
     useEffect(() => {
 
@@ -37,6 +44,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                 requestRef.current = undefined;
             }
         };
+        setTrigger(false);
 
         const stopInspectionCheck = () => {
             if (checkerRef.current) {
@@ -95,6 +103,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                     setTime(finalTime);
                     onSolveComplete(finalTime, timerStatus !== TimerStatus.Idle);
                     startTimeRef.current = 0;
+                    setTrigger(true);
                 }
                 break;
 
@@ -117,7 +126,6 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
             default:
                 break;
         }
-
         return () => {
             stopTicker();
             stopInspectionCheck();
@@ -161,8 +169,17 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled }: Props
                 display: "block",
                 lineHeight: 1,
                 textAlign: "center",
-                color: getColor(),
-                userSelect: "none"
+                color: trigger ? "transparent" : getColor(),
+                userSelect: "none",
+                ...(trigger && {
+                    background: "linear-gradient(120deg, #5C6BC0 0%, #E3F2FD 50%, #5C6BC0 100%)",
+                    backgroundSize: "200% auto",
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    textFillColor: "transparent",
+                    WebkitTextFillColor: "transparent",
+                    animation: `${shimmerAnimation} 2s ease-out forwards`,
+                })
             }}>
                 {timerStatus === TimerStatus.Inspecting || (timerStatus === TimerStatus.Ready && inspectionEnabled) ? Math.floor((time % 60000) / 1000) : Timer.formatTime(time)}
             </Typography>

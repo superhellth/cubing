@@ -2,7 +2,7 @@ import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
-import { Box, Divider, Fade, IconButton, Paper, useTheme } from '@mui/material';
+import { alpha, Box, Divider, Fade, IconButton, Paper, useTheme } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
@@ -76,11 +76,12 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
                     top: "16px",
                     bottom: "16px",
                     width: "65px",
-                    bgcolor: theme.palette.secondary.main,
                     borderRadius: "24px",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    overflow: "hidden"
-                }}>
+                    overflow: "hidden",
+                    background: `linear-gradient(180deg, ${alpha(theme.palette.secondary.main, 0.3)} 0%, ${alpha(theme.palette.secondary.main, 0.1)} 100%)`,
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    boxShadow: "0px 10px 40px -10px rgba(0,0,0,0.7)"
+                }} >
                     <Box onScroll={handleScroll} sx={{
                         height: "100%",
                         overflowY: "auto",
