@@ -3,7 +3,7 @@ import { useState } from "react";
 
 const defaultSettings = {
     inspection: false,
-    hideElementsWhileSolving: true,
+    hideElementsWhileSolving: false,
     readyAfter: 200,
     avgGraphXAxis: 'id',
     avgGraphDisplay: ["avg5", "avg12"],

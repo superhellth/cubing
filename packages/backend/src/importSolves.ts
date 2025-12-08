@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 import { Pool } from 'pg';
 import { exit, loadEnvFile } from 'process';
-import pkg from '@cubing/shared';
+import pkg, { ISolve } from '@cubing/shared';
 
 // Destructure the specific named exports you need from it
-const { Discipline, ISolve, Status } = pkg;
+const { Discipline, Status } = pkg;
 
 // --- CONFIGURATION ---
 const FILE_PATH = 'solves.txt'; // Path to your text file
