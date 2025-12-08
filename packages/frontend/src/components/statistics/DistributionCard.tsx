@@ -1,4 +1,3 @@
-import type { ISolve } from "@cubing/shared";
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { BarChart } from "@mui/x-charts";
 import { useMemo } from "react";

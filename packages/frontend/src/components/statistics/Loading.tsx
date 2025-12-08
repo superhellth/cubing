@@ -1,6 +1,5 @@
-import React from 'react';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import { Box, useTheme, alpha } from '@mui/material';
+import { alpha, Box, useTheme } from '@mui/material';
 
 export default function CalculationLoader() {
     const theme = useTheme();

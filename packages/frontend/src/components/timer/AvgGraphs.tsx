@@ -13,9 +13,10 @@ const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any 
     const theme = useTheme();
     const xByDate: boolean = useMemo(() => { return settings.avgGraphXAxis == "date" }, [settings]);
     const display: any[] = useMemo(() => { return settings.avgGraphDisplay }, [settings]);
+    const displayHorizon: number = useMemo(() => { return settings.avgGraphNumSolves }, [settings]);
 
     const chartData = useMemo(() => {
-        const chronologicalSolves = [...solves].reverse().slice(-Math.min(settings.avgGraphNumSolves, solves.length));
+        const chronologicalSolves = [...solves].reverse().slice(-Math.min(displayHorizon, solves.length));
         const foundIndex = chronologicalSolves.findIndex(solve =>
             display.some(key => solve[key as keyof ISolve] != null)
         );
@@ -30,7 +31,7 @@ const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any 
             avg100: cleanVal(solve.avg100),
             avg1000: cleanVal(solve.avg1000),
         }));
-    }, [solves]);
+    }, [solves, displayHorizon, display]);
 
     const series = useMemo(() => {
         if (display == null) return [];

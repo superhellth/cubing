@@ -162,7 +162,7 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
             )}
 
             // 3. Define the Row Content
-            itemContent={(index, solve) => (
+            itemContent={(_index, solve) => (
                 <SolveRow
                     solve={solve}
                     bestStats={bestStats}

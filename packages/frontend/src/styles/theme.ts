@@ -109,7 +109,7 @@ const theme = createTheme({
         },
         MuiDivider: {
             styleOverrides: {
-                root: ({ theme }) => ({
+                root: ({ }) => ({
                     backgroundColor: "rgba(255, 255, 255, 0.06)",
                     // left: "24px"
                 })
@@ -117,7 +117,7 @@ const theme = createTheme({
         },
         MuiChartsTooltip: {
             styleOverrides: {
-                paper: ({ theme }) => ({
+                paper: ({ }) => ({
                     // backgroundColor: theme.palette.secondary.main,
                     // color: theme.palette.text.primary,
                     backgroundColor: "rgba(30, 30, 30, 0.90)",
@@ -141,7 +141,7 @@ const theme = createTheme({
         },
         MuiTooltip: {
             styleOverrides: {
-                tooltip: ({ theme }) => ({
+                tooltip: ({ }) => ({
                     fontSize: "1rem",
                     backgroundColor: "rgba(30, 30, 30, 0.90)",
                     backdropFilter: "blur(4px)",
@@ -150,7 +150,7 @@ const theme = createTheme({
                     boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.5)",
                     padding: "12px",
                 }),
-                arrow: ({ theme }) => ({
+                arrow: ({ }) => ({
                     color: "rgba(30, 30, 30, 0.90)",
                     "&::before": {
                         // Apply the same border and backdrop properties

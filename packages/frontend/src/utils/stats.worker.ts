@@ -1,4 +1,5 @@
-import { ISolve } from "@cubing/shared"; // Adjust import
+import type { ISolve } from "@cubing/shared"; // Adjust import
+ // Adjust import
 import { calculateAverageOptimized } from "./calc";
 
 const MAX_WINDOW_SIZE = 1000;

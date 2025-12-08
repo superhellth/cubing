@@ -1,11 +1,12 @@
 import type { ISolve } from "@cubing/shared";
+import LockIcon from '@mui/icons-material/Lock';
 import TimelineIcon from '@mui/icons-material/Timeline';
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { areaElementClasses, chartsAxisHighlightClasses, lineElementClasses, SparkLineChart } from "@mui/x-charts";
 import { memo, useMemo, useState } from "react";
+import useDownsampling from "../../hooks/useDownsampling";
 import theme from "../../styles/theme";
 import { GraphCard } from "../GraphCard";
-import useDownsampling from "../../hooks/useDownsampling";
 
 const windowSize: number = 50;
 const longFormatter = new Intl.DateTimeFormat('en-US', {
@@ -37,50 +38,58 @@ const VariabilityCard = memo(({ solvesChronological }: any) => {
         <GraphCard
             hint={"This value represents how consistent you are. In the future you will be able to compare your stats to other people's. For now: Zero is bad, 3-5 good, 5-10 excellent, 10+ superhuman"}
             title={dataIndex === null ? 'Consistency' : longFormatter.format(sampledSolves[windowSize + dataIndex].date)} icon={<TimelineIcon />}>
-            <Box sx={{ display: "flex", maxHeight: "300px", flexDirection: "column" }}>
+            {rollingStd.length > 30 ? (
 
-                <Typography sx={{ fontSize: '2rem', fontWeight: "bold", padding: ".4rem", paddingRight: "10px", paddingBottom: 0, whiteSpace: "nowrap" }}>
-                    {rollingStd[dataIndex ?? rollingStd.length - 1]?.toFixed(2)}
-                </Typography>
+                <Box sx={{ display: "flex", maxHeight: "300px", flexDirection: "column" }}>
 
-                <svg style={{ height: 0, width: 0, position: 'absolute' }}>
-                    <defs>
-                        <linearGradient id={"fade"} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={theme.palette.info.main} stopOpacity={0.5} />
-                            <stop offset="95%" stopColor={theme.palette.info.main} stopOpacity={0} />
-                        </linearGradient>
-                    </defs>
-                </svg>
+                    <Typography sx={{ fontSize: '2rem', fontWeight: "bold", padding: ".4rem", paddingRight: "10px", paddingBottom: 0, whiteSpace: "nowrap" }}>
+                        {rollingStd[dataIndex ?? rollingStd.length - 1]?.toFixed(2)}
+                    </Typography>
 
-                <SparkLineChart data={rollingStd} showHighlight axisHighlight={{ x: "line" }} color={theme.palette.info.main} area
-                    baseline="min"
-                    // yAxis={{
-                    //     domainLimit: (minValue: number, maxValue: number) => ({
-                    //         min: minValue,
-                    //         max: maxValue,
-                    //     }),
-                    // }}
-                    margin={{ top: 5, bottom: 0, left: 5, right: 5 }}
-                    onHighlightedAxisChange={(axisItems) => {
-                        setDataIndex(axisItems[0]?.dataIndex ?? null);
-                    }}
-                    clipAreaOffset={{ top: 2, bottom: 2 }}
-                    sx={{
-                        [`& .${areaElementClasses.root}`]: {
-                            fill: `url(#${"fade"})`,
-                            opacity: 0.2
-                        },
-                        [`& .${lineElementClasses.root}`]: {
-                            stroke: theme.palette.info.main,
-                            strokeWidth: 3
-                        },
-                        [`& .${chartsAxisHighlightClasses.root}`]: {
-                            stroke: theme.palette.info.main,
-                            strokeDasharray: 'none',
-                            strokeWidth: 2,
-                        },
-                    }} />
-            </Box>
+                    <svg style={{ height: 0, width: 0, position: 'absolute' }}>
+                        <defs>
+                            <linearGradient id={"fade"} x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor={theme.palette.info.main} stopOpacity={0.5} />
+                                <stop offset="95%" stopColor={theme.palette.info.main} stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+
+                    <SparkLineChart data={rollingStd} showHighlight axisHighlight={{ x: "line" }} color={theme.palette.info.main} area
+                        baseline="min"
+                        // yAxis={{
+                        //     domainLimit: (minValue: number, maxValue: number) => ({
+                        //         min: minValue,
+                        //         max: maxValue,
+                        //     }),
+                        // }}
+                        margin={{ top: 5, bottom: 0, left: 5, right: 5 }}
+                        onHighlightedAxisChange={(axisItems) => {
+                            setDataIndex(axisItems[0]?.dataIndex ?? null);
+                        }}
+                        clipAreaOffset={{ top: 2, bottom: 2 }}
+                        sx={{
+                            [`& .${areaElementClasses.root}`]: {
+                                fill: `url(#${"fade"})`,
+                                opacity: 0.2
+                            },
+                            [`& .${lineElementClasses.root}`]: {
+                                stroke: theme.palette.info.main,
+                                strokeWidth: 3
+                            },
+                            [`& .${chartsAxisHighlightClasses.root}`]: {
+                                stroke: theme.palette.info.main,
+                                strokeDasharray: 'none',
+                                strokeWidth: 2,
+                            },
+                        }} />
+                </Box>
+            ) : (
+                <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%"}}>
+                    <LockIcon sx={{ fontSize: 40, color: "grey.500", mb: 1 }} />
+                    <Typography variant="h6">Cube some more to unlock your consistency statistic.</Typography>
+                </Box>
+            )}
         </GraphCard>
     );
 });

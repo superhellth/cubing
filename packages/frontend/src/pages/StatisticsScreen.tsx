@@ -1,6 +1,8 @@
 import { Discipline } from "@cubing/shared";
-import { FormControl, ListItemText, MenuItem, Select, Typography } from "@mui/material";
-import { Box, display, Grid, useTheme } from "@mui/system";
+import LockIcon from '@mui/icons-material/Lock';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import { Card, FormControl, ListItemText, MenuItem, Select, Typography } from "@mui/material";
+import { Box, Grid, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
 import ActivityCard from "../components/statistics/ActivityCard";
 import DevelopmentCard from "../components/statistics/DevelopmentCard";
@@ -11,21 +13,24 @@ import VariabilityCard from "../components/statistics/VariabilityCard";
 import usePBStats from "../hooks/usePBStats";
 import { useSolveManager } from "../hooks/useSolveManager";
 import { EVENT_AND_DISCIPLINES_MAP } from "../utils/constants";
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import { useTimerSettings } from "../hooks/useTimerSettings";
 
 function StatisticsScreen() {
     const theme = useTheme();
+    const { settings, updateSetting } = useTimerSettings();
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(Discipline.OneHanded);
+    const [isLocked, setIsLocked] = useState(true);
+    const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(settings.lastStatDiscipline);
     const [selectedSession] = useState<string>("default");
 
-    const { solves } =
+    const { solves, hasFetched } =
         useSolveManager(selectedDiscipline, selectedSession);
     const solvesWithPbs = usePBStats(solves);
 
     useEffect(() => {
-        setIsLoading(solves.length === 0);
-    }, [solves])
+        setIsLoading(!hasFetched);
+        setIsLocked(solves.length < 12);
+    }, [hasFetched, solves])
 
     return (
         <Box sx={{ height: "100%", padding: 3, bgcolor: theme.palette.primary.main, display: "flex", flexDirection: "column" }}>
@@ -36,12 +41,12 @@ function StatisticsScreen() {
                             Analytics
                         </Typography>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 2.3 }} sx={{paddingBottom: 2}}>
-                        <FormControl fullWidth sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2, maxHeight: "48px"}}>
+                    <Grid size={{ xs: 12, md: 2.3 }} sx={{ paddingBottom: 2 }}>
+                        <FormControl fullWidth sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2, maxHeight: "48px" }}>
                             <Select
                                 value={selectedDiscipline}
                                 variant="standard"
-                                onChange={(event: any) => { setSelectedDiscipline(event.target.value); }}
+                                onChange={(event: any) => { setSelectedDiscipline(event.target.value); updateSetting("lastStatDiscipline", event.target.value)}}
                                 renderValue={(selected) => selected}
                                 sx={{
                                     '.MuiSelect-icon': {
@@ -69,12 +74,36 @@ function StatisticsScreen() {
 
 
             </Box>
-            {isLoading ? (
-                <CalculationLoader />
+            {isLoading || isLocked ? (
+                <>
+                    {isLocked ? (
+                        <Card
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: "100%",
+                                flex: 1,
+                                bgcolor: 'transparent',
+                                flexDirection: "column",
+                                position: 'relative',
+                                overflow: 'hidden',
+                                borderRadius: '16px',
+                                boxShadow: 'none',
+                                border: '1px solid #27272a',
+                            }}
+                        >
+                            <LockIcon sx={{ fontSize: 40, color: "grey.500", mb: 1 }} />
+                            <Typography variant="h4">Cube some more to unlock your stats for this category.</Typography>
+                        </Card>
+                    ) : (
+                        <CalculationLoader />
+                    )}
+                </>
             ) : (
                 <Grid container spacing={2} sx={{ flex: 6 }}>
-                    <Grid size={{ xs: 12, md: 9.7 }} sx={{ minHeight: '500px', flex: 4 }}>
-                        <ImprovementChart solves={solvesWithPbs} />
+                    <Grid size={{ xs: 12, md: 9.7 }} sx={{ minHeight: '450px' }}>
+                        <ImprovementChart solves={solvesWithPbs} isLocked={false} />
                     </Grid>
                     <Grid size={{ xs: 12, md: 2.3 }}>
                         <DevelopmentCard solves={solvesWithPbs} />

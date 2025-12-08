@@ -1,8 +1,7 @@
 import {
     Box,
     Tooltip,
-    Typography,
-    useTheme
+    Typography
 } from '@mui/material';
 import React from 'react';
 
@@ -35,7 +34,6 @@ export const Heatmap: React.FC<HeatmapProps> = ({
     minColor = "white",
     maxColor = "black",
 }) => {
-    const theme = useTheme();
 
     const allValues = data.flat();
     const maxValue = Math.max(...allValues);

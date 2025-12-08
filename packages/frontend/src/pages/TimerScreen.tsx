@@ -38,10 +38,10 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
     }, [settings, timerStatus]);
 
     const percentile = useMemo(() => {
-        if (solves.length === 0) return 100;
+        if (solves.length <= 1) return 100;
         if (solves[0].status === Status.DNF) return 0;
         const slowerSolvesCount = solves.filter(s => s.duration > solves[0].duration).length;
-        const rawPercent = (slowerSolvesCount / solves.length) * 100;
+        const rawPercent = (slowerSolvesCount / (solves.length - 1)) * 100;
         return Math.round(rawPercent);
     }, [solves]);
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);

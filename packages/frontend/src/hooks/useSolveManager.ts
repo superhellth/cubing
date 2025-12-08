@@ -13,6 +13,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
     const [rawSolves, setRawSolves] = useState<ISolve[]>([]);
     const [currentScramble, setCurrentScramble] = useState<string>("Generating Scramble...");
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
+    const [hasFetched, setHasFetched] = useState(false);
 
     const [userID] = useState<string>(() => {
         const USER_ID_KEY = "userID";
@@ -36,6 +37,10 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
     }, [solves]);
 
     useEffect(() => {
+        setHasFetched(false);
+    }, [selectedDiscipline, selectedSession, userID]);
+
+    useEffect(() => {
         let mounted = true;
 
         const initData = async () => {
@@ -45,6 +50,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
                     setRawSolves(fetchedSolves);
                     const newScramble: string = await generateScramble(EVENT_TO_SCRAMBLE_KEY.get(selectedDiscipline));
                     setCurrentScramble(newScramble);
+                    setHasFetched(true);
                 }
             } catch (error) {
                 console.error("Failed to fetch solves:", error);
@@ -54,7 +60,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         initData();
 
         return () => { mounted = false; };
-    }, [userID, selectedDiscipline]);
+    }, [userID, selectedDiscipline, selectedSession]);
 
     const addSolve = useCallback(async (finalTime: number, dnf: boolean) => {
         const solveStatus: Status = dnf ? Status.DNF : Status.Valid;
@@ -95,16 +101,17 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         setRawSolves(prev => prev.map(s =>
             s.id === updatedSolve.id ? updatedSolve : s
         ));
-    }, []);
+    }, [rawSolves]);
 
     return {
         solves,
         currentScramble,
         isLimitDialogOpen,
+        pb,
+        hasFetched,
         setIsLimitDialogOpen,
         addSolve,
         deleteSolve,
         updateSolveStatus,
-        pb
     };
 };

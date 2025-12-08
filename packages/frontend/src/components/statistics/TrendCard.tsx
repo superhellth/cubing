@@ -1,11 +1,11 @@
 import { keyToLabels } from '@cubing/shared';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Paper, Stack, Typography } from "@mui/material";
 import { alpha } from '@mui/material/styles';
-import { Box, useTheme } from "@mui/system";
-import Timer from '../../utils/timer';
+import { useTheme } from "@mui/system";
 import { memo } from 'react';
+import Timer from '../../utils/timer';
 
 const TrendCard = memo(({ trend, headerKey, current }: any) => {
     const theme = useTheme();

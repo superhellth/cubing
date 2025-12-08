@@ -1,7 +1,7 @@
 import { keyToLabels } from "@cubing/shared";
-import CloseIcon from '@mui/icons-material/Close';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import { Checkbox, ListItemText } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
+import { ListItemText, Slider } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -23,7 +23,7 @@ const AVERAGE_DISPLAY_ORDER = ["avg5", "avg12", "avg100", "avg1000", "pb"];
 function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: boolean, onClose: Function, settings: any, updateSetting: Function }) {
     const theme = useTheme();
 
-    const handleDisplayChange = (event: any, newV: any) => {
+    const handleDisplayChange = (event: any) => {
         // console.log(event.target.value)
         // const { target: { value } } = event;
         // const newDisplaySelection: any = typeof value === 'string' ? value.split(',') : value;
@@ -49,7 +49,8 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
             </DialogTitle>
             <DialogContent sx={{
                 borderColor: "rgba(255, 255, 255, 0.06)",
-                color: "#E4E4E7"
+                color: "#E4E4E7",
+                p: 4
             }} dividers>
                 <Stack spacing={2}>
                     <Box>
@@ -125,6 +126,20 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                     ))}
                                 </Select>
                                 <FormHelperText>Which values to display in the Timer Graph.</FormHelperText>
+                            </FormControl>
+                            <FormControl fullWidth size="small">
+                                <Slider
+                                    value={settings.avgGraphNumSolves}
+                                    onChange={(_event: Event, newValue: number) => { updateSetting("avgGraphNumSolves", newValue) }}
+                                    valueLabelDisplay="auto"
+                                    shiftStep={30}
+                                    step={10}
+                                    marks
+                                    color="info"
+                                    min={0}
+                                    max={500}
+                                />
+                                <FormHelperText>How many solves to display.</FormHelperText>
                             </FormControl>
                             {/* <FormControl fullWidth size="small">
                                 <InputLabel>Graph Axis</InputLabel>

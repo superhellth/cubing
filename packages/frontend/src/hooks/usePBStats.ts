@@ -1,4 +1,4 @@
-import { ISolve } from "@cubing/shared";
+import type { ISolve } from "@cubing/shared";
 import { useMemo } from "react";
 import { sortChronologically } from "../utils/solveUtils";
 

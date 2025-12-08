@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ISolve } from "@cubing/shared";
+import type { ISolve } from "@cubing/shared";
 
 export function useSolveStats(solves: ISolve[]) {
     const [stats, setStats] = useState<ISolve[]>([]);

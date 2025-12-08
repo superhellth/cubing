@@ -1,8 +1,6 @@
-import { ISolve } from '@cubing/shared';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { Divider, FormControl, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { Box, Grid } from "@mui/system";
-import { LTTB } from 'downsample';
 import { useMemo, useState } from 'react';
 import useImprovementStats from '../../hooks/useImprovementStats';
 import { GraphCard } from "../GraphCard";
@@ -10,37 +8,37 @@ import TrendCard from './TrendCard';
 
 const displayed = ["duration", "pb", "avg5", "avg12", "avg100", "avg1000"];
 
-function calculateDerivative(data: number[], window: number = 1): (number | null)[] {
-    const results: (number | null)[] = [];
-    let sumX = 0;
-    let sumXSq = 0;
-    for (let i = 0; i < window; i++) {
-        sumX += i;
-        sumXSq += i * i;
-    }
-    const denominator = (window * sumXSq) - (sumX * sumX);
+// function calculateDerivative(data: number[], window: number = 1): (number | null)[] {
+//     const results: (number | null)[] = [];
+//     let sumX = 0;
+//     let sumXSq = 0;
+//     for (let i = 0; i < window; i++) {
+//         sumX += i;
+//         sumXSq += i * i;
+//     }
+//     const denominator = (window * sumXSq) - (sumX * sumX);
 
-    for (let i = 0; i < data.length; i++) {
-        if (i < window - 1) {
-            results.push(null);
-            continue;
-        }
-        const windowY = data.slice(i - window + 1, i + 1);
+//     for (let i = 0; i < data.length; i++) {
+//         if (i < window - 1) {
+//             results.push(null);
+//             continue;
+//         }
+//         const windowY = data.slice(i - window + 1, i + 1);
 
-        let sumY = 0;
-        let sumXY = 0;
-        for (let j = 0; j < window; j++) {
-            const y = windowY[j];
-            sumY += y;
-            sumXY += j * y;
-        }
-        const slope = ((window * sumXY) - (sumX * sumY)) / denominator;
+//         let sumY = 0;
+//         let sumXY = 0;
+//         for (let j = 0; j < window; j++) {
+//             const y = windowY[j];
+//             sumY += y;
+//             sumXY += j * y;
+//         }
+//         const slope = ((window * sumXY) - (sumX * sumY)) / denominator;
 
-        results.push(slope);
-    }
+//         results.push(slope);
+//     }
 
-    return results;
-}
+//     return results;
+// }
 
 const DevelopmentCard = ({ solves }: any) => {
     if (solves.length <= 0) return null;
@@ -51,20 +49,19 @@ const DevelopmentCard = ({ solves }: any) => {
     const impRate = useMemo(() => {
         return timeFrame == "all" ? -trends.all.duration.slope : -trends.recent.duration.slope
     }, [solves, timeFrame])
-    const impRateSeries = useMemo(() => {
-        const rawSeries = calculateDerivative(solves.map((solve: ISolve) => solve.duration), 500).filter(Boolean);
-        if (rawSeries.length > 200) {
-            const mappedData = rawSeries.map((v: any, index: number) => ({
-                x: index,
-                y: -v
-            }));
-            const sampledPoints: any = LTTB(mappedData, 100);
-            const sampledValues = sampledPoints.map((point: any) => point.y);
-            return sampledValues;
-        }
-        return rawSeries;
-    }, [solves]);
-    const xLabels = impRateSeries.map((_: any, i: any) => i + 1);
+    // const impRateSeries = useMemo(() => {
+    //     const rawSeries = calculateDerivative(solves.map((solve: ISolve) => solve.duration), 500).filter(Boolean);
+    //     if (rawSeries.length > 200) {
+    //         const mappedData = rawSeries.map((v: any, index: number) => ({
+    //             x: index,
+    //             y: -v
+    //         }));
+    //         const sampledPoints: any = LTTB(mappedData, 100);
+    //         const sampledValues = sampledPoints.map((point: any) => point.y);
+    //         return sampledValues;
+    //     }
+    //     return rawSeries;
+    // }, [solves]);
 
     return (
         <GraphCard title={"Improvement speed"} icon={<AutoAwesomeIcon />}>
@@ -87,6 +84,7 @@ const DevelopmentCard = ({ solves }: any) => {
                 <ToggleButtonGroup
                     value={timeFrame}
                     exclusive
+                    disabled={solves.length <= 100}
                     onChange={(_event: any, v: any) => { if (v !== null) { setTimeFrame(v); } }}
                     sx={{
                         // justifyContent: 'center',
@@ -106,9 +104,11 @@ const DevelopmentCard = ({ solves }: any) => {
                 </ToggleButtonGroup>
             </FormControl>
             <Grid container spacing={1.5}>
-                {displayed.map((key: string, index: number) => {
+                {displayed.map((key: string, _index: number) => {
                     const trend: any = timeFrame == "all" ? trends.all[key as keyof typeof trends.all] : trends.recent[key as keyof typeof trends.all];
-                    const left: boolean = index % 2 == 0;
+                    if (trend.relativeChange === 0 && trend.absoluteChange === 0 && trend.slope === 0) {
+                        return null;    
+                    }
                     return (
                         <Grid size={{ xs: 12, md: 6, sm: 6 }} key={key}>
                             <TrendCard trend={trend} headerKey={key} current={recentSolve[key]} />
@@ -116,40 +116,6 @@ const DevelopmentCard = ({ solves }: any) => {
                     );
                 })}
             </Grid>
-            {/* <LineChart
-                // 1. The Data
-                series={[
-                    {
-                        data: impRateSeries,
-                        label: 'Improvement Rate',
-                        color: theme.palette.info.main,
-                        showMark: false,
-                        curve: "catmullRom",
-                        area: true,
-                    },
-                ]}
-                yAxis={[{ position: 'none' }]}
-                xAxis={[{ data: xLabels, scaleType: 'point', hideTooltip: true }]}
-                hideLegend={true}
-
-                sx={{
-                    maxHeight: "30%",
-                    [`.${axisClasses.root}`]: {
-                        [`.${axisClasses.line}, .${axisClasses.tick}`]: { stroke: 'transparent' },
-                    },
-                }}
-                margin={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            >
-
-                <ChartsReferenceLine
-                    y={0}
-                    lineStyle={{
-                        stroke: theme.palette.text.secondary,
-                        strokeWidth: 2,
-                        opacity: 0.5
-                    }}
-                />
-            </LineChart> */}
         </GraphCard>
     );
 }

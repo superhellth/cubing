@@ -1,6 +1,6 @@
-import { ISolve } from '@cubing/shared';
+import type { ISolve } from '@cubing/shared';
 import { useMemo } from 'react';
-import { createForecaster, ForecastModelType } from '../utils/forecaster';
+import { createForecaster, type ForecastModelType } from '../utils/forecaster';
 
 export const useSolvesForecast = (
     solvesChronologically: ISolve[],
@@ -35,12 +35,11 @@ export const useSolvesForecast = (
                 const step = i + 1;
                 const { forecast, lower, upper } = forecasters[keyIdx].predictInterval(step, 0.95);
 
-                predictions[i][key] = forecast;
+                predictions[i][key] = forecast === 0 ? null : forecast;
                 currentConf.push({ y0: lower, y1: upper });
             }
             allConfidences.push(currentConf);
         });
-
         return { predictedSolves: predictions, confidences: allConfidences };
     }, [solvesChronologically, forecasters, predictKeys, predictionHorizon]);
 

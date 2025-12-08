@@ -13,6 +13,9 @@ export default defineConfig({
       },
     }),
   ],
+  worker: {
+    format: 'es', 
+  },
   resolve: {
     alias: {
       // Create an absolute path to the shared package

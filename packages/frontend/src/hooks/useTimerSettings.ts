@@ -1,3 +1,4 @@
+import { Discipline } from "@cubing/shared";
 import { useState } from "react";
 
 const defaultSettings = {
@@ -6,7 +7,8 @@ const defaultSettings = {
     readyAfter: 200,
     avgGraphXAxis: 'id',
     avgGraphDisplay: ["avg5", "avg12"],
-    avgGraphNumSolves: 50
+    avgGraphNumSolves: 50,
+    lastStatDiscipline: Discipline.ThreeByThree
 };
 
 export const useTimerSettings = () => {

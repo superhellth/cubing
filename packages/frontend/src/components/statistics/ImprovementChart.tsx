@@ -1,9 +1,8 @@
 import { keyToLabels, type ISolve } from "@cubing/shared";
-import { Box, Divider, Paper, Typography, useTheme } from "@mui/material";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import useDownsampling from "../../hooks/useDownsampling";
-import usePBStats from "../../hooks/usePBStats";
 import { useSolvesForecast } from "../../hooks/useSolveForecast";
 import { sortChronologically } from "../../utils/solveUtils";
 import Timer from "../../utils/timer";
@@ -14,10 +13,11 @@ import { ImprovementChartTooltip } from "./ImprovementChartTooltip";
 
 interface ImprovementChartProps {
     solves: ISolve[];
+    isLocked: boolean;
 }
 
 const ImprovementChart = memo(({
-    solves
+    solves, isLocked
 }: ImprovementChartProps) => {
     if (!solves?.length) return null;
     const theme = useTheme();
@@ -25,18 +25,19 @@ const ImprovementChart = memo(({
     // Chart Controller
     const [display, setDisplay] = useState<string[]>(["avg5", "avg12", "avg100", "avg1000", "pb"]);
     const [predictionHorizon, setPredictionHorizon] = useState<number>(20);
-    const [samplingLimit, setSamplingLimit] = useState<number>(Math.floor(solves.length / 10));
-    useEffect(() => {
-        setSamplingLimit(Math.floor(solves.length / 10));
-    }, [solves])
+    const mediumSamplingLimit = Math.max(101, Math.floor(solves.length / 10));
+    const [samplingLimit, setSamplingLimit] = useState<number>(mediumSamplingLimit);
+    // useEffect(() => {
+    //     setSamplingLimit(mediumSamplingLimit);
+    // }, [solves])
 
     // Data cleaning
     const sampledSolves: ISolve[] = useDownsampling(solves, samplingLimit, true);
     const solvesChronological: ISolve[] = useMemo(() => { return sortChronologically(sampledSolves) }, [sampledSolves]);
-    const lastIndex: number = useMemo(() => {return sampledSolves.length - 1}, [sampledSolves]);
+    const lastIndex: number = useMemo(() => { return sampledSolves.length - 1 }, [sampledSolves]);
 
     // Prediction
-    const { predictions, confidences } = useSolvesForecast(sortChronologically(solves),
+    const { predictions } = useSolvesForecast(sortChronologically(solves),
         display.filter((s: string) => s !== "pb"), predictionHorizon, "linear");
 
     // Chart Configuration
@@ -95,10 +96,6 @@ const ImprovementChart = memo(({
         return lines;
     }, [display, solves, theme, pbData]);
 
-    useEffect(() => {
-        setSamplingLimit(Math.floor(solves.length / 10))
-    }, []);
-
     const chartSurfaceSx = {
         '& .line-after path': { strokeDasharray: '10 5' },
         '& .MuiLineElement-series-pb-line': { strokeDasharray: '10 5' },
@@ -116,61 +113,93 @@ const ImprovementChart = memo(({
             p: 2,
             boxShadow: 'none',
             border: '1px solid #27272a',
+            position: "relative"
         }} >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Typography variant="h4" sx={{ color: '#fff', mb: 3, fontWeight: "bold" }} noWrap>Your Improvements</Typography>
-                <ImprovementChartControl numSolves={solves.length}
-                    display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
-                    predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}
-                    sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => {setSamplingLimit(newValue)}} />
-            </Box>
-
-            {/* <Divider sx={{mb: 1,  }}/> */}
-
-            <ImprovementChartLegend series={seriesConfig} />
-
-            <Box sx={{ flexGrow: 1, minHeight: 0 }}>
-                <ChartDataProvider
-                    dataset={historyAndPredictions as any}
-                    series={seriesConfig}
-                    xAxis={[{
-                        scaleType: 'linear',
-                        data: xAxisData,
-                        min: 0,
-                        max: historyAndPredictions.length - 1,
-                    }]}
-                    yAxis={[{
-                        valueFormatter: (v: number) => (v / 1000).toFixed(0)
-                    }]}
+            {isLocked &&
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        // Glass effect
+                        bgcolor: "rgba(0, 0, 0, 0.4)",
+                        zIndex: 1,
+                    }}
                 >
-                    <ChartsSurface sx={chartSurfaceSx}>
-                        <ShadedBackground limit={lastIndex} />
-                        <ChartsGrid horizontal />
+                    {/* Lock Icon */}
+                    {/* <LockIcon sx={{ fontSize: 40, color: "grey.500", mb: 1 }} /> */}
 
-                        <LinePlot
-                            slots={{ line: CustomAnimatedLine }}
-                            slotProps={{ line: { limit: lastIndex } as any }}
-                        />
-                        <ScatterPlot />
+                    {/* The "Enticement" CTA */}
+                    <Typography variant="h4">
+                        Keep cubing to unlock
+                    </Typography>
+                </Box>
+            }
+            <Box sx={{
+                flex: 1, height: "100%", flexDirection: "column", display: "flex", p: 0, filter: isLocked ? "blur(6px)" : "none", userSelect: "none", opacity: isLocked ? 0.5 : 1
+            }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Typography variant="h4" sx={{ color: '#fff', mb: 3, fontWeight: "bold" }} noWrap>Your Improvements</Typography>
+                    <ImprovementChartControl numSolves={solves.length}
+                        display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
+                        predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}
+                        sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => { setSamplingLimit(newValue) }}
+                        mediumSamplingLimit={mediumSamplingLimit} />
+                </Box>
 
-                        {/* {showConfidence && (
+                {/* <Divider sx={{mb: 1,  }}/> */}
+
+                <ImprovementChartLegend series={seriesConfig} />
+
+                <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+                    <ChartDataProvider
+                        dataset={historyAndPredictions as any}
+                        series={seriesConfig}
+                        xAxis={[{
+                            scaleType: 'linear',
+                            data: xAxisData,
+                            min: 0,
+                            max: historyAndPredictions.length - 1,
+                        }]}
+                        yAxis={[{
+                            valueFormatter: (v: number) => (v / 1000).toFixed(0)
+                        }]}
+                    >
+                        <ChartsSurface sx={chartSurfaceSx}>
+                            <ShadedBackground limit={lastIndex} />
+                            <ChartsGrid horizontal />
+
+                            <LinePlot
+                                slots={{ line: CustomAnimatedLine }}
+                                slotProps={{ line: { limit: lastIndex } as any }}
+                            />
+                            <ScatterPlot />
+
+                            {/* {showConfidence && (
                             <ForecastArea limit={lastIndex} forecast={confidences[0]} />
                         )} */}
 
-                        <ChartsAxisHighlight x="line" />
-                        <LineHighlightPlot />
-                        <ChartsXAxis />
-                        <ChartsYAxis />
-                    </ChartsSurface>
+                            <ChartsAxisHighlight x="line" />
+                            <LineHighlightPlot />
+                            <ChartsXAxis />
+                            <ChartsYAxis />
+                        </ChartsSurface>
 
-                    <ChartsTooltipContainer trigger="axis">
-                        <ImprovementChartTooltip
-                            displayedSolves={historyAndPredictions}
-                            display={display}
-                            predictionStart={lastIndex + 1}
-                        />
-                    </ChartsTooltipContainer>
-                </ChartDataProvider>
+                        <ChartsTooltipContainer trigger="axis">
+                            <ImprovementChartTooltip
+                                displayedSolves={historyAndPredictions}
+                                display={display}
+                                predictionStart={lastIndex + 1}
+                            />
+                        </ChartsTooltipContainer>
+                    </ChartDataProvider>
+                </Box>
             </Box>
         </Paper>
     );

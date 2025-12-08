@@ -1,4 +1,4 @@
-import { ISolve } from "@cubing/shared";
+import type { ISolve } from "@cubing/shared";
 import { LTTB } from "downsample";
 import { useMemo } from "react";
 

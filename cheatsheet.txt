@@ -3,8 +3,11 @@ switch to postgres user: sudo -i -u postgres
 postgres command-line: psql
 
 NGINX Webserver config:
-sudo certbot --nginx -d yourdomain.com
-sudo nano /etc/nginx/sites-available/highpercube
+certbot --nginx -d yourdomain.com
+nano /etc/nginx/sites-available/highpercube
+ln -s /etc/nginx/sites-available/your_site_name /etc/nginx/sites-enabled/
+nginx -t
+systemctl reload nginx
 
 UFW Firewall config:
 ufw allow from <IP> to any port <PORT>

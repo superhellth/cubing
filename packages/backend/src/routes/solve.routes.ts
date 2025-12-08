@@ -6,7 +6,7 @@ const router = Router();
 
 const updateLimit = rateLimit({
     windowMs: 1000,
-    max: 2,
+    max: 3,
     message: { message: "Too many requests." },
     standardHeaders: true,
     legacyHeaders: false,

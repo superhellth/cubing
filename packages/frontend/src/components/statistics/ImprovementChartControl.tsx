@@ -1,9 +1,7 @@
 import { keyToLabels } from "@cubing/shared";
-import { Box, Checkbox, FormControl, FormHelperText, InputLabel, ListItemText, MenuItem, Paper, Select, SelectChangeEvent, Slider, Stack, Table, TableBody, TableCell, tableCellClasses, TableRow, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
-import { memo } from "react";
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import OutlinedContainer from "../OutlinedContainer";
-import { height } from "@mui/system";
+import { Box, FormControl, FormHelperText, ListItemText, MenuItem, Select, type SelectChangeEvent, Slider, Table, TableBody, TableCell, tableCellClasses, TableRow, ToggleButton, ToggleButtonGroup, useTheme } from "@mui/material";
+import { memo } from "react";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -20,7 +18,7 @@ const AVERAGE_DISPLAY_ORDER = ["avg5", "avg12", "avg100", "avg1000", "pb"];
 
 const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionChanged,
     predict, onPredictionHorizonChanged,
-    sampleThreshold, onSampleThresholdChanged }: any) => {
+    sampleThreshold, onSampleThresholdChanged, mediumSamplingLimit }: any) => {
     const theme = useTheme();
 
     const handleDisplayChange = (event: SelectChangeEvent<typeof display>) => {
@@ -116,6 +114,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                                 <ToggleButtonGroup
                                     value={sampleThreshold}
                                     exclusive
+                                    disabled={numSolves < 150}
                                     onChange={handleSampleThresholdChange}
                                     sx={{
                                         justifyContent: 'center',
@@ -129,7 +128,7 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                                     {/* <ToggleButton value={numSolves / 100}>
                                         Some
                                     </ToggleButton> */}
-                                    <ToggleButton value={Math.floor(numSolves / 10)}>
+                                    <ToggleButton value={mediumSamplingLimit}>
                                         Medium
                                     </ToggleButton>
                                     {/* <ToggleButton value={numSolves / 3}>

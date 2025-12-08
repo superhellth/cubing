@@ -1,6 +1,6 @@
 // utils/averages.ts
 
-import { ISolve, Status } from "@cubing/shared";
+import { type ISolve, Status } from "@cubing/shared";
 
 // Reusable buffer to prevent memory allocation in the hot loop
 // We assume max window is 1000.
@@ -24,7 +24,7 @@ export function calculateAverageOptimized(
         if (solve.status === Status.DNF) {
             dnfCount++;
         } else {
-            buffer[validCount++] = solve.duration; // Assuming duration is in milliseconds or seconds
+            buffer[validCount++] = solve.status === Status.PlusTwo ? solve.duration + 2000 : solve.duration; // Assuming duration is in milliseconds or seconds
         }
     }
 

@@ -51,10 +51,10 @@ export const SolveSchema = z.object({
     date: z.coerce.date(),
     scramble: z.string(),
     status: z.enum(Status),
-    avg5: z.number().optional(),
-    avg12: z.number().optional(),
-    avg100: z.number().optional(),
-    avg1000: z.number().optional(),
+    avg5: z.number().nullable().optional(),
+    avg12: z.number().nullable().optional(),
+    avg100: z.number().nullable().optional(),
+    avg1000: z.number().nullable().optional(),
     newPB: z.boolean().optional(),
     pb: z.number().optional()
 });

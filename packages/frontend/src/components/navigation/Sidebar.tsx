@@ -1,14 +1,14 @@
 import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
-import { alpha, Box, Button, Divider, Fade, IconButton, Paper, useTheme } from '@mui/material';
+import { alpha, Box, Fade, IconButton, Paper, useTheme } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
 import HCButton from '../HCButton';
 import DisciplineButton from './DisciplineButton';
-import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 
 interface SidebarProps {
     selectedDiscipline: Discipline;
@@ -80,8 +80,8 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
                         // minWidth: 'auto',
                         position: "absolute",
                         bottom: "5px",
-                        left: "25px",
-                        transition: 'all 0.3s ease',
+                        left: "27px",
+                        transition: 'all 0.3s ease, visibility 0s',
                         border: '1px solid transparent',
 
                         '&:hover': {
@@ -133,7 +133,6 @@ export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisi
                                 size={40}
                                 disc={disc as Discipline}
                                 isSelected={selectedDiscipline === disc}
-                                tooltipDisabled={isScrolling}
                                 onClick={handleDisciplineClick}
                             />
                         ))}

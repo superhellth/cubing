@@ -66,7 +66,7 @@ export class LinearRegression {
         // Current index is n-1. Future index is (n-1) + steps.
         const futureX = (n - 1) + steps;
         
-        return stats.slope * futureX + stats.intercept;
+        return Math.max(stats.slope * futureX + stats.intercept, 0.1);
     }
 
     /**

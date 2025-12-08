@@ -11,7 +11,7 @@ export function LinkPoints({ seriesId }: { seriesId: string }) {
         return null;
     }
 
-    const { color, data } = scatter;
+    const { data } = scatter;
 
     // Generate the SVG Path command
     // M = Move to (start), L = Line to
