@@ -1,4 +1,5 @@
-import type { INewSolve, ISolve } from "@cubing/shared";
+
+import { StatlessSolveSchema, type NewSolve, type Solve, type StatlessSolve } from "@cubing/shared";
 import axios from "axios";
 
 class DBWriter {
@@ -18,14 +19,14 @@ class DBWriter {
         return DBWriter.#instance;
     }
 
-    public async updateSolveStatus(solve: ISolve) {
+    public async updateSolveStatus(solve: Solve): Promise<StatlessSolve> {
         try {
             const response = await axios.post(DBWriter.UPDATE_SOLVE_URL, {
                 pk: solve.pk,
                 uuid: solve.uuid,
                 status: solve.status
             })
-            const updatedSolve: ISolve = response.data as ISolve;
+            const updatedSolve: StatlessSolve = StatlessSolveSchema.parse(response.data);
             return updatedSolve;
         } catch (error) {
             console.error("Error updating solve status:", error);
@@ -33,13 +34,13 @@ class DBWriter {
         }
     }
 
-    public async insertSolve(solve: INewSolve): Promise<ISolve> {
+    public async insertSolve(solve: NewSolve): Promise<StatlessSolve> {
         try {
             const response = await axios.post(DBWriter.INSERT_SOLVE_URL, {
                 solve: solve
             });
 
-            const fullSolve: ISolve = response.data as ISolve;
+            const fullSolve: StatlessSolve = StatlessSolveSchema.parse(response.data);
             return fullSolve;
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {

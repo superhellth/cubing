@@ -1,4 +1,4 @@
-import { Status, type ISolve } from "@cubing/shared";
+import { Status, type Solve } from "@cubing/shared";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -14,10 +14,10 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
-import { getDisplayableTime, getDisplayTime } from "../../../utils/solveUtils";
+import { getDisplayableTime } from "../../../utils/solveUtils";
 
 function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateStatus }: {
-    solve: ISolve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
+    solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
     onDeleteSolve: Function
 }) {
     const theme = useTheme();
@@ -70,7 +70,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                     <Stack spacing={3} mt={1}>
                         <Box textAlign="center">
                             <Typography variant="h2" fontWeight="700" color="text.primary">
-                                {getDisplayTime(solve)}
+                                {getDisplayableTime(solve, "duration")}
                             </Typography>
                             <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" mt={1}>
                                 <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
@@ -97,7 +97,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                         <Stack direction="row" justifyContent="space-around" divider={<Divider orientation="vertical" flexItem />}>
                             <Box textAlign="center">
                                 <Typography variant="caption" color={theme.palette.text.secondary}>Single</Typography>
-                                <Typography variant="h6">{getDisplayTime(solve)}</Typography>
+                                <Typography variant="h6">{getDisplayableTime(solve, "duration")}</Typography>
                             </Box>
                             <Box textAlign="center">
                                 <Typography variant="caption" color="text.secondary">Ao5</Typography>

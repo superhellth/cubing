@@ -1,18 +1,19 @@
-import type { ISolve } from "@cubing/shared";
+import type { Solve } from "@cubing/shared";
 import { LTTB } from "downsample";
 import { useMemo } from "react";
+import { sortChronologically } from "../utils/solveUtils";
 
 interface LTTBPoint {
     x: number;
     y: number;
-    original: ISolve;
+    original: Solve;
 }
 
-const useDownsampling = (solves: ISolve[], samplingThreshold: number, keepPbs: boolean) => {
+const useDownsampling = (solves: Solve[], samplingThreshold: number, keepPbs: boolean) => {
     return useMemo(() => {
-        let pbs: ISolve[] = [];
+        let pbs: Solve[] = [];
         if (keepPbs) {
-            pbs = solves.filter((solve: ISolve) => solve.newPB);
+            pbs = solves.filter((solve: Solve) => solve.newPB);
         }
 
         if (solves.length > samplingThreshold) {
@@ -24,7 +25,7 @@ const useDownsampling = (solves: ISolve[], samplingThreshold: number, keepPbs: b
             const sampledPoints = LTTB(mappedData, samplingThreshold) as LTTBPoint[];
             const sampledSolves = sampledPoints.map((point: any) => point.original);
             if (keepPbs) {
-                return [...new Set([...sampledSolves, ...pbs])];
+                return sortChronologically([...new Set([...sampledSolves, ...pbs])]);
             } else {
                 return sampledSolves;
             }

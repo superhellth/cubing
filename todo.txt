@@ -2,6 +2,7 @@ app
 mobile website
 user page: activity graph like github
 statistics page: avg100/avg1000 prediction logistic regression (see mui line charts), warm up analysis
+showed the scrambled cube state
 const getConsistencyTier = (score) => {
     if (score > 4) return "🤖 Machine"; // < 0.25s SD
     if (score > 2) return "💎 Elite";   // < 0.5s SD

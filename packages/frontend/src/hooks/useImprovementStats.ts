@@ -1,6 +1,5 @@
-import type { ISolve } from "@cubing/shared";
+import type { Solve } from "@cubing/shared";
 import { useMemo } from "react";
-import { sortChronologically } from "../utils/solveUtils";
 
 export interface ImprovementStats {
     slope: number,
@@ -43,9 +42,8 @@ const calculateTrend = (data: number[]): ImprovementStats => {
     };
 };
 
-const useImprovementStats = (solves: ISolve[]) => {
+const useImprovementStats = (solvesChrono: Solve[]) => {
     return useMemo(() => {
-        const solvesChronologically = sortChronologically(solves);
 
         const columns = {
             duration: [] as number[],
@@ -56,8 +54,8 @@ const useImprovementStats = (solves: ISolve[]) => {
             avg1000: [] as number[],
         };
 
-        for (const solve of solvesChronologically) {
-            columns.pb.push(solve.pb!);
+        for (const solve of solvesChrono) {
+            columns.pb.push(solve.pb);
             columns.duration.push(solve.duration);
             columns.avg5.push(solve.avg5!);
             columns.avg12.push(solve.avg12!);
@@ -81,15 +79,15 @@ const useImprovementStats = (solves: ISolve[]) => {
                 avg1000: getTrend(columns.avg1000),
             },
             recent: {
-                pb: getTrend(columns.pb.slice(-RECENT_LIMIT)),
-                duration: getTrend(columns.duration.slice(-RECENT_LIMIT)),
-                avg5: getTrend(columns.avg5.slice(-RECENT_LIMIT)),
-                avg12: getTrend(columns.avg12.slice(-RECENT_LIMIT)),
-                avg100: getTrend(columns.avg100.slice(-RECENT_LIMIT)),
-                avg1000: getTrend(columns.avg1000.slice(-RECENT_LIMIT)),
+                pb: getTrend(columns.pb.slice(RECENT_LIMIT)),
+                duration: getTrend(columns.duration.slice(RECENT_LIMIT)),
+                avg5: getTrend(columns.avg5.slice(RECENT_LIMIT)),
+                avg12: getTrend(columns.avg12.slice(RECENT_LIMIT)),
+                avg100: getTrend(columns.avg100.slice(RECENT_LIMIT)),
+                avg1000: getTrend(columns.avg1000.slice(RECENT_LIMIT)),
             }
         };
-    }, [solves]);
+    }, [solvesChrono]);
 }
 
 export default useImprovementStats;

@@ -2,7 +2,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import { BarChart } from "@mui/x-charts";
 import { useMemo } from "react";
 import { useOutlierDetection } from "../../hooks/useOutlierDetection";
-import Timer from "../../utils/timer";
+import { formatTime } from '../../utils/solveUtils';
 import { GraphCard } from "../GraphCard";
 
 const DistributionCard = ({ solves }: any) => {
@@ -49,7 +49,7 @@ const DistributionCard = ({ solves }: any) => {
 
         return bins.map((bin: number[], index: number) => ({
             id: index,
-            range: `${Timer.formatTime(start + index * binSize)} - ${Timer.formatTime(start + (index + 1) * binSize)}`,
+            range: `${formatTime(start + index * binSize)} - ${formatTime(start + (index + 1) * binSize)}`,
             entries: bin.length
         }));
     }, [nonOutliers]);

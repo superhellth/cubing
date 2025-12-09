@@ -1,7 +1,7 @@
 import { Status } from "@cubing/shared";
 import TableCell from "@mui/material/TableCell";
 import { memo } from "react";
-import { getDisplayableTime, getDisplayTime } from "../../utils/solveUtils";
+import { getDisplayableTime } from "../../utils/solveUtils";
 
 export const SolveRow = memo(({ solve, bestStats }: any) => {
     const isBestSingle = bestStats.duration !== null && solve.duration === bestStats.duration;
@@ -17,7 +17,7 @@ export const SolveRow = memo(({ solve, bestStats }: any) => {
                 color: solve.status === Status.DNF ? "error.main" : solve.status === Status.PlusTwo ? "warning.main" : "text.primary",
                 fontWeight: isBestSingle ? "bold" : "normal",
             }}>
-                {getDisplayTime(solve)}
+                {getDisplayableTime(solve, "duration")}
             </TableCell>
 
             {/* Avg 5 */}

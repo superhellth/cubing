@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import type { ISolve } from "@cubing/shared";
+import type { Solve, StatlessSolve } from "@cubing/shared";
 
-export function useSolveStats(solves: ISolve[]) {
-    const [stats, setStats] = useState<ISolve[]>([]);
-    
+export function useSolveStats(solves: StatlessSolve[]) {
+    const [stats, setStats] = useState<Solve[]>([]);
+
     const workerRef = useRef<Worker | null>(null);
 
     useEffect(() => {
         // Initialize the worker
         // 'import.meta.url' is standard in Vite/Webpack 5
         workerRef.current = new Worker(
-            new URL('../utils/stats.worker.ts', import.meta.url), 
+            new URL('../utils/stats.worker.ts', import.meta.url),
             { type: 'module' }
         );
 

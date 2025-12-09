@@ -1,66 +1,62 @@
-import { keyToLabels, type ISolve } from "@cubing/shared";
+import { keyToLabels, type Solve } from "@cubing/shared";
 import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { ChartDataProvider, ChartsAxisHighlight, ChartsGrid, ChartsSurface, ChartsTooltipContainer, ChartsXAxis, ChartsYAxis, LineHighlightPlot, LinePlot, ScatterPlot } from "@mui/x-charts";
 import { memo, useMemo, useState } from "react";
 import useDownsampling from "../../hooks/useDownsampling";
 import { useSolvesForecast } from "../../hooks/useSolveForecast";
-import { sortChronologically } from "../../utils/solveUtils";
-import Timer from "../../utils/timer";
+import { formatTime } from "../../utils/solveUtils";
 import { CustomAnimatedLine, ShadedBackground } from "../graphs/PredictionArea";
 import ImprovementChartControl from "./ImprovementChartControl";
 import { ImprovementChartLegend } from "./ImprovementChartLegend";
 import { ImprovementChartTooltip } from "./ImprovementChartTooltip";
 
 interface ImprovementChartProps {
-    solves: ISolve[];
+    solvesChrono: Solve[];
     isLocked: boolean;
 }
 
 const ImprovementChart = memo(({
-    solves, isLocked
+    solvesChrono, isLocked
 }: ImprovementChartProps) => {
-    if (!solves?.length) return null;
+    if (!solvesChrono?.length) return null;
     const theme = useTheme();
 
     // Chart Controller
-    const [display, setDisplay] = useState<string[]>(["avg5", "avg12", "avg100", "avg1000", "pb"]);
+    const [display, setDisplay] = useState<(keyof Solve)[]>(["avg5", "avg12", "avg100", "avg1000", "pb"]);
     const [predictionHorizon, setPredictionHorizon] = useState<number>(20);
-    const mediumSamplingLimit = Math.max(101, Math.floor(solves.length / 10));
+    const mediumSamplingLimit = Math.max(101, Math.floor(solvesChrono.length / 10));
     const [samplingLimit, setSamplingLimit] = useState<number>(mediumSamplingLimit);
-    // useEffect(() => {
-    //     setSamplingLimit(mediumSamplingLimit);
-    // }, [solves])
 
     // Data cleaning
-    const sampledSolves: ISolve[] = useDownsampling(solves, samplingLimit, true);
-    const solvesChronological: ISolve[] = useMemo(() => { return sortChronologically(sampledSolves) }, [sampledSolves]);
+    const sampledSolves: Solve[] = useDownsampling(solvesChrono, samplingLimit, true);
     const lastIndex: number = useMemo(() => { return sampledSolves.length - 1 }, [sampledSolves]);
+    console.log(lastIndex)
 
     // Prediction
-    const { predictions } = useSolvesForecast(sortChronologically(solves),
-        display.filter((s: string) => s !== "pb"), predictionHorizon, "linear");
+    const { predictions } = useSolvesForecast(solvesChrono,
+        display.filter((s) => s !== "pb"), predictionHorizon, "linear");
 
     // Chart Configuration
-    const historyAndPredictions: ISolve[] = useMemo(() => {
-        const foundIndex = solvesChronological.findIndex(solve =>
-            display.some(key => solve[key as keyof ISolve] != null)
+    const historyAndPredictions: Solve[] = useMemo(() => {
+        const foundIndex = sampledSolves.findIndex(solve =>
+            display.some(key => solve[key as keyof Solve] != null)
         );
         const firstNonNull = foundIndex === -1 ? 0 : foundIndex;
-        return [...solvesChronological.slice(firstNonNull), ...predictions];
+        return [...sampledSolves.slice(firstNonNull), ...predictions];
     }, [sampledSolves, predictions]);
     const xAxisData = useMemo(() => {
-        return historyAndPredictions.map((_: ISolve, i: number) => i);
+        return historyAndPredictions.map((_: Solve, i: number) => i);
     }, [historyAndPredictions]);
     const pbData: any = useMemo(() => {
         const dataPoints: any[] = [];
-        for (let i = 0; i < solvesChronological.length; i++) {
-            const solve: ISolve = solvesChronological[i];
+        for (let i = 0; i < sampledSolves.length; i++) {
+            const solve: Solve = sampledSolves[i];
             if (solve.newPB) {
                 dataPoints.push({ x: i, y: solve.duration });
             }
         }
         return dataPoints;
-    }, [solvesChronological]);
+    }, [sampledSolves]);
     const seriesConfig: any = useMemo(() => {
         const lines = display.filter((value: string) => value !== "pb").map(key => ({
             type: "line",
@@ -70,7 +66,7 @@ const ImprovementChart = memo(({
             color: theme.palette.graphColors[key],
             showMark: true,
             skipAnimation: true,
-            valueFormatter: (v: number) => Timer.formatTime(v)
+            valueFormatter: (v: number) => formatTime(v)
         }));
 
         const pbScatter = {
@@ -94,7 +90,7 @@ const ImprovementChart = memo(({
         if (display.includes("pb")) return [...lines, pbScatter, pbLine]
 
         return lines;
-    }, [display, solves, theme, pbData]);
+    }, [display, sampledSolves, theme, pbData]);
 
     const chartSurfaceSx = {
         '& .line-after path': { strokeDasharray: '10 5' },
@@ -146,8 +142,8 @@ const ImprovementChart = memo(({
             }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <Typography variant="h4" sx={{ color: '#fff', mb: 3, fontWeight: "bold" }} noWrap>Your Improvements</Typography>
-                    <ImprovementChartControl numSolves={solves.length}
-                        display={display} onDisplaySelectionChanged={(displaySelection: string[]) => setDisplay(displaySelection)}
+                    <ImprovementChartControl numSolves={sampledSolves.length}
+                        display={display} onDisplaySelectionChanged={(displaySelection: (keyof Solve)[]) => setDisplay(displaySelection)}
                         predict={predictionHorizon} onPredictionHorizonChanged={(newValue: number) => setPredictionHorizon(newValue)}
                         sampleThreshold={samplingLimit} onSampleThresholdChanged={(newValue: number) => { setSamplingLimit(newValue) }}
                         mediumSamplingLimit={mediumSamplingLimit} />

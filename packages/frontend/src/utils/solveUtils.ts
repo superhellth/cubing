@@ -1,41 +1,50 @@
-import { Status, type ISolve } from "@cubing/shared";
-import Timer from "./timer";
+import { getGrossDuration, Status, type Solve } from "@cubing/shared";
 import { randomScrambleForEvent } from "cubing/scramble";
 
 export async function generateScramble(event: string = "333") {
     return (await randomScrambleForEvent(event)).toString();
 }
 
-export function getDisplayableTime(solve: ISolve, key: keyof ISolve) {
-    if (key == "duration") return getDisplayTime(solve);
-    const time = solve[key];
-    if (time === -1) {
+export function formatTime(ms: number | null | undefined) {
+    if (ms == 0) {
+        return "0.00";
+    }
+    if (!ms) {
+        return "";
+    }
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    const milliseconds = Math.floor((ms % 1000) / 10);
+    if (minutes > 0) {
+        return `${minutes}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(2, "0")}`;
+    }
+
+    return `${seconds}.${String(milliseconds).padStart(2, "0")}`;
+};
+
+export function getDisplayableTime(solve: Solve, key: keyof Solve) {
+    let time = solve[key];
+    if (key === "duration") {
+        time = solve.grossDuration;
+    }
+    if (time === null) {
         return "DNF";
     }
-    return Timer.formatTime(time as number);
+    return formatTime(Number(time));
 }
 
-export function getDisplayTime(solve: ISolve) {
-    let solveDuration: number = solve.duration;
-    if (solve.status === Status.PlusTwo) {
-        solveDuration += 2000;
-    } else if (solve.status === Status.DNF) {
-        return "DNF";
-    }
-    return Timer.formatTime(solveDuration);
-}
-
-export function solveWithUpdatedStatus(solve: ISolve, newStatus: Status) {
+export function solveWithUpdatedStatus(solve: Solve, newStatus: Status) {
     return {
         ...solve,
-        status: newStatus
+        status: newStatus,
+        grossDuration: getGrossDuration(solve.duration, newStatus)
     }
 }
 
-export function sortChronologically(solves: ISolve[], order = "asc") {
+export function sortChronologically(solves: Solve[], order = "asc") {
     if (order === "asc") {
-        return solves.sort((a: ISolve, b: ISolve) => { return a.date.getTime() - b.date.getTime() })
+        return solves.sort((a: Solve, b: Solve) => { return a.date.getTime() - b.date.getTime() })
     } else {
-        return solves.sort((a: ISolve, b: ISolve) => { return b.date.getTime() - a.date.getTime() })
+        return solves.sort((a: Solve, b: Solve) => { return b.date.getTime() - a.date.getTime() })
     }
 }

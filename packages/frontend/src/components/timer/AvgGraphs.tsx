@@ -1,15 +1,15 @@
-import { keyToLabels, type ISolve } from "@cubing/shared";
+import { keyToLabels, type Solve } from "@cubing/shared";
 import { Box, useTheme } from "@mui/system";
 import { LineChart } from "@mui/x-charts";
 import { memo, useMemo } from "react";
-import Timer from "../../utils/timer";
+import { formatTime } from "../../utils/solveUtils";
 
 const cleanVal = (val: number | undefined | null) => {
     if (val === undefined || val === null || val === -1) return null;
     return val;
 };
 
-const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any }) => {
+const AvgGraphs = memo(({ solves, settings }: { solves: Solve[], settings: any }) => {
     const theme = useTheme();
     const xByDate: boolean = useMemo(() => { return settings.avgGraphXAxis == "date" }, [settings]);
     const display: any[] = useMemo(() => { return settings.avgGraphDisplay }, [settings]);
@@ -18,7 +18,7 @@ const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any 
     const chartData = useMemo(() => {
         const chronologicalSolves = [...solves].reverse().slice(-Math.min(displayHorizon, solves.length));
         const foundIndex = chronologicalSolves.findIndex(solve =>
-            display.some(key => solve[key as keyof ISolve] != null)
+            display.some(key => solve[key as keyof Solve] != null)
         );
         const firstNonNull = foundIndex === -1 ? 0 : foundIndex;
 
@@ -41,7 +41,7 @@ const AvgGraphs = memo(({ solves, settings }: { solves: ISolve[], settings: any 
             dataKey: key,
             color: theme.palette.graphColors[key],
             showMark: false,
-            valueFormatter: (v: number | null) => v == null ? null : Timer.formatTime(v)
+            valueFormatter: (v: number | null) => v == null ? null : formatTime(v)
         }));
     }, [display]);
 

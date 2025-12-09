@@ -1,4 +1,4 @@
-import { keyToLabels, type ISolve } from '@cubing/shared';
+import { keyToLabels, type Solve } from '@cubing/shared';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -6,7 +6,7 @@ import { Box, Grid } from '@mui/system';
 import { useAxesTooltip } from '@mui/x-charts';
 import { useMemo } from 'react';
 import theme from '../../styles/theme';
-import Timer from '../../utils/timer';
+import { getDisplayableTime } from '../../utils/solveUtils';
 
 const longFormatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -22,7 +22,7 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
     const solveIndex: number = useMemo(() => {
         return tooltipData[0].dataIndex;
     }, [tooltipData])
-    const solve: ISolve = useMemo(() => {
+    const solve: Solve = useMemo(() => {
         return displayedSolves[solveIndex];
     }, [tooltipData]);
 
@@ -47,7 +47,7 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
                         }
                     </Grid>
                     <Grid size={10}>
-                        {display.filter((v: string) => v !== "pb").map((key: keyof ISolve) => (
+                        {display.filter((v: string) => v !== "pb").map((key: keyof Solve) => (
                             solve[key] ? (
                                 <Stack direction="row" spacing={2} alignItems="center" key={key}>
                                     <Box sx={{
@@ -59,7 +59,7 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
                                         key={key}
                                         sx={{ ml: 2, fontWeight: 'light' }}
                                     >
-                                        {keyToLabels[key as keyof typeof keyToLabels]}: {Timer.formatTime(solve[key] as number)}
+                                        {keyToLabels[key as keyof typeof keyToLabels]}: {getDisplayableTime(solve, key)}
                                     </Typography>
                                 </Stack>
                             ) : null
@@ -82,7 +82,7 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
                                     key={"pb"}
                                     sx={{ ml: 2, fontWeight: 'light' }}
                                 >
-                                    {solve.newPB ? "(New)" : ""} PB: {Timer.formatTime(solve.pb)}
+                                    {solve.newPB ? "(New)" : ""} PB: {getDisplayableTime(solve, "pb")}
                                 </Typography>
                             </Stack>
                         }

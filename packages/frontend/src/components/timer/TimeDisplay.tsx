@@ -1,4 +1,4 @@
-import { type ISolve } from '@cubing/shared';
+import { type Solve } from '@cubing/shared';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { Card, CardContent, IconButton, Typography } from '@mui/material';
@@ -11,8 +11,7 @@ import TableRow from "@mui/material/TableRow";
 import { useTheme } from '@mui/system';
 import Box from '@mui/system/Box';
 import { memo, useMemo } from "react";
-import { getDisplayableTime } from '../../utils/solveUtils';
-import Timer from "../../utils/timer";
+import { formatTime, getDisplayableTime } from '../../utils/solveUtils';
 import SolvesTable from './SolvesTable';
 
 interface Stats {
@@ -29,7 +28,7 @@ export const HEAD_CELLS = [
 ];
 
 const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolveTableVisibilityChange }: {
-    solves: ISolve[],
+    solves: Solve[],
     openSolveDetailsScreen: Function,
     isCollapsed: boolean,
     onSolveTableVisibilityChange: Function
@@ -136,12 +135,12 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
 
                                                 {/* Best Stat */}
                                                 <TableCell sx={{ fontFamily: "IBM Plex Mono", fontSize: "1.05rem" }} align='right'>
-                                                    {Timer.formatTime(bestStats[row.id])}
+                                                    {formatTime(bestStats[row.id])}
                                                 </TableCell>
 
                                                 {/* Current Stat */}
                                                 <TableCell sx={{ fontFamily: "IBM Plex Mono", fontSize: "1.05rem" }} align='right'>
-                                                    {latestSolve ? getDisplayableTime(latestSolve, row.id as keyof ISolve) : "-"}
+                                                    {latestSolve ? getDisplayableTime(latestSolve, row.id as keyof Solve) : "-"}
                                                 </TableCell>
                                             </TableRow>
                                         );

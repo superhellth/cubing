@@ -40,10 +40,21 @@ export const keyToLabels = {
     avg1000: "Ao1000"
 };
 
+export function getGrossDuration(netDuration: number, status: Status) {
+    let grossDuration: number | null = netDuration;
+    if (status === Status.PlusTwo) {
+        grossDuration += 2000;
+    } else if (status === Status.DNF) {
+        grossDuration = null;
+    }
+    return grossDuration;
+}
 
-export const SolveSchema = z.object({
-    pk: z.coerce.bigint(),
-    id: z.coerce.number(),
+function computeGrossDuration<T extends z.infer<typeof NewSolveSchema>>(solve: T) {
+    return { ...solve, grossDuration: getGrossDuration(solve.duration, solve.status) };
+};
+
+export const NewSolveSchema = z.object({
     uuid: z.uuid(),
     discipline: z.enum(Discipline),
     session: z.string(),
@@ -51,15 +62,25 @@ export const SolveSchema = z.object({
     date: z.coerce.date(),
     scramble: z.string(),
     status: z.enum(Status),
+});
+export type NewSolve = z.infer<typeof NewSolveSchema>;
+
+const BaseStatlessSolveSchema = z.object({
+    ...NewSolveSchema.shape,
+    pk: z.coerce.bigint(),
+    id: z.coerce.number(),
+});
+export const StatlessSolveSchema = BaseStatlessSolveSchema.transform(computeGrossDuration);
+export type StatlessSolve = z.infer<typeof StatlessSolveSchema>;
+
+const BaseSolveSchema = z.object({
+    ...BaseStatlessSolveSchema.shape,
     avg5: z.number().nullable().optional(),
     avg12: z.number().nullable().optional(),
     avg100: z.number().nullable().optional(),
     avg1000: z.number().nullable().optional(),
-    newPB: z.boolean().optional(),
-    pb: z.number().optional()
+    newPB: z.boolean(),
+    pb: z.number()
 });
-
-export const NewSolveSchema = SolveSchema.omit({ id: true, pk: true });
-
-export type ISolve = z.infer<typeof SolveSchema>;
-export type INewSolve = z.infer<typeof NewSolveSchema>;
+export const SolveSchema = BaseSolveSchema.transform(computeGrossDuration);
+export type Solve = z.infer<typeof SolveSchema>;

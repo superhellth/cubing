@@ -5,9 +5,9 @@ import { Paper, Stack, Typography } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import { useTheme } from "@mui/system";
 import { memo } from 'react';
-import Timer from '../../utils/timer';
+import { formatTime } from '../../utils/solveUtils';
 
-const TrendCard = memo(({ trend, headerKey, current }: any) => {
+const TrendCard = memo(({ trend, headerKey, current }: {trend: any, headerKey: any, current: number}) => {
     const theme = useTheme();
     return (
         <Paper
@@ -52,7 +52,7 @@ const TrendCard = memo(({ trend, headerKey, current }: any) => {
                         letterSpacing: -1
                     }}
                 >
-                    {Timer.formatTime(current)}s
+                    {formatTime(current)}s
                 </Typography>
 
                 <Stack

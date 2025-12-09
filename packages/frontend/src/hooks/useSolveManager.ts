@@ -1,4 +1,4 @@
-import { Discipline, Status, type ISolve } from "@cubing/shared";
+import { Discipline, Status, type Solve, type StatlessSolve } from "@cubing/shared";
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import DBReader from '../services/dbReader';
 import DBWriter from '../services/dbWriter';
@@ -10,11 +10,23 @@ const dbWriter = DBWriter.instance;
 const dbReader = DBReader.instance;
 
 export const useSolveManager = (selectedDiscipline: Discipline, selectedSession: string) => {
-    const [rawSolves, setRawSolves] = useState<ISolve[]>([]);
+    // Solves
+    const [statlessSolvesChrono, setStatlessSolvesChrono] = useState<StatlessSolve[]>([]);
+    const solvesChrono: Solve[] = useSolveStats(statlessSolvesChrono);
+    const pb = useMemo(() => {
+        let currentPb: number = Infinity;
+        for (let i = 0; i < statlessSolvesChrono.length; i++) {
+            const solve: StatlessSolve = statlessSolvesChrono[i];
+            if (solve.duration < currentPb && solve.status === Status.Valid) {
+                currentPb = solve.duration;
+            }
+        }
+        return currentPb;
+    }, [statlessSolvesChrono]);
+    // Other
     const [currentScramble, setCurrentScramble] = useState<string>("Generating Scramble...");
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [hasFetched, setHasFetched] = useState(false);
-
     const [userID] = useState<string>(() => {
         const USER_ID_KEY = "userID";
         let uID = localStorage.getItem(USER_ID_KEY);
@@ -24,17 +36,6 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         }
         return uID;
     });
-    const solves: ISolve[] = useSolveStats(rawSolves);
-    const pb = useMemo(() => {
-        let currentPb: number = Infinity;
-        for (let i = 0; i < solves.length; i++) {
-            const solve: ISolve = solves[i];
-            if (solve.duration < currentPb && solve.status === Status.Valid) {
-                currentPb = solve.duration;
-            }
-        }
-        return currentPb;
-    }, [solves]);
 
     useEffect(() => {
         setHasFetched(false);
@@ -45,9 +46,9 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
 
         const initData = async () => {
             try {
-                const fetchedSolves = await dbReader.getSolvesByDisciplineAndSession(userID, selectedDiscipline, selectedSession);
+                const fetchedSolves: StatlessSolve[] = await dbReader.getSolvesByDisciplineAndSession(userID, selectedDiscipline, selectedSession);
                 if (mounted) {
-                    setRawSolves(fetchedSolves);
+                    setStatlessSolvesChrono(fetchedSolves);
                     const newScramble: string = await generateScramble(EVENT_TO_SCRAMBLE_KEY.get(selectedDiscipline));
                     setCurrentScramble(newScramble);
                     setHasFetched(true);
@@ -66,7 +67,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         const solveStatus: Status = dnf ? Status.DNF : Status.Valid;
 
         try {
-            const newSolve = await dbWriter.insertSolve({
+            const newSolve: StatlessSolve = await dbWriter.insertSolve({
                 uuid: userID,
                 duration: finalTime,
                 date: new Date(),
@@ -76,7 +77,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
                 session: "default"
             });
 
-            setRawSolves(prev => [newSolve, ...prev]);
+            setStatlessSolvesChrono(prev => [newSolve, ...prev]);
 
             const newScramble: string = await generateScramble(EVENT_TO_SCRAMBLE_KEY.get(selectedDiscipline));
             setCurrentScramble(newScramble);
@@ -92,19 +93,19 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
 
     const deleteSolve = useCallback((solvePk: bigint, uuid: string) => {
         dbWriter.deleteSolve(solvePk, uuid);
-        setRawSolves(prev => prev.filter(s => s.pk !== solvePk));
+        setStatlessSolvesChrono(prev => prev.filter(s => s.pk !== solvePk));
     }, []);
 
-    const updateSolveStatus = useCallback((oldSolve: ISolve, newStatus: Status) => {
+    const updateSolveStatus = useCallback((oldSolve: Solve, newStatus: Status) => {
         const updatedSolve = solveWithUpdatedStatus(oldSolve, newStatus);
         dbWriter.updateSolveStatus(updatedSolve);
-        setRawSolves(prev => prev.map(s =>
-            s.id === updatedSolve.id ? updatedSolve : s
+        setStatlessSolvesChrono(prev => prev.map(s =>
+            s.pk === updatedSolve.pk ? updatedSolve : s
         ));
-    }, [rawSolves]);
+    }, [statlessSolvesChrono]);
 
     return {
-        solves,
+        solvesChrono,
         currentScramble,
         isLimitDialogOpen,
         pb,

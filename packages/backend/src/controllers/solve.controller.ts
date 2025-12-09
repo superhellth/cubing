@@ -1,7 +1,7 @@
+import { Discipline, NewSolve, NewSolveSchema, Status } from "@cubing/shared";
 import { Request, Response } from 'express';
-import { pool } from '../config/db';
-import { Discipline, SolveSchema, NewSolveSchema, INewSolve, ISolve, Status } from "@cubing/shared";
 import { z } from "zod";
+import { pool } from '../config/db';
 
 const GetAllSolvesQS = z.object({ uuid: z.uuid() });
 const GetByDisciplineQS = z.object({
@@ -18,7 +18,7 @@ export const GetSolvesByDisciplineAndSession = async (req: Request, res: Respons
             SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
             FROM solves
             WHERE uuid = $1 AND discipline = $2 AND session = $3
-            ORDER BY date DESC`;
+            ORDER BY date ASC`;
 
         const result = await pool.query(queryText, [uuid, discipline, session]);
         res.status(200).json(result.rows);
@@ -32,9 +32,10 @@ export const getAllSolves = async (req: Request, res: Response) => {
     try {
         const { uuid } = GetAllSolvesQS.parse(req.query);
 
+        // Oldest first, newest last
         const queryText = `
             SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
-            FROM solves WHERE uuid = $1 ORDER BY date DESC`;
+            FROM solves WHERE uuid = $1 ORDER BY date ASC`;
 
         const result = await pool.query(queryText, [uuid]);
         res.status(200).json(result.rows);
@@ -46,7 +47,7 @@ export const getAllSolves = async (req: Request, res: Response) => {
 
 export const insertSolve = async (req: Request, res: Response) => {
     try {
-        const solve: INewSolve = NewSolveSchema.parse(req.body.solve);
+        const solve: NewSolve = NewSolveSchema.parse(req.body.solve);
 
         const queryText = `
             INSERT INTO solves(uuid, date, duration, scramble, discipline, status, session) 
@@ -72,7 +73,7 @@ export const updateSolveStatus = async (req: Request, res: Response) => {
         const solvePk = BigInt(req.body.pk);
         const uuid = String(req.body.uuid);
         const status = req.body.status as Status;
-        
+
         const queryText = `
             UPDATE solves SET status = $1 
             WHERE pk = $2 AND uuid = $3

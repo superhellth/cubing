@@ -1,32 +1,32 @@
-import type { ISolve } from '@cubing/shared';
+import type { Solve } from '@cubing/shared';
 import { useMemo } from 'react';
 import { createForecaster, type ForecastModelType } from '../utils/forecaster';
 
 export const useSolvesForecast = (
-    solvesChronologically: ISolve[],
-    predictKeys: string[],
+    solvesChrono: Solve[],
+    predictKeys: (keyof Solve)[],
     predictionHorizon: number,
     modelType: ForecastModelType = 'holts'
 ) => {
     const forecasters = useMemo(() => {
         return predictKeys.map((key) => {
-            const values = solvesChronologically
-                .map((s) => s[key as keyof ISolve])
+            const timeSeries = solvesChrono
+                .map((s) => s[key])
                 .filter((n): n is number => typeof n === 'number');
 
-            return createForecaster(modelType, values);
+            return createForecaster(modelType, timeSeries);
         });
-    }, [solvesChronologically, predictKeys, modelType]);
+    }, [solvesChrono, predictKeys, modelType]);
 
     const { predictedSolves, confidences } = useMemo(() => {
-        if (solvesChronologically.length === 0) return { predictedSolves: [], confidences: [] };
+        if (solvesChrono.length === 0) return { predictedSolves: [], confidences: [] };
 
-        const lastIdx = solvesChronologically.length - 1;
+        const lastIdx = solvesChrono.length - 1;
         const predictions: any[] = Array.from({ length: predictionHorizon }, () => ({}));
         const allConfidences: any[][] = [];
 
         predictKeys.forEach((key, keyIdx) => {
-            const lastValRaw = solvesChronologically[lastIdx][key as keyof ISolve];
+            const lastValRaw = solvesChrono[lastIdx][key];
             const lastVal = typeof lastValRaw === 'number' ? lastValRaw : 0;
 
             const currentConf = [{ y0: lastVal, y1: lastVal }];
@@ -41,7 +41,7 @@ export const useSolvesForecast = (
             allConfidences.push(currentConf);
         });
         return { predictedSolves: predictions, confidences: allConfidences };
-    }, [solvesChronologically, forecasters, predictKeys, predictionHorizon]);
+    }, [solvesChrono, forecasters, predictKeys, predictionHorizon]);
 
     return { predictions: predictedSolves, confidences };
 };

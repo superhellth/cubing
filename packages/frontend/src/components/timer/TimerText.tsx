@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
 import { Box, keyframes } from "@mui/system";
 import { useEffect, useRef, useState } from "react";
-import Timer from "../../utils/timer";
+import { formatTime } from "../../utils/solveUtils";
 
 export enum TimerStatus {
     Idle = "IDLE",
@@ -194,7 +194,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled, pb, res
                     animation: `${shimmerAnimation} 3s linear infinite`,
                 })
             }}>
-                {timerStatus === TimerStatus.Inspecting || (timerStatus === TimerStatus.Ready && inspectionEnabled) ? Math.floor((time % 60000) / 1000) : Timer.formatTime(time)}
+                {timerStatus === TimerStatus.Inspecting || (timerStatus === TimerStatus.Ready && inspectionEnabled) ? Math.floor((time % 60000) / 1000) : formatTime(time)}
             </Typography>
         </Box>
     );

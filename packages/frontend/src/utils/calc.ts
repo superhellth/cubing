@@ -1,18 +1,18 @@
 // utils/averages.ts
 
-import { type ISolve, Status } from "@cubing/shared";
+import { type StatlessSolve, Status } from "@cubing/shared";
 
 // Reusable buffer to prevent memory allocation in the hot loop
 // We assume max window is 1000.
 const buffer = new Float64Array(1000);
 
 export function calculateAverageOptimized(
-    allSolves: ISolve[],
+    allSolves: StatlessSolve[],
     startIndex: number,
     size: number
-): number | null {
+): number | null | undefined {
     // 1. Bounds check
-    if (startIndex + size > allSolves.length) return null;
+    if (startIndex + size > allSolves.length) return undefined;
 
     let dnfCount = 0;
     let validCount = 0;
@@ -30,7 +30,7 @@ export function calculateAverageOptimized(
 
     // 3. DNF Logic (5% rule)
     const trimCount = Math.ceil(size * 0.05);
-    if (dnfCount > trimCount) return -1; // -1 represents DNF result
+    if (dnfCount > trimCount) return null; // -1 represents DNF result
 
     // 4. SPECIAL CASE: Ao5 (Optimization)
     // For Ao5, we don't need to sort (O(N log N)). We just need sum, min, and max (O(N)).
@@ -50,7 +50,6 @@ export function calculateAverageOptimized(
         // In Ao5, trimCount is 1.
         // If 0 DNFs: remove min and max.
         // If 1 DNF: remove min (best). The DNF counts as the max (worst).
-
         if (dnfCount === 0) {
             return (sum - min - max) / 3;
         } else {

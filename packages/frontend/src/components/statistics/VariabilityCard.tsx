@@ -1,4 +1,4 @@
-import type { ISolve } from "@cubing/shared";
+import type { Solve } from "@cubing/shared";
 import LockIcon from '@mui/icons-material/Lock';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import { Box, Typography } from "@mui/material";
@@ -15,17 +15,17 @@ const longFormatter = new Intl.DateTimeFormat('en-US', {
     day: 'numeric'
 });
 
-const VariabilityCard = memo(({ solvesChronological }: any) => {
+const VariabilityCard = memo(({ solvesChrono }: any) => {
     const [dataIndex, setDataIndex] = useState<null | number>(null);
-    const sampledSolves = useDownsampling(solvesChronological, 500, false);
+    const sampledSolves = useDownsampling(solvesChrono, 500, false);
 
     const rollingStd: number[] = useMemo(() => {
         if (windowSize > sampledSolves.length) return [];
         const stds: number[] = [];
         for (let i = windowSize; i < sampledSolves.length; i++) {
             const solvesInWindow = sampledSolves.slice(i - windowSize, i);
-            const meanDuration: number = solvesInWindow.reduce((accumulator: number, solve: ISolve) => accumulator + solve.duration, 0) / windowSize;
-            const sse = solvesInWindow.reduce((accumulator: number, solve: ISolve) => accumulator + (solve.duration - meanDuration) ** 2, 0);
+            const meanDuration: number = solvesInWindow.reduce((accumulator: number, solve: Solve) => accumulator + solve.duration, 0) / windowSize;
+            const sse = solvesInWindow.reduce((accumulator: number, solve: Solve) => accumulator + (solve.duration - meanDuration) ** 2, 0);
             const variance = sse / (windowSize - 1);
             const stdDev = Math.sqrt(variance);
             const consistencyScore = stdDev === 0 ? 100 : (meanDuration / stdDev);

@@ -10,7 +10,6 @@ import DistributionCard from "../components/statistics/DistributionCard";
 import ImprovementChart from "../components/statistics/ImprovementChart";
 import CalculationLoader from "../components/statistics/Loading";
 import VariabilityCard from "../components/statistics/VariabilityCard";
-import usePBStats from "../hooks/usePBStats";
 import { useSolveManager } from "../hooks/useSolveManager";
 import { EVENT_AND_DISCIPLINES_MAP } from "../utils/constants";
 import { useTimerSettings } from "../hooks/useTimerSettings";
@@ -23,14 +22,13 @@ function StatisticsScreen() {
     const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(settings.lastStatDiscipline);
     const [selectedSession] = useState<string>("default");
 
-    const { solves, hasFetched } =
+    const { solvesChrono, hasFetched } =
         useSolveManager(selectedDiscipline, selectedSession);
-    const solvesWithPbs = usePBStats(solves);
 
     useEffect(() => {
         setIsLoading(!hasFetched);
-        setIsLocked(solves.length < 12);
-    }, [hasFetched, solves])
+        setIsLocked(solvesChrono.length < 12);
+    }, [hasFetched, solvesChrono])
 
     return (
         <Box sx={{ height: "100%", padding: 3, bgcolor: theme.palette.primary.main, display: "flex", flexDirection: "column" }}>
@@ -103,16 +101,16 @@ function StatisticsScreen() {
             ) : (
                 <Grid container spacing={2} sx={{ flex: 6 }}>
                     <Grid size={{ xs: 12, md: 9.7 }} sx={{ minHeight: '450px' }}>
-                        <ImprovementChart solves={solvesWithPbs} isLocked={false} />
+                        <ImprovementChart solvesChrono={solvesChrono} isLocked={false} />
                     </Grid>
                     <Grid size={{ xs: 12, md: 2.3 }}>
-                        <DevelopmentCard solves={solvesWithPbs} />
+                        <DevelopmentCard solvesChrono={solvesChrono} />
                     </Grid>
                     <Grid size={{ xs: 12, md: 4.85 }}>
-                        <VariabilityCard solvesChronological={solves} />
+                        <VariabilityCard solvesChrono={solvesChrono} />
                     </Grid>
                     <Grid size={{ xs: 12, md: 4.85 }}>
-                        <DistributionCard solves={solves} />
+                        <DistributionCard solves={solvesChrono} />
                     </Grid>
                     <Grid size={{ xs: 12, md: 2.3 }}>
                         <ActivityCard />

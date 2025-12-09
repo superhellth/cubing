@@ -2,13 +2,9 @@ import { Discipline, inspectionlessDisciplines } from '@cubing/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { TimerStatus } from '../components/timer/TimerText';
 
-export const useTimerLogic = (settings: any, selectedDiscipline: Discipline, reset: boolean) => {
+export const useTimerLogic = (settings: any, selectedDiscipline: Discipline) => {
     const [timerStatus, setTimerStatus] = useState<TimerStatus>(TimerStatus.Idle);
     const [readySince, setReadySince] = useState<number>(-1);
-
-    useEffect(() => {
-        setTimerStatus(TimerStatus.Idle);
-    }, [reset])
 
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
         if (event.code === 'Space') {
