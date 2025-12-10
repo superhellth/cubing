@@ -1,7 +1,7 @@
 import type { Solve } from "@cubing/shared";
 import { LTTB } from "downsample";
 import { useMemo } from "react";
-import { sortChronologically } from "../utils/solveUtils";
+import { sortChronologically } from "../../utils/solveUtils";
 
 interface LTTBPoint {
     x: number;

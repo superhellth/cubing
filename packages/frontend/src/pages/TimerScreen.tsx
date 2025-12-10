@@ -12,7 +12,7 @@ import SolveDetailsScreen from "../components/timer/dialogs/SolveDetailsDialog";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerSettings from "../components/timer/TimerSettings";
 import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
-import { useSolveManager } from "../hooks/useSolveManager";
+import { useSolveManager } from "../hooks/solves/useSolveManager";
 import { useTimerLogic } from "../hooks/useTimerLogic";
 import { useTimerSettings } from "../hooks/useTimerSettings";
 import { getDisplayableTime } from "../utils/solveUtils";

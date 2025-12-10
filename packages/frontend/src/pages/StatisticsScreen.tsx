@@ -10,7 +10,7 @@ import DistributionCard from "../components/statistics/DistributionCard";
 import ImprovementChart from "../components/statistics/ImprovementChart";
 import CalculationLoader from "../components/statistics/Loading";
 import VariabilityCard from "../components/statistics/VariabilityCard";
-import { useSolveManager } from "../hooks/useSolveManager";
+import { useSolveManager } from "../hooks/solves/useSolveManager";
 import { EVENT_AND_DISCIPLINES_MAP } from "../utils/constants";
 import { useTimerSettings } from "../hooks/useTimerSettings";
 

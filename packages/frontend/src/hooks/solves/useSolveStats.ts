@@ -10,7 +10,7 @@ export function useSolveStats(solves: StatlessSolve[]) {
         // Initialize the worker
         // 'import.meta.url' is standard in Vite/Webpack 5
         workerRef.current = new Worker(
-            new URL('../utils/stats.worker.ts', import.meta.url),
+            new URL('../../utils/stats.worker.ts', import.meta.url),
             { type: 'module' }
         );
 

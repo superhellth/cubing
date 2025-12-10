@@ -4,13 +4,13 @@ import { LinearRegression } from "./linearRegression";
 // defined in your types file or at the top of the hook file
 export type ForecastModelType = 'holts' | 'linear';
 
-interface IForecaster {
+interface Forecaster {
     update(value: number): void;
     predictInterval(steps: number, confidence: number): { forecast: number, lower: number, upper: number };
 }
 
 // Factory to unify creation logic
-export const createForecaster = (type: ForecastModelType, values: number[]): IForecaster => {
+export const createForecaster = (type: ForecastModelType, values: number[]): Forecaster => {
     if (type === 'holts') {
         // Holt's specific: Optimize parameters first
         const { alpha, beta } = HoltsLinear.optimize(values);

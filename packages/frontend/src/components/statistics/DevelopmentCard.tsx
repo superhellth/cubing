@@ -2,7 +2,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { Divider, FormControl, ToggleButton, ToggleButtonGroup, Typography, useTheme } from "@mui/material";
 import { Box, Grid } from "@mui/system";
 import { useMemo, useState } from 'react';
-import useImprovementStats from '../../hooks/useImprovementStats';
+import useImprovementStats from '../../hooks/solves/useImprovementStats';
 import { GraphCard } from "../GraphCard";
 import TrendCard from './TrendCard';
 

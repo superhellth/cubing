@@ -1,9 +1,9 @@
 import { Discipline, Status, type Solve, type StatlessSolve } from "@cubing/shared";
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import DBReader from '../services/dbReader';
-import DBWriter from '../services/dbWriter';
-import { EVENT_TO_SCRAMBLE_KEY } from "../utils/constants";
-import { generateScramble, solveWithUpdatedStatus } from '../utils/solveUtils';
+import DBReader from '../../services/dbReader';
+import DBWriter from '../../services/dbWriter';
+import { EVENT_TO_SCRAMBLE_KEY } from "../../utils/constants";
+import { generateScramble, solveWithUpdatedStatus } from '../../utils/solveUtils';
 import { useSolveStats } from './useSolveStats';
 
 const dbWriter = DBWriter.instance;

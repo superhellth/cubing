@@ -1,6 +1,8 @@
 import type { Solve } from '@cubing/shared';
 import { useMemo } from 'react';
-import { createForecaster, type ForecastModelType } from '../utils/forecaster';
+import { createForecaster, type ForecastModelType } from '../../utils/prediction/forecaster';
+
+
 
 export const useSolvesForecast = (
     solvesChrono: Solve[],
@@ -8,6 +10,7 @@ export const useSolvesForecast = (
     predictionHorizon: number,
     modelType: ForecastModelType = 'holts'
 ) => {
+
     const forecasters = useMemo(() => {
         return predictKeys.map((key) => {
             const timeSeries = solvesChrono
@@ -18,12 +21,12 @@ export const useSolvesForecast = (
         });
     }, [solvesChrono, predictKeys, modelType]);
 
-    const { predictedSolves, confidences } = useMemo(() => {
+    const { predictions, confidences } = useMemo(() => {
         if (solvesChrono.length === 0) return { predictedSolves: [], confidences: [] };
 
         const lastIdx = solvesChrono.length - 1;
         const predictions: any[] = Array.from({ length: predictionHorizon }, () => ({}));
-        const allConfidences: any[][] = [];
+        const confidences: any[][] = [];
 
         predictKeys.forEach((key, keyIdx) => {
             const lastValRaw = solvesChrono[lastIdx][key];
@@ -38,10 +41,10 @@ export const useSolvesForecast = (
                 predictions[i][key] = forecast === 0 ? null : forecast;
                 currentConf.push({ y0: lower, y1: upper });
             }
-            allConfidences.push(currentConf);
+            confidences.push(currentConf);
         });
-        return { predictedSolves: predictions, confidences: allConfidences };
+        return { predictions, confidences };
     }, [solvesChrono, forecasters, predictKeys, predictionHorizon]);
 
-    return { predictions: predictedSolves, confidences };
+    return { predictions, confidences };
 };

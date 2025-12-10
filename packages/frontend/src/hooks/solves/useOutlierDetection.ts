@@ -1,7 +1,7 @@
-import type { ISolve } from "@cubing/shared";
+import type { Solve } from "@cubing/shared";
 import { useMemo } from "react";
 
-export const useOutlierDetection = (solves: ISolve[]) => {
+export const useOutlierDetection = (solves: Solve[]) => {
     return useMemo(() => {
         if (solves.length < 4) return { valid: solves, outliers: [] };
 
@@ -17,8 +17,8 @@ export const useOutlierDetection = (solves: ISolve[]) => {
         const lowerFence = q1 - (1.5 * iqr);
         const upperFence = q3 + (1.5 * iqr);
 
-        const nonOutliers: ISolve[] = [];
-        const outliers: ISolve[] = [];
+        const nonOutliers: Solve[] = [];
+        const outliers: Solve[] = [];
 
         for (const solve of solves) {
             if (solve.duration >= lowerFence && solve.duration <= upperFence) {

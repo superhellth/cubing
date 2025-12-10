@@ -1,7 +1,7 @@
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { BarChart } from "@mui/x-charts";
 import { useMemo } from "react";
-import { useOutlierDetection } from "../../hooks/useOutlierDetection";
+import { useOutlierDetection } from "../../hooks/solves/useOutlierDetection";
 import { formatTime } from '../../utils/solveUtils';
 import { GraphCard } from "../GraphCard";
 

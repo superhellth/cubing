@@ -4,7 +4,7 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import { Box, Typography } from "@mui/material";
 import { areaElementClasses, chartsAxisHighlightClasses, lineElementClasses, SparkLineChart } from "@mui/x-charts";
 import { memo, useMemo, useState } from "react";
-import useDownsampling from "../../hooks/useDownsampling";
+import useDownsampling from "../../hooks/solves/useDownsampling";
 import theme from "../../styles/theme";
 import { GraphCard } from "../GraphCard";
 
