@@ -1,4 +1,4 @@
-import { getGrossDuration, Status, type Solve } from "@cubing/shared";
+import { getGrossDuration, SOLVE_STATS_KEYS, Status, type Solve, type SolveStats } from "@cubing/shared";
 import { randomScrambleForEvent } from "cubing/scramble";
 
 export async function generateScramble(event: string = "333") {
@@ -6,11 +6,12 @@ export async function generateScramble(event: string = "333") {
 }
 
 export function formatTime(ms: number | null | undefined) {
+    // console.log(ms)
     if (ms == 0) {
         return "0.00";
     }
     if (!ms) {
-        return "";
+        return " - ";
     }
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
@@ -23,6 +24,7 @@ export function formatTime(ms: number | null | undefined) {
 };
 
 export function getDisplayableTime(solve: Solve, key: keyof Solve) {
+    if (solve === undefined) return " - "
     let time = solve[key];
     if (key === "duration") {
         time = solve.grossDuration;
@@ -47,4 +49,13 @@ export function sortChronologically(solves: Solve[], order = "asc") {
     } else {
         return solves.sort((a: Solve, b: Solve) => { return b.date.getTime() - a.date.getTime() })
     }
+}
+
+export function solvesToTimeSeries(solves: Solve[]): Map<keyof SolveStats, number[]> {
+    return new Map<keyof SolveStats, number[]>(
+        SOLVE_STATS_KEYS.map(key => [
+            key,
+            solves.map(solve => solve[key]).filter(v => v != null)
+        ])
+    );
 }

@@ -34,7 +34,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
     onSolveTableVisibilityChange: Function
 }) => {
     const theme = useTheme();
-    const latestSolve = solves?.[0];
+    const latestSolve = solves?.[solves.length - 1];
 
     const bestStats: any = useMemo(() => {
         const stats: Stats = { duration: null, avg5: null, avg12: null, avg100: null, avg1000: null };
@@ -53,7 +53,6 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
             updateBest('avg100', s.avg100);
             updateBest('avg1000', s.avg1000);
         }
-        // console.log(stats)
         return stats;
     }, [solves]);
 
@@ -157,7 +156,6 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
                             border: "1px solid #333333",
                             borderRadius: "8px",
                             display: "flex",
-                            // bgcolor: "red"
                         }}>
                             <SolvesTable solves={solves} bestStats={bestStats} openSolveDetailsScreen={openSolveDetailsScreen} />
                         </Paper>

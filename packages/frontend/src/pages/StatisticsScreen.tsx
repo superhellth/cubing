@@ -44,7 +44,7 @@ function StatisticsScreen() {
                             <Select
                                 value={selectedDiscipline}
                                 variant="standard"
-                                onChange={(event: any) => { setSelectedDiscipline(event.target.value); updateSetting("lastStatDiscipline", event.target.value)}}
+                                onChange={(event: any) => { setSelectedDiscipline(event.target.value); updateSetting("lastStatDiscipline", event.target.value) }}
                                 renderValue={(selected) => selected}
                                 sx={{
                                     '.MuiSelect-icon': {
@@ -74,7 +74,9 @@ function StatisticsScreen() {
             </Box>
             {isLoading || isLocked ? (
                 <>
-                    {isLocked ? (
+                    {isLoading ? (
+                        <CalculationLoader />
+                    ) : (
                         <Card
                             sx={{
                                 display: 'flex',
@@ -94,8 +96,6 @@ function StatisticsScreen() {
                             <LockIcon sx={{ fontSize: 40, color: "grey.500", mb: 1 }} />
                             <Typography variant="h4">Cube some more to unlock your stats for this category.</Typography>
                         </Card>
-                    ) : (
-                        <CalculationLoader />
                     )}
                 </>
             ) : (

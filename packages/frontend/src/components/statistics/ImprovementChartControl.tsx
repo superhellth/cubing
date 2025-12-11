@@ -118,22 +118,14 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                                     onChange={handleSampleThresholdChange}
                                     sx={{
                                         justifyContent: 'center',
-                                        // bgcolor: "blue",
-                                        // p: 0,
                                     }}
                                 >
                                     <ToggleButton value={100} >
                                         Min
                                     </ToggleButton>
-                                    {/* <ToggleButton value={numSolves / 100}>
-                                        Some
-                                    </ToggleButton> */}
                                     <ToggleButton value={mediumSamplingLimit}>
                                         Medium
                                     </ToggleButton>
-                                    {/* <ToggleButton value={numSolves / 3}>
-                                        Lots
-                                    </ToggleButton> */}
                                     <ToggleButton value={numSolves}>
                                         Max
                                     </ToggleButton>

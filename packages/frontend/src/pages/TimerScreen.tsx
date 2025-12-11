@@ -1,4 +1,4 @@
-import { Discipline, inspectionlessDisciplines, Status, type Solve } from "@cubing/shared";
+import { Discipline, inspectionlessDisciplines, type Solve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { Divider, Typography } from "@mui/material";
@@ -12,6 +12,7 @@ import SolveDetailsScreen from "../components/timer/dialogs/SolveDetailsDialog";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerSettings from "../components/timer/TimerSettings";
 import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
+import usePercentile from "../hooks/solves/usePercentile";
 import { useSolveManager } from "../hooks/solves/useSolveManager";
 import { useTimerLogic } from "../hooks/useTimerLogic";
 import { useTimerSettings } from "../hooks/useTimerSettings";
@@ -24,6 +25,7 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const { solvesChrono, addSolve, deleteSolve, updateSolveStatus, currentScramble, pb } =
         useSolveManager(selectedDiscipline, "default");
+    const percentile = usePercentile(solvesChrono);
     const [reset, setReset] = useState(false);
     const { timerStatus } = useTimerLogic(
         settings,
@@ -36,13 +38,6 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                 || (timerStatus !== TimerStatus.Ready && !settings.inspection))
     }, [settings, timerStatus]);
 
-    const percentile = useMemo(() => {
-        if (solvesChrono.length <= 1) return 100;
-        if (solvesChrono[0].status === Status.DNF) return 0;
-        const slowerSolvesCount = solvesChrono.filter(s => s.duration > solvesChrono[0].duration || s.status === Status.DNF).length;
-        const rawPercent = (slowerSolvesCount / (solvesChrono.length - 1)) * 100;
-        return Math.round(rawPercent);
-    }, [solvesChrono]);
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [selectedSolve, setSelectedSolve] = useState<Solve | null>();
     const [solveTableVisible, setSolveTableVisible] = useState(true);
@@ -90,11 +85,11 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
                     visibility: hideElements ? "hidden" : "visible", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center"
                 }}>
                     <Typography sx={{ fontSize: "3rem", color: "info.light" }}>
-                        Ao5: {solvesChrono[0]?.avg5 ? getDisplayableTime(solvesChrono[0], "avg5") : "-"}
+                        Ao5: {getDisplayableTime(solvesChrono[solvesChrono.length - 1], "avg5")}
                     </Typography>
                     <Divider orientation="vertical" sx={{ m: "1.5rem", height: "3rem" }} />
                     <Typography sx={{ fontSize: "3rem", color: "info.dark" }}>
-                        Ao12: {solvesChrono[0]?.avg12 ? getDisplayableTime(solvesChrono[0], "avg12") : "-"}
+                        Ao12: {getDisplayableTime(solvesChrono[solvesChrono.length - 1], "avg12")}
                     </Typography>
                 </Box>
                 <Box sx={{ flex: 5, visibility: hideElements ? "hidden" : "visible", width: "100%", alignContent: "flex-end" }}>

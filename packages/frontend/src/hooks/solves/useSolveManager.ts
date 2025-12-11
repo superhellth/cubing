@@ -77,7 +77,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
                 session: "default"
             });
 
-            setStatlessSolvesChrono(prev => [newSolve, ...prev]);
+            setStatlessSolvesChrono(prev => [...prev, newSolve]);
 
             const newScramble: string = await generateScramble(EVENT_TO_SCRAMBLE_KEY.get(selectedDiscipline));
             setCurrentScramble(newScramble);

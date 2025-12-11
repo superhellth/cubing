@@ -16,7 +16,7 @@ const AvgGraphs = memo(({ solves, settings }: { solves: Solve[], settings: any }
     const displayHorizon: number = useMemo(() => { return settings.avgGraphNumSolves }, [settings]);
 
     const chartData = useMemo(() => {
-        const chronologicalSolves = [...solves].reverse().slice(-Math.min(displayHorizon, solves.length));
+        const chronologicalSolves = solves.slice(-Math.min(displayHorizon, solves.length));
         const foundIndex = chronologicalSolves.findIndex(solve =>
             display.some(key => solve[key as keyof Solve] != null)
         );

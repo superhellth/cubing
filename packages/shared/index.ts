@@ -73,14 +73,20 @@ const BaseStatlessSolveSchema = z.object({
 export const StatlessSolveSchema = BaseStatlessSolveSchema.transform(computeGrossDuration);
 export type StatlessSolve = z.infer<typeof StatlessSolveSchema>;
 
-const BaseSolveSchema = z.object({
-    ...BaseStatlessSolveSchema.shape,
+const SolveStatsSchema = z.object({
     avg5: z.number().nullable().optional(),
     avg12: z.number().nullable().optional(),
     avg100: z.number().nullable().optional(),
     avg1000: z.number().nullable().optional(),
-    newPB: z.boolean(),
-    pb: z.number()
+    pb: z.number(),
+});
+export type SolveStats = z.infer<typeof SolveStatsSchema>;
+export const SOLVE_STATS_KEYS: (keyof SolveStats)[] = ["avg5", "avg12", "avg100", "avg1000", "pb"]
+
+const BaseSolveSchema = z.object({
+    ...BaseStatlessSolveSchema.shape,
+    ...SolveStatsSchema.shape,
+    newPB: z.boolean()
 });
 export const SolveSchema = BaseSolveSchema.transform(computeGrossDuration);
 export type Solve = z.infer<typeof SolveSchema>;

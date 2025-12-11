@@ -1,4 +1,4 @@
-import type { ISolve } from '@cubing/shared';
+import type { Solve } from '@cubing/shared';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, useTheme, type SortDirection } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import { TableVirtuoso } from 'react-virtuoso';
@@ -6,7 +6,7 @@ import { SolveRow } from './SolveRow';
 import { HEAD_CELLS } from './TimeDisplay';
 
 interface SolvesTableProps {
-    solves: ISolve[],
+    solves: Solve[],
     bestStats: any,
     openSolveDetailsScreen: any
 }
@@ -73,10 +73,6 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                     <Table
                         {...props}
                         stickyHeader
-                    // sx={{
-                    //     tableLayout: 'fixed',
-                    //     userSelect: "none",
-                    // }}
                     />
                 ),
                 TableHead: TableHead,
@@ -85,10 +81,8 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                         '& .MuiTableCell-root': {
                             textAlign: 'right',
                             fontSize: '1.05rem',
-                            // p: 0,
                             fontFamily: "IBM Plex Mono",
                         },
-                        // '&:last-child': { paddingRight: '16px', },
                     }} />
                 )),
                 TableRow: (props) => {
@@ -141,7 +135,6 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                     direction={orderBy === headCell.id ? (order === 'desc' ? 'desc' : 'asc') : "asc"}
                                     onClick={() => handleSortRequest(headCell.id)}
                                     sx={{
-                                        // flexDirection: "row-reverse",
                                         margin: 0,
                                         padding: 0,
                                         maxWidth: "60px",
@@ -161,7 +154,6 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                 </TableRow>
             )}
 
-            // 3. Define the Row Content
             itemContent={(_index, solve) => (
                 <SolveRow
                     solve={solve}

@@ -17,17 +17,7 @@ const DistributionCard = ({ solves }: any) => {
 
         // 2. Define "Pretty" Bin Sizes (in milliseconds)
         // These are the steps that look clean on a graph axis.
-        const PRETTY_SIZES = [
-            100,   // 0.1s (Precision speedsolving)
-            250,   // 0.25s
-            500,   // 0.5s
-            1000,  // 1s
-            2000,  // 2s
-            5000,  // 5s
-            10000, // 10s
-            30000, // 30s
-            60000  // 1m
-        ];
+        const PRETTY_SIZES = [100, 250, 500, 1000, 2000, 5000, 10000, 30000, 60000];
         const TARGET_BAR_COUNT = 30;
         const idealBinSize = rawRange / TARGET_BAR_COUNT;
         let binSize = PRETTY_SIZES.find(size => size >= idealBinSize) || PRETTY_SIZES[PRETTY_SIZES.length - 1];

@@ -15,21 +15,21 @@ import theme from './styles/theme';
 
 const dbReader: DBReader = DBReader.instance;
 
-// function useWindowWidth() {
-//   const [width, setWidth] = useState(window.innerWidth);
+function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
 
-//   useEffect(() => {
-//     const handleResize = () => setWidth(window.innerWidth);
-//     window.addEventListener('resize', handleResize);
-//     return () => window.removeEventListener('resize', handleResize);
-//   }, []);
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-//   return width;
-// }
+  return width;
+}
 
 function App() {
-  // const width = useWindowWidth();
-  // const isMobile = width <= 768;
+  const width = useWindowWidth();
+  const isMobile = width <= 768;
   const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);
   const [backendOnline, setBackendOnline] = useState(true);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(lastSelectedDiscipline);
@@ -60,10 +60,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {backendOnline ? (
-
-        <Box sx={{
-          width: "100%", height: "100%", bgcolor: "primary.main", display: "flex", gridAutoFlow: 'column', gridTemplateRows: '100%'
-        }}>
+        <Box sx={{ width: "100%", height: "100%", bgcolor: theme.palette.primary.main, display: "flex" }}>
           <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} isVisible={sidebarVisible} />
           <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
             <Routes>

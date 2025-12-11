@@ -1,5 +1,5 @@
 import { Discipline } from "@cubing/shared";
-import { useState } from "react";
+import { useLocalStorage } from "./useLocalStorage"; // Import your utility
 
 const defaultSettings = {
     inspection: false,
@@ -12,28 +12,15 @@ const defaultSettings = {
 };
 
 export const useTimerSettings = () => {
-    const [settings, setSettings] = useState(() => {
-        try {
-            const item = localStorage.getItem("appSettings");
-            return item ? { ...defaultSettings, ...JSON.parse(item) } : defaultSettings;
-        } catch (error) {
-            console.error(error);
-            return defaultSettings;
-        }
-    });
-
-    const updateSetting = (key: string, value: any) => {
-        setSettings((prev: any) => {
-            const newSettings = { ...prev, [key]: value };
-            try {
-                localStorage.setItem("appSettings", JSON.stringify(newSettings));
-            } catch (error) {
-                console.error("Failed to save settings to LocalStorage", error);
-            }
-
-            return newSettings;
-        });
+    const [storedSettings, setStoredSettings] = useLocalStorage("appSettings", defaultSettings);
+    const settings = { ...defaultSettings, ...storedSettings };
+    
+    const updateSetting = (key: keyof typeof defaultSettings, value: any) => {
+        setStoredSettings((prev: any) => ({
+            ...prev,
+            [key]: value
+        }));
     };
 
-    return { settings, updateSetting }
+    return { settings, updateSetting };
 }

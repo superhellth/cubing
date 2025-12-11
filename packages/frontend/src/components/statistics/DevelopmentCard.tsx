@@ -10,7 +10,7 @@ const displayed = ["duration", "pb", "avg5", "avg12", "avg100", "avg1000"];
 
 const DevelopmentCard = ({ solvesChrono }: any) => {
     if (solvesChrono.length <= 0) return null;
-    const recentSolve = solvesChrono[0];
+    const recentSolve = solvesChrono[solvesChrono.length - 1];
     const theme = useTheme();
     const [timeFrame, setTimeFrame] = useState("recent");
     const trends = useImprovementStats(solvesChrono);

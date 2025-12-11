@@ -10,13 +10,12 @@ export const ImprovementChartLegend = ({ series }: LegendProps) => {
     const visibleSeries = series.filter(s => s.id !== "pb-scatter");
 
     return (
-        <Stack direction="row" spacing={2} justifyContent="center" mb={1} sx={{margin: 0}}>
+        <Stack direction="row" spacing={2} justifyContent="center" mb={1} sx={{ margin: 0 }}>
             {visibleSeries.map((item) => (
                 <Stack key={item.id} direction="row" alignItems="center" spacing={1}>
                     <Box sx={{
                         width: 20,
                         height: 3,
-                        // Handle the dashed style logic here cleanly
                         ...(item.id === "pb-line" ? {
                             background: `repeating-linear-gradient(90deg, ${item.color}, ${item.color} 5px, transparent 5px, transparent 9px)`
                         } : {
