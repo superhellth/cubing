@@ -17,16 +17,15 @@ import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { Box, Stack, useTheme } from "@mui/system";
+import { useTimerSettings } from "../../hooks/TimerSettingsContext";
 
 const AVERAGE_DISPLAY_ORDER = ["avg5", "avg12", "avg100", "avg1000", "pb"];
 
-function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: boolean, onClose: Function, settings: any, updateSetting: Function }) {
+function TimerSettings({ isOpen, onClose }: { isOpen: boolean, onClose: Function }) {
     const theme = useTheme();
+    const { settings, updateSetting } = useTimerSettings();
 
     const handleDisplayChange = (event: any) => {
-        // console.log(event.target.value)
-        // const { target: { value } } = event;
-        // const newDisplaySelection: any = typeof value === 'string' ? value.split(',') : value;
         const sortedSelection = AVERAGE_DISPLAY_ORDER.filter(item => event.target.value.includes(item));
 
         updateSetting('avgGraphDisplay', sortedSelection);
@@ -77,6 +76,16 @@ function TimerSettings({ isOpen, onClose, settings, updateSetting }: { isOpen: b
                                     />
                                 }
                                 label="Hide all elements while solving"
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={settings.clickToTime}
+                                        color="info"
+                                        onChange={(e) => { updateSetting('clickToTime', e.target.checked); }}
+                                    />
+                                }
+                                label="Use Mouse Timer"
                             />
                             <TextField
                                 label="Preparation Timer"

@@ -12,7 +12,7 @@ import CalculationLoader from "../components/statistics/Loading";
 import VariabilityCard from "../components/statistics/VariabilityCard";
 import { useSolveManager } from "../hooks/solves/useSolveManager";
 import { EVENT_AND_DISCIPLINES_MAP } from "../utils/constants";
-import { useTimerSettings } from "../hooks/useTimerSettings";
+import { useTimerSettings } from "../hooks/TimerSettingsContext";
 
 function StatisticsScreen() {
     const theme = useTheme();

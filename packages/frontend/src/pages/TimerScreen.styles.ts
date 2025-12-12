@@ -1,10 +1,9 @@
 import { Typography } from "@mui/material";
 import { Box, styled } from "@mui/system";
 
-export const ScreenContainer = styled(Box)(({ theme }) => ({
+export const ScreenContainer = styled(Box)<any>(({ theme, isMobile }) => ({
     display: 'flex',
-    flexDirection: "row",
-    // justifyContent: 'space-between',
+    flexDirection: isMobile ? "column" : "row",
     
     backgroundColor: theme.palette.primary.main,
     height: '100%',

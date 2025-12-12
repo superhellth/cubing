@@ -11,8 +11,8 @@ import StatisticsScreen from './pages/StatisticsScreen';
 import TimerScreen from './pages/TimerScreen';
 import DBReader from './services/dbReader';
 import theme from './styles/theme';
-import SidebarDesktop from './components/navigation/Sidebar.desktop';
 import Sidebar from './components/navigation/Sidebar';
+import { TimerSettingsProvider } from './hooks/TimerSettingsContext';
 
 const dbReader: DBReader = DBReader.instance;
 
@@ -50,19 +50,21 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {backendOnline ? (
-        <Box sx={{ width: "100%", height: "100%", bgcolor: theme.palette.primary.main, display: "flex" }}>
-          <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} isVisible={sidebarVisible} isMobile={isMobile} />
-          <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
-            <Routes>
-              <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)} />} />
-              <Route path="/stats" element={<StatisticsScreen />} />
-              <Route path="/privacy-policy" element={<Licenses />} />
-            </Routes>
+      <TimerSettingsProvider>
+        <CssBaseline />
+        {backendOnline ? (
+          <Box sx={{ width: "100%", height: "100%", bgcolor: theme.palette.primary.main, display: "flex" }}>
+            <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} isVisible={sidebarVisible} isMobile={isMobile} />
+            <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
+              <Routes>
+                <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)} />} />
+                <Route path="/stats" element={<StatisticsScreen />} />
+                <Route path="/privacy-policy" element={<Licenses />} />
+              </Routes>
+            </Box>
           </Box>
-        </Box>
-      ) : (<h1>There seems to be something wrong</h1>)}
+        ) : (<h1>There seems to be something wrong</h1>)}
+      </TimerSettingsProvider>
     </ThemeProvider >
   )
 }

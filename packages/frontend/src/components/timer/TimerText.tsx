@@ -1,5 +1,5 @@
 import Typography from "@mui/material/Typography";
-import { Box, keyframes } from "@mui/system";
+import { Box, keyframes, useMediaQuery, useTheme } from "@mui/system";
 import { useEffect, useRef, useState } from "react";
 import { formatTime } from "../../utils/solveUtils";
 
@@ -31,11 +31,13 @@ interface Props {
 const inspectionTime: number = 15000;
 
 function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled, pb, reset }: Props) {
+    const theme = useTheme();
     const [time, setTime] = useState<number>(0);
     const startTimeRef = useRef<number>(0);
     const requestRef = useRef<number>(undefined);
     const checkerRef = useRef<number>(undefined);
     const [pbTrigger, setPbTrigger] = useState<boolean>(false);
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         startTimeRef.current = 0;
@@ -176,7 +178,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled, pb, res
                 WebkitFontSmoothing: "antialiased",
                 MozOsxFontSmoothing: "none",
                 fontSmooth: "antialiased",
-                fontSize: "15rem",
+                fontSize: isMobile ? "6rem" : "15rem",
                 fontFamily: "'DSEG7 Classic', monospace",
                 width: "100%",
                 display: "block",
@@ -185,7 +187,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled, pb, res
                 color: pbTrigger ? "transparent" : getColor(),
                 userSelect: "none",
                 ...(pbTrigger && {
-                    background: "linear-gradient(110deg, #009aa3 30%, #ffffff 50%, #009aa3 70%)", // Widened stops (30-70 instead of 40-60)
+                    background: "linear-gradient(110deg, #009aa3 30%, #ffffff 50%, #009aa3 70%)",
                     backgroundSize: "200% auto",
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
