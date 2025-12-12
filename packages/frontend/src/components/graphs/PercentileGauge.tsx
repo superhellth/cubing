@@ -5,7 +5,7 @@ import {
     GaugeValueArc,
     gaugeClasses,
 } from '@mui/x-charts/Gauge';
-import { getTrafficLightColor } from '../../styles/stylesUtils';
+import { getTrafficLightColor } from '../../styles/styleUtils';
 import GaugePointer from './GaugePointer';
 
 interface PercentileGaugeProps {

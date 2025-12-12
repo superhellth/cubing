@@ -57,7 +57,7 @@ const AvgGraphs = memo(({ solves, settings }: { solves: Solve[], settings: any }
                         ? (date: Date) => date.toLocaleDateString()
                         : (v: number) => v.toString()
                 }]}
-                yAxis={[{ label: 'Time (s)', valueFormatter: (v: number) => (v / 1000).toFixed(0) }]}
+                yAxis={[{ label: 'Time (s)', valueFormatter: (v: number) => (v / 1000).toFixed(0), domainLimit: "strict" }]}
                 slotProps={{
                     legend: {
                         position: {

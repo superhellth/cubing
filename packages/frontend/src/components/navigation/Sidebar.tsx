@@ -1,156 +1,16 @@
-import { Discipline } from '@cubing/shared';
-import AlarmFilledIcon from '@mui/icons-material/Alarm';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
-import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
-import { alpha, Box, Fade, IconButton, Paper, useTheme } from '@mui/material';
-import { useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
-import HCButton from '../HCButton';
-import DisciplineButton from './DisciplineButton';
+import SidebarDesktop from "./Sidebar.desktop";
+import SidebarMobile from "./Sidebar.mobile";
 
-interface SidebarProps {
-    selectedDiscipline: Discipline;
-    onDisciplineChange: (d: Discipline) => void;
-    isVisible: boolean;
-}
-
-export default function Sidebar({ selectedDiscipline, onDisciplineChange, isVisible }: SidebarProps) {
-    const [openDrawer, setOpenDrawer] = useState(false);
-    const navigate = useNavigate();
-    const location = useLocation();
-    const theme = useTheme();
-    const [isScrolling, setIsScrolling] = useState(false);
-    const scrollTimeout: any = useRef(null);
-
-    const handleScroll = () => {
-        if (!isScrolling) setIsScrolling(true);
-
-        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-        scrollTimeout.current = setTimeout(() => {
-            setIsScrolling(false);
-        }, 150);
-    };
-    const handleDisciplineClick = (disc: Discipline) => {
-        setOpenDrawer(false);
-        onDisciplineChange(disc);
-    };
-
+export default function Sidebar({ selectedDiscipline, onDisciplineChange, isMobile, isVisible }: any) {
 
     return (
-        <Box component="nav" sx={{ display: "flex", visibility: isVisible ? "visible" : "hidden", position: "relative", padding: "16px" }}>
-            {/* Main Vertical Bar */}
-            <Paper sx={{
-                width: "75px",
-                borderRadius: "24px",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-around",
-                bgcolor: theme.palette.secondary.main,
-                zIndex: 20,
-                position: "relative"
-            }}>
-                <Box>
-                    <HCButton isSelected={location.pathname === "/"} onClick={() => navigate("/")}>
-                        <AlarmFilledIcon sx={{ fontSize: 30 }} />
-                    </HCButton>
-                    <IconButton sx={{ borderRadius: 0, height: 20, color: theme.palette.info.dark }} disabled={location.pathname !== "/"}
-                        onClick={() => { if (location.pathname !== "/") { navigate("/") } else { setOpenDrawer(!openDrawer) } }}>
-                        <KeyboardArrowRightIcon sx={{
-                            fontSize: 20,
-                            transform: openDrawer ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                        }} />
-                    </IconButton>
-                </Box>
-                <HCButton onClick={() => { setOpenDrawer(false); navigate("/stats") }} isSelected={location.pathname === "/stats"}>
-                    <QueryStatsOutlinedIcon sx={{ fontSize: 30 }} />
-                </HCButton>
-                <IconButton
-                    onClick={() => window.open('/privacy-policy', '_blank')}
-                    sx={{
-                        textTransform: 'none',
-                        fontSize: '0.85rem',
-                        fontWeight: 500,
-                        color: 'text.secondary',
-                        borderRadius: '20px',
-                        padding: 0,
-                        // minWidth: 'auto',
-                        position: "absolute",
-                        bottom: "5px",
-                        left: "27px",
-                        transition: 'all 0.3s ease, visibility 0s',
-                        border: '1px solid transparent',
-
-                        '&:hover': {
-                            color: '#fff', // Text turns white
-                            backgroundColor: 'rgba(255, 255, 255, 0.08)', // Subtle glass background
-                            backdropFilter: 'blur(4px)', // Blurs what's behind it (modern feel)
-                            borderColor: 'rgba(255, 255, 255, 0.1)', // Faint border appears
-                            transform: 'translateY(-1px)', // Tiny lift effect
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)' // Soft shadow
-                        },
-
-                        // 5. Active/Click State
-                        '&:active': {
-                            transform: 'translateY(0px)',
-                            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                        }
-                    }}
-                >
-                    <PrivacyTipIcon sx={{ fontSize: '16px !important' }} />
-                </IconButton>
-            </Paper>
-
-            <Fade in={openDrawer} >
-                <Box sx={{
-                    position: "absolute",
-                    zIndex: 10,
-                    left: "103px",
-                    top: "16px",
-                    bottom: "16px",
-                    width: "65px",
-                    borderRadius: "24px",
-                    overflow: "hidden",
-                    background: `linear-gradient(180deg, ${alpha(theme.palette.secondary.main, 0.3)} 0%, ${alpha(theme.palette.secondary.main, 0.1)} 100%)`,
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                    boxShadow: "0px 5px 20px -5px rgba(60,60,60,0.1)"
-                }} >
-                    <Box onScroll={handleScroll} sx={{
-                        height: "100%",
-                        overflowY: "auto",
-                        scrollbarWidth: 'none',
-                        '&::-webkit-scrollbar': { display: 'none' },
-
-                    }}>
-
-                        {[...EVENT_AND_DISCIPLINES_MAP].map(([disc, event]) => (
-                            <DisciplineButton
-                                key={event}
-                                name={event}
-                                size={40}
-                                disc={disc as Discipline}
-                                isSelected={selectedDiscipline === disc}
-                                onClick={handleDisciplineClick}
-                            />
-                        ))}
-                        {/* </Box> */}
-                        <Box sx={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            height: '50px',
-                            borderRadius: "24px",
-                            background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))',
-                            pointerEvents: 'none'
-                        }} />
-                    </Box>
-                    {/* <Divider orientation="vertical" sx={{ bgcolor: theme.palette.secondary.main }} flexItem component="div" /> */}
-                </Box>
-            </Fade>
-        </Box>
+        <>
+            {isMobile ? (
+                <SidebarMobile selectedDiscipline={selectedDiscipline} onDisciplineChange={onDisciplineChange} isVisible={isVisible} />
+            ) : (
+                <SidebarDesktop selectedDiscipline={selectedDiscipline} onDisciplineChange={onDisciplineChange} isVisible={isVisible} />
+            )
+            }
+        </>
     );
 }
