@@ -39,32 +39,27 @@ const TimeDisplayMobile = memo(({ solves, openSolveDetailsScreen, isCollapsed }:
 
 
     return (
-        <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: 'flex-start', height: "100%" }}>
+        <Box sx={{ flex: 20, height: "100%" }}>
+                <CardContent sx={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    // Less padding on mobile
+                    padding: 1,
+                    m: 0
+                }}>
 
-            <SidebarCard isCollapsed={isCollapsed}>
+                    {/* History Table Panel */}
+                    <PanelPaper elevation={0} sx={{ height: "100%", p: 0 }}>
+                        <SolvesTable
+                            solves={solves}
+                            bestStats={bestStats}
+                            openSolveDetailsScreen={openSolveDetailsScreen}
+                        />
+                    </PanelPaper>
 
-                <FadeContent isCollapsed={isCollapsed}>
-                    <CardContent sx={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        // Less padding on mobile
-                        p: { xs: 1, md: 2 }
-                    }}>
-
-                        {/* History Table Panel */}
-                        <PanelPaper elevation={0} sx={{ marginTop: "1.5rem", flex: 4 }}>
-                            <SolvesTable
-                                solves={solves}
-                                bestStats={bestStats}
-                                openSolveDetailsScreen={openSolveDetailsScreen}
-                            />
-                        </PanelPaper>
-
-                    </CardContent>
-                </FadeContent>
-            </SidebarCard>
+                </CardContent>
         </Box>
     );
 });

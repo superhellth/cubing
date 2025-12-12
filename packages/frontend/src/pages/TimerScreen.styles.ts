@@ -4,7 +4,6 @@ import { Box, styled } from "@mui/system";
 export const ScreenContainer = styled(Box)<any>(({ theme, isMobile }) => ({
     display: 'flex',
     flexDirection: isMobile ? "column" : "row",
-    
     backgroundColor: theme.palette.primary.main,
     height: '100%',
     width: '100%',

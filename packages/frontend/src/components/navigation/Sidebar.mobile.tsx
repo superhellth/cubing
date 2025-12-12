@@ -36,16 +36,11 @@ export default function SidebarMobile({ selectedDiscipline, onDisciplineChange, 
                 <MobileDrawerLayout>
                     {/* Mobile Header: Close + Main Nav */}
                     <MobileDrawerHeader>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                            {/* Home */}
-                            <HCButton isSelected={location.pathname === "/"} onClick={() => { navigate("/"); setOpenDrawer(false); }}>
-                                <AlarmFilledIcon sx={{ fontSize: 24 }} />
-                            </HCButton>
-                            {/* Stats */}
-                            <HCButton isSelected={location.pathname === "/stats"} onClick={() => { navigate("/stats"); setOpenDrawer(false); }}>
-                                <QueryStatsOutlinedIcon sx={{ fontSize: 24 }} />
-                            </HCButton>
-                        </Box>
+                        {/* Home */}
+                        <HCButton isSelected={location.pathname === "/"} onClick={() => { navigate("/"); setOpenDrawer(false); }}>
+                            <AlarmFilledIcon sx={{ fontSize: 24 }} />| Timer
+                        </HCButton>
+
                         <IconButton onClick={toggleDrawer} sx={{ color: 'white' }}>
                             <CloseIcon />
                         </IconButton>

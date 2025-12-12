@@ -80,10 +80,7 @@ function TimerScreenMobile({ selectedDiscipline, updateSidebarVisibility }: { se
 
             <Box sx={{
                 visibility: !hideElements ? "visible" : "hidden",
-                flex: solveTableVisible ? 10 : 0,
-                minWidth: !solveTableVisible ? "87px" : 0,
-                transition: "all 0.3s cubic-bezier(0.19, 1, 0.22, 1), visibility 0s",
-                m: "16px 16px",
+                flex: solveTableVisible ? 15 : 0,
             }}>
                 <TimeDisplay solves={solvesChrono} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={!solveTableVisible}
                     onSolveTableVisibilityChange={onSolveTableVisibilityChange} />

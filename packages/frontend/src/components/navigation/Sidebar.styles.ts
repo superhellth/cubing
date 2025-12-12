@@ -128,7 +128,7 @@ export const HamburgerButton = styled(IconButton)(({ theme }) => ({
 
 // 10. The Content Inside the Mobile Drawer
 export const MobileDrawerLayout = styled(Box)(({ theme }) => ({
-    width: 280,
+    width: 200,
     height: '100%',
     backgroundColor: theme.palette.secondary.main,
     padding: theme.spacing(2),
