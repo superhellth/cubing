@@ -4,15 +4,18 @@ import { Box, styled } from "@mui/system";
 export const SidebarCard = styled(Card, {
     shouldForwardProp: (prop) => prop !== 'isCollapsed'
 })<{ isCollapsed: boolean }>(({ theme, isCollapsed }) => ({
+    // backgroundColor: "red",
     backgroundColor: theme.palette.secondary.main,
     borderRadius: "24px",
     border: "1px solid rgba(255, 255, 255, 0.1)",
-    overflow: 'hidden',
+    overflow: 'visible',
     position: "relative",
     
-    width: !isCollapsed ? "100%" : '42px',
-    height: !isCollapsed ? "100%" : '42px',
-    transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1), height 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
+    width: "100%",
+    height: "100%",
+    // width: !isCollapsed ? "100%" : '42px',
+    // height: !isCollapsed ? "100%" : '42px',
+    // transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1), height 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
 }));
 
 export const ToggleButton = styled(IconButton)(({ theme }) => ({
@@ -29,7 +32,7 @@ export const ToggleButton = styled(IconButton)(({ theme }) => ({
 export const FadeContent = styled(Box, {
     shouldForwardProp: (prop) => prop !== 'isCollapsed'
 })<{ isCollapsed: boolean }>(({ isCollapsed }) => ({
-    width: '100%',
+    // width: '100%',
     height: "100%",
     opacity: isCollapsed ? 0 : 1,
     pointerEvents: isCollapsed ? 'none' : 'auto',

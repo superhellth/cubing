@@ -11,7 +11,7 @@ export const ScreenContainer = styled(Box)<any>(({ theme, isMobile }) => ({
 }));
 
 export const TimerPanel = styled(Box)(({ theme }) => ({
-    flex: 35,
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     // backgroundColor: "red",

@@ -60,10 +60,10 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
             components={{
                 Scroller: React.forwardRef((props, ref) => (
                     <TableContainer component={Paper} {...props} ref={ref} sx={{
-                        flex: 1,
                         '&::-webkit-scrollbar': { display: 'none' },
                         scrollbarWidth: 'none',
-                        overflow: 'visible',
+                        width: "max-content",
+                        minWidth: "100%",
                         borderRadius: "8px",
                         bgcolor: "transparent",
                     }} />
@@ -82,6 +82,7 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                             textAlign: 'right',
                             fontSize: '1.05rem',
                             fontFamily: "IBM Plex Mono",
+                            overflow: 'visible',
                         },
                     }} />
                 )),
@@ -101,7 +102,8 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                 '.MuiTableCell-root': {
                                     bgcolor: "transparent"
                                 },
-                                height: "50px"
+                                height: "50px",
+                                overflow: 'visible',
                             }}
                         />
                     );
@@ -124,7 +126,8 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                                     fontSize: '1.3rem',
                                     paddingLeft: 0,
                                     paddingTop: "16px",
-                                    width: "10%",
+                                    overflow: 'visible',
+                                    // width: "10%",
                                     paddingBottom: "16px",
                                     fontWeight: "bold",
                                     bgcolor: theme.palette.primary.main,

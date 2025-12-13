@@ -48,7 +48,9 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
 
 
     return (
-        <Box sx={{ display: "flex", justifyContent: 'flex-end', alignItems: 'flex-start', height: "100%" }}>
+        <Box sx={{
+            display: "flex", justifyContent: 'flex-end', alignItems: 'flex-start', width: "100%", height: "100%", minHeight: "42px"
+        }}>
             <SidebarCard isCollapsed={isCollapsed}>
 
                 <ToggleButton onClick={() => onSolveTableVisibilityChange(isCollapsed)}>
@@ -56,7 +58,7 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
                 </ToggleButton>
 
                 <FadeContent isCollapsed={isCollapsed}>
-                    <CardContent sx={{ width: "100%", height: "100%", display: "flex", flexDirection: "column" }}>
+                    <CardContent sx={{ height: "100%", display: "flex", flexDirection: "column", width: "350px" }}>
                         <Typography variant='h4' sx={{ padding: 2, paddingTop: 0, userSelect: "none" }}>Your Solves</Typography>
                         <PanelPaper elevation={0} sx={{ flex: 1, padding: "1rem" }}>
                             <CompactTable size='small'>

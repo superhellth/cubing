@@ -178,7 +178,7 @@ function TimerDisplay({ timerStatus, onSolveComplete, inspectionEnabled, pb, res
                 WebkitFontSmoothing: "antialiased",
                 MozOsxFontSmoothing: "none",
                 fontSmooth: "antialiased",
-                fontSize: isMobile ? "6rem" : "15rem",
+                fontSize: isMobile ? "6rem" : "12rem",
                 fontFamily: "'DSEG7 Classic', monospace",
                 width: "100%",
                 display: "block",
