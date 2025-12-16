@@ -35,7 +35,7 @@ const ImprovementChart = memo(({
     const lastIndex: number = useMemo(() => { return sampledSolves.length - 1 }, [sampledSolves]);
 
     // Prediction
-    const predictions = useLinearRegression(solvesChrono, display.filter(v => v != "pb"), predictionHorizon);
+    const predictions: any = useLinearRegression(solvesChrono, display.filter(v => v != "pb"), predictionHorizon);
 
     // Chart Configuration
     const { historyAndPredictions, xAxisData, seriesConfig } = useImprovementChartConfig(sampledSolves, predictions, display);

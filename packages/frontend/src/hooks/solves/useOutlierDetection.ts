@@ -3,7 +3,7 @@ import { useMemo } from "react";
 
 export const useOutlierDetection = (solves: Solve[]) => {
     return useMemo(() => {
-        if (solves.length < 4) return { valid: solves, outliers: [] };
+        if (solves.length < 4) return { nonOutliers: solves, outliers: [] };
 
         const sorted = [...solves].sort((a, b) => a.duration - b.duration);
 

@@ -13,6 +13,7 @@ import VariabilityCard from "../components/statistics/VariabilityCard";
 import { useSolveManager } from "../hooks/solves/useSolveManager";
 import { EVENT_AND_DISCIPLINES_MAP } from "../utils/constants";
 import { useTimerSettings } from "../hooks/TimerSettingsContext";
+import Experimental from "../components/statistics/Experimental";
 
 function StatisticsScreen() {
     const theme = useTheme();
@@ -115,6 +116,9 @@ function StatisticsScreen() {
                     <Grid size={{ xs: 12, md: 2.3 }}>
                         <ActivityCard />
                     </Grid>
+                    {/* <Grid>
+                        <Experimental />
+                    </Grid> */}
                 </Grid >
             )}
         </Box>
