@@ -1,27 +1,23 @@
 import { Discipline, inspectionlessDisciplines, type Solve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
-import SettingsIcon from "@mui/icons-material/Settings";
 import { Divider, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
-import HCButton from "../components/HCButton";
 import AvgGraphs from "../components/timer/AvgGraphs";
 import LimitReachedDialog from "../components/timer/dialogs/LimitReachedDialog";
 import SolveDetailsScreen from "../components/timer/dialogs/SolveDetailsDialog";
 import TimeDisplay from "../components/timer/TimeDisplay";
-import TimerSettings from "../components/timer/TimerSettings";
 import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
 import usePercentile from "../hooks/solves/usePercentile";
 import { useSolveManager } from "../hooks/solves/useSolveManager";
-import { useTimerLogic } from "../hooks/useTimerLogic";
 import { useTimerSettings } from "../hooks/TimerSettingsContext";
+import { useTimerLogic } from "../hooks/useTimerLogic";
 import { getDisplayableTime } from "../utils/solveUtils";
 import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
 
 function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
     const { settings } = useTimerSettings();
-    const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const { solvesChrono, addSolve, deleteSolve, updateSolveStatus, currentScramble, pb } =
         useSolveManager(selectedDiscipline, "default");
@@ -57,17 +53,7 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility }: { s
     return (
         <ScreenContainer isMobile={false}>
             <TimerPanel>
-                {!hideElements &&
-                    <HCButton
-                        sx={{
-                            position: "absolute", left: "40px", top: "16px",
-                            userSelect: "none"
-                        }}
-                        onClick={() => { setSettingsOpen(true); }} isSelected={true}>
-                        <SettingsIcon />
-                    </HCButton>
-                }
-                <Box sx={{ flex: 1, visibility: hideElements ? "hidden" : "visible", paddingLeft: "60px" }}>
+                <Box sx={{ flex: 1, visibility: hideElements ? "hidden" : "visible" }}>
                     <ScrambleText charCount={currentScramble.length}>
                         {currentScramble}
                     </ScrambleText>
@@ -101,9 +87,8 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility }: { s
                 m: "16px 16px",
                 marginLeft: "auto",
                 width: solveTableVisible ? "350px" : '42px',
-                height: solveTableVisible ? "auto" : '42px',
-                transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1), height 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
-                bgcolor: "green"
+                maxHeight: solveTableVisible ? "1000px" : '42px',
+                transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1), max-height 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
             }}>
                 <TimeDisplay solves={solvesChrono} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={!solveTableVisible}
                     onSolveTableVisibilityChange={onSolveTableVisibilityChange} />
@@ -122,7 +107,6 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility }: { s
                     onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
             )}
-            <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} />
             <LimitReachedDialog isOpen={isLimitDialogOpen} handleClose={() => setIsLimitDialogOpen(false)} />
         </ScreenContainer>
 

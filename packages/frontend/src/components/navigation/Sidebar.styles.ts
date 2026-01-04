@@ -1,9 +1,5 @@
-import { Box, IconButton, Paper } from '@mui/material';
+import { Box, IconButton, Stack } from '@mui/material';
 import { alpha, styled } from '@mui/material/styles';
-
-// ==========================================
-// SHARED / DESKTOP COMPONENTS (Existing)
-// ==========================================
 
 // 1. The Main Wrapper (Desktop)
 export const NavContainer = styled(Box, {
@@ -16,16 +12,19 @@ export const NavContainer = styled(Box, {
 }));
 
 // 2. The Fixed Sidebar (Left Bar)
-export const SidebarContainer = styled(Paper)(({ theme }) => ({
-    width: "75px",
+export const SidebarContainer = styled(Stack)<{ collapsed: boolean }>(({ theme, collapsed }) => ({
+    width: collapsed ? "75px" : "14vw",
     borderRadius: "24px",
     border: "1px solid rgba(255, 255, 255, 0.1)",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "space-around",
+    justifyContent: "flex-start",
+    padding: "1rem",
+    alignItems: "flex-start",
     backgroundColor: theme.palette.secondary.main,
     zIndex: 20,
     position: "relative",
+    transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1)'
 }));
 
 // 3. The Toggle Arrow Button Wrapper
@@ -36,18 +35,13 @@ export const ToggleButton = styled(IconButton)(({ theme }) => ({
 }));
 
 // 4. The Privacy Policy Button
-// NOTE: By default this is absolute positioned for Desktop.
-// We will override this for Mobile using the 'sx' prop or a wrapper.
 export const PrivacyButton = styled(IconButton)(({ theme }) => ({
     textTransform: 'none',
+    width: "100%",
     fontSize: '0.85rem',
-    fontWeight: 500,
     color: theme.palette.text.secondary,
     borderRadius: '20px',
     padding: 0,
-    position: "absolute",
-    bottom: "5px",
-    left: "27px",
     border: '1px solid transparent',
     transition: 'all 0.3s ease, visibility 0s',
 

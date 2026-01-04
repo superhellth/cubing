@@ -2,7 +2,6 @@ import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuIcon from '@mui/icons-material/Menu';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
-import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
 import { Divider, Drawer, IconButton } from "@mui/material";
 import { Box } from "@mui/system";
 import { useState } from 'react';

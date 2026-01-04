@@ -10,8 +10,9 @@ import Box from '@mui/system/Box';
 import { memo, useMemo } from "react";
 import { formatTime, getDisplayableTime } from '../../utils/solveUtils';
 import SolvesTable from './SolvesTable';
-import { CompactTable, FadeContent, PanelPaper, SidebarCard, ToggleButton } from './TimeDisplay.styles';
+import { CompactTable, FadeContent, PanelPaper, SidebarCard } from './TimeDisplay.styles';
 import { HEAD_CELLS } from './TimeDisplay';
+import HCButton from '../HCButton';
 
 interface Stats {
     [key: string]: number | null;
@@ -51,11 +52,21 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
         <Box sx={{
             display: "flex", justifyContent: 'flex-end', alignItems: 'flex-start', width: "100%", height: "100%", minHeight: "42px"
         }}>
-            <SidebarCard isCollapsed={isCollapsed}>
+            <SidebarCard>
 
-                <ToggleButton onClick={() => onSolveTableVisibilityChange(isCollapsed)}>
+                <HCButton
+                    sx={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        zIndex: 10,
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                    }}
+                    onClick={() => onSolveTableVisibilityChange(isCollapsed)} isSelected={true}>
                     {!isCollapsed ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
-                </ToggleButton>
+                </HCButton>
 
                 <FadeContent isCollapsed={isCollapsed}>
                     <CardContent sx={{ height: "100%", display: "flex", flexDirection: "column", width: "350px" }}>

@@ -58,7 +58,7 @@ const Licenses = () => {
                 }}>
                     <ListItem>
                         <ListItemText>
-                            Welcome to Highpercube! We respect your privacy and are committed to protecting your personal data. This privacy policy explains
+                            Welcome to Cosmic Cubing! We respect your privacy and are committed to protecting your personal data. This privacy policy explains
                             how we handle your data when you use our speedcubing timer application.
                         </ListItemText>
                     </ListItem>

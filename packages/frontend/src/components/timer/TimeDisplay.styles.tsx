@@ -1,10 +1,9 @@
-import { Card, IconButton, Paper, Table, TableCell, tableCellClasses } from "@mui/material";
+import { Card, Paper, Table, TableCell, tableCellClasses } from "@mui/material";
 import { Box, styled } from "@mui/system";
 
 export const SidebarCard = styled(Card, {
     shouldForwardProp: (prop) => prop !== 'isCollapsed'
-})<{ isCollapsed: boolean }>(({ theme, isCollapsed }) => ({
-    // backgroundColor: "red",
+})(({ theme }) => ({
     backgroundColor: theme.palette.secondary.main,
     borderRadius: "24px",
     border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -13,20 +12,6 @@ export const SidebarCard = styled(Card, {
     
     width: "100%",
     height: "100%",
-    // width: !isCollapsed ? "100%" : '42px',
-    // height: !isCollapsed ? "100%" : '42px',
-    // transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1), height 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
-}));
-
-export const ToggleButton = styled(IconButton)(({ theme }) => ({
-    position: "absolute",
-    top: 0,
-    right: 0,
-    zIndex: 10,
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    color: theme.palette.text.secondary,
 }));
 
 export const FadeContent = styled(Box, {

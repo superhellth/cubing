@@ -58,7 +58,7 @@ function App() {
             <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
               <Routes>
                 <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)} />} />
-                <Route path="/stats" element={<StatisticsScreen />} />
+                <Route path="/stats" element={<StatisticsScreen selectedDiscipline={selectedDiscipline} />} />
                 <Route path="/privacy-policy" element={<Licenses />} />
               </Routes>
             </Box>
