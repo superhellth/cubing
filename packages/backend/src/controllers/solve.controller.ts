@@ -10,7 +10,7 @@ const GetByDisciplineQS = z.object({
     session: z.string()
 });
 
-export const GetSolvesByDisciplineAndSession = async (req: Request, res: Response) => {
+export const getSolvesByDisciplineAndSession = async (req: Request, res: Response) => {
     try {
         const { uuid, discipline, session } = GetByDisciplineQS.parse(req.query);
 
@@ -23,6 +23,22 @@ export const GetSolvesByDisciplineAndSession = async (req: Request, res: Respons
         const result = await pool.query(queryText, [uuid, discipline, session]);
         res.status(200).json(result.rows);
     } catch (error: any) {
+        console.error('Error fetching solves:', error);
+        res.status(500).json({ message: 'Failed to load solves.' });
+    }
+};
+
+export const getDemoSolves = async (req: Request, res: Response) => {
+    try {
+        // Oldest first, newest last
+        const queryText = `
+            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
+            FROM solves WHERE uuid = $1 AND discipline = $2 AND session = $3
+            ORDER BY date ASC`;
+
+        const result = await pool.query(queryText, ["f67f21f6-b23e-4424-9174-95b56f47a2d5", Discipline.OneHanded, "default"]);
+        res.status(200).json(result.rows);
+    } catch (error) {
         console.error('Error fetching solves:', error);
         res.status(500).json({ message: 'Failed to load solves.' });
     }

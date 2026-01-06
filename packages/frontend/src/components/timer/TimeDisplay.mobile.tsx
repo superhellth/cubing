@@ -3,16 +3,15 @@ import { CardContent } from '@mui/material';
 import Box from '@mui/system/Box';
 import { memo, useMemo } from "react";
 import SolvesTable from './SolvesTable';
-import { FadeContent, PanelPaper, SidebarCard } from './TimeDisplay.styles';
+import { PanelPaper } from './TimeDisplay.styles';
 
 interface Stats {
     [key: string]: number | null;
 }
 
-const TimeDisplayMobile = memo(({ solves, openSolveDetailsScreen, isCollapsed }: {
+const TimeDisplayMobile = memo(({ solves, openSolveDetailsScreen }: {
     solves: Solve[],
     openSolveDetailsScreen: Function,
-    isCollapsed: boolean,
     onSolveTableVisibilityChange: Function
 }) => {
 

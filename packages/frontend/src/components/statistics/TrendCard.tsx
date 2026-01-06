@@ -89,9 +89,9 @@ const TrendCard = memo(({ trend, headerKey, current }: {trend: any, headerKey: a
                     >
                         {/* Conditional Icon */}
                         {trend.absoluteChange > 0 ? (
-                            <TrendingUpIcon sx={{ fontSize: '0.75rem' }} />
-                        ) : (
                             <TrendingDownIcon sx={{ fontSize: '0.75rem' }} />
+                        ) : (
+                            <TrendingUpIcon sx={{ fontSize: '0.75rem' }} />
                         )}
 
                         <Typography

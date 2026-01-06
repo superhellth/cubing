@@ -1,33 +1,12 @@
 import { keyToLabels } from "@cubing/shared";
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import { Box, FormControl, FormHelperText, ListItemText, MenuItem, Select, type SelectChangeEvent, Slider, Table, TableBody, TableCell, tableCellClasses, TableRow, ToggleButton, ToggleButtonGroup, useTheme } from "@mui/material";
+import DoneIcon from '@mui/icons-material/Done';
+import { Box, Chip, FormControl, FormHelperText, Slider, Table, TableBody, TableCell, tableCellClasses, TableRow, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { memo } from "react";
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-        },
-    },
-};
-
-const AVERAGE_DISPLAY_ORDER = ["avg5", "avg12", "avg100", "avg1000", "pb"];
 
 const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionChanged,
     predict, onPredictionHorizonChanged,
     sampleThreshold, onSampleThresholdChanged, mediumSamplingLimit }: any) => {
-    const theme = useTheme();
 
-    const handleDisplayChange = (event: SelectChangeEvent<typeof display>) => {
-        const { target: { value } } = event;
-        const newDisplaySelection: any = typeof value === 'string' ? value.split(',') : value;
-        const sortedSelection = AVERAGE_DISPLAY_ORDER.filter(item => newDisplaySelection.includes(item));
-
-        onDisplaySelectionChanged(sortedSelection);
-    };
     const handlePredictionHorizonChange = (_event: Event, newValue: number) => {
         onPredictionHorizonChanged(newValue);
     };
@@ -36,6 +15,17 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
             onSampleThresholdChanged(newValue);
         }
     }
+    const handleToggle = (value: string) => {
+        const currentIndex = display.indexOf(value);
+        const newChecked = [...display];
+
+        if (currentIndex === -1) {
+            newChecked.push(value);
+        } else {
+            newChecked.splice(currentIndex, 1);
+        }
+        onDisplaySelectionChanged(newChecked);
+    };
 
     return (
         <Box sx={{
@@ -60,42 +50,63 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                         <TableCell>
                             <FormHelperText>Prediction Horizon</FormHelperText>
                         </TableCell>
-                        <TableCell>
-                            <FormHelperText>Details</FormHelperText>
-                        </TableCell>
+                        {numSolves >= 150 &&
+                            <TableCell>
+                                <FormHelperText>Details</FormHelperText>
+                            </TableCell>
+                        }
                     </TableRow>
                     <TableRow>
                         <TableCell align="left" sx={{ minWidth: "300px" }}>
-                            <FormControl fullWidth sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2 }}>
-                                <Select
-                                    
-                                    multiple
-                                    value={display}
-                                    variant="standard"
-                                    onChange={handleDisplayChange}
-                                    renderValue={(selected) => selected.map((value: string) => keyToLabels[value as keyof typeof keyToLabels]).join(', ')}
-                                    MenuProps={MenuProps}
-                                >
-                                    {["avg5", "avg12", "avg100", "avg1000", "pb"].map((key) => (
-                                        <MenuItem key={key} value={key} sx={{ bgcolor: "#090909" }}>
-                                            <ListItemText primary={keyToLabels[key as keyof typeof keyToLabels]} />
-                                            {display.includes(key) && (
-                                                <CheckRoundedIcon
-                                                    sx={{
-                                                        color: theme.palette.info.main,
-                                                        fontSize: '1.2rem'
-                                                    }}
-                                                />
-                                            )}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                            <Box
+                                sx={{
+                                    bgcolor: "#090909",
+                                    border: "1px solid #333333",
+                                    p: 1,
+                                    borderRadius: 2,
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 1, // Space between chips
+                                }}
+                            >
+                                {["avg5", "avg12", "avg100", "avg1000", "pb"].map((key) => {
+                                    const isSelected = display.includes(key);
+
+                                    return (
+                                        <Chip
+                                            key={key}
+                                            label={keyToLabels[key as keyof typeof keyToLabels]}
+                                            onClick={() => handleToggle(key)}
+                                            deleteIcon={<DoneIcon />}
+                                            // Styling logic
+                                            sx={{
+                                                // Selected Style
+                                                ...(isSelected && {
+                                                    bgcolor: "info.main", // Or a specific hex like '#333333'
+                                                    color: "#fff",
+                                                    border: "1px solid #333333",
+                                                    "&:hover": {
+                                                        bgcolor: "info.dark",
+                                                    },
+                                                }),
+                                                // Unselected Style
+                                                ...(!isSelected && {
+                                                    bgcolor: "transparent",
+                                                    color: "#888", // Greyed out text for unselected
+                                                    border: "1px solid #333333",
+                                                    "&:hover": {
+                                                        bgcolor: "#1a1a1a",
+                                                        borderColor: "#555",
+                                                    },
+                                                }),
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </Box>
                         </TableCell>
                         <TableCell sx={{ minWidth: "300px" }}>
                             <FormControl fullWidth sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2 }}>
-
-                                {/* <InputLabel>Display Times</InputLabel> */}
                                 <Slider
                                     value={predict}
                                     onChange={handlePredictionHorizonChange}
@@ -109,29 +120,30 @@ const ImprovementChartControl = memo(({ numSolves, display, onDisplaySelectionCh
                                 />
                             </FormControl>
                         </TableCell>
-                        <TableCell>
-                            <FormControl sx={{ bgcolor: "#090909", border: "1px solid #333333", borderRadius: 2 }}>
-                                <ToggleButtonGroup
-                                    value={sampleThreshold}
-                                    exclusive
-                                    disabled={numSolves < 150}
-                                    onChange={handleSampleThresholdChange}
-                                    sx={{
-                                        justifyContent: 'center',
-                                    }}
-                                >
-                                    <ToggleButton value={100} >
-                                        Min
-                                    </ToggleButton>
-                                    <ToggleButton value={mediumSamplingLimit}>
-                                        Medium
-                                    </ToggleButton>
-                                    <ToggleButton value={numSolves}>
-                                        Max
-                                    </ToggleButton>
-                                </ToggleButtonGroup>
-                            </FormControl>
-                        </TableCell>
+                        {numSolves >= 150 &&
+                            <TableCell>
+                                <FormControl sx={{ bgcolor: "#090909", border: "1px solid #333333", borderRadius: 2 }}>
+                                    <ToggleButtonGroup
+                                        value={sampleThreshold}
+                                        exclusive
+                                        onChange={handleSampleThresholdChange}
+                                        sx={{
+                                            justifyContent: 'center',
+                                        }}
+                                    >
+                                        <ToggleButton value={100} >
+                                            Min
+                                        </ToggleButton>
+                                        <ToggleButton value={mediumSamplingLimit}>
+                                            Medium
+                                        </ToggleButton>
+                                        <ToggleButton value={numSolves}>
+                                            Max
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
+                                </FormControl>
+                            </TableCell>
+                        }
                     </TableRow>
                 </TableBody>
             </Table>

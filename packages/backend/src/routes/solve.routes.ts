@@ -6,7 +6,7 @@ const router = Router();
 
 const updateLimit = rateLimit({
     windowMs: 1000,
-    max: 3,
+    max: 5,
     message: { message: "Too many requests." },
     standardHeaders: true,
     legacyHeaders: false,
@@ -22,6 +22,7 @@ router.post('/delete', SolveController.deleteSolve);
 
 // GETs
 router.get('/getAll', SolveController.getAllSolves);
-router.get('/getByDisciplineAndSession', SolveController.GetSolvesByDisciplineAndSession);
+router.get('/getByDisciplineAndSession', SolveController.getSolvesByDisciplineAndSession);
+router.get('/getDemoSolves', SolveController.getDemoSolves);
 
 export default router;

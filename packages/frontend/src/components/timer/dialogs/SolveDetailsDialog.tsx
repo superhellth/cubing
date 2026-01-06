@@ -2,7 +2,7 @@ import { Status, type Solve } from "@cubing/shared";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Divider, IconButton, Paper } from "@mui/material";
+import { Divider, FormControl, IconButton, Paper, TextField } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from "@mui/material/DialogActions";
@@ -29,6 +29,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
         day: 'numeric'
     });
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [openDeleteManyDialog, setOpenDeleteManyDialog] = useState(false);
 
     useEffect(() => {
         setStatus(solve.status);
@@ -149,16 +150,28 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                             </ToggleButtonGroup>
                         </Box>
 
-                        <Button
-                            variant="outlined"
-                            color="error"
-                            startIcon={<DeleteIcon />}
-                            onClick={() => setOpenDeleteDialog(true)}
-                            fullWidth
-                            sx={{ borderRadius: 2, textTransform: 'none' }}
-                        >
-                            Delete Result
-                        </Button>
+                        <Box sx={{display: "flex", flexDirection: "row", gap: 2}}>
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                startIcon={<DeleteIcon />}
+                                onClick={() => setOpenDeleteManyDialog(true)}
+                                fullWidth
+                                sx={{ borderRadius: 2, textTransform: 'none', flex: 1 }}
+                            >
+                                Delete Many
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                startIcon={<DeleteIcon />}
+                                onClick={() => setOpenDeleteDialog(true)}
+                                fullWidth
+                                sx={{ borderRadius: 2, textTransform: 'none', flex: 2 }}
+                            >
+                                Delete Solve
+                            </Button>
+                        </Box>
                     </Stack>
                 </DialogContent>
             </Dialog>
@@ -185,6 +198,42 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                         onClick={() => {
                             onDeleteSolve(solve.pk, solve.uuid);
                             setOpenDeleteDialog(false);
+                        }}
+                        variant="contained"
+                        color="error"
+                        disableElevation
+                    >
+                        Confirm Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={openDeleteManyDialog}
+                onClose={() => setOpenDeleteDialog(false)}
+                PaperProps={{ sx: { borderRadius: 3, border: `1px solid ${theme.palette.error.dark}` } }}
+            >
+                <DialogTitle sx={{ color: "error.main", display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <DeleteIcon /> Delete Solves?
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        This will permanently remove these times from your history and recalculate your averages.
+                    </DialogContentText>
+                    <FormControl fullWidth sx={{alignItems: "center", justifyContent: "center"}}>
+                    Delete last X solves:
+                        <TextField>
+                        </TextField>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={() => setOpenDeleteManyDialog(false)} color="inherit">
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            onDeleteSolve(solve.pk, solve.uuid);
+                            setOpenDeleteManyDialog(false);
                         }}
                         variant="contained"
                         color="error"

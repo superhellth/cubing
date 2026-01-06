@@ -24,7 +24,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
     return (
         <>
             {isMobile ? (
-                <TimeDisplayMobile solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={isCollapsed}
+                <TimeDisplayMobile solves={solves} openSolveDetailsScreen={openSolveDetailsScreen}
                     onSolveTableVisibilityChange={onSolveTableVisibilityChange} />
             ) : (
                 <TimeDisplayDesktop solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={isCollapsed}

@@ -4,8 +4,9 @@ import { useMemo } from "react";
 import { useOutlierDetection } from "../../hooks/solves/useOutlierDetection";
 import { formatTime } from '../../utils/solveUtils';
 import { GraphCard } from "../GraphCard";
+import { LockedOverlay } from './LockedOverlay';
 
-const DistributionCard = ({ solves }: any) => {
+const DistributionCard = ({ solves, numTrueSolves }: any) => {
     const { nonOutliers } = useOutlierDetection(solves);
     const timeBins = useMemo(() => {
         if (!nonOutliers || nonOutliers.length <= 1) return [];
@@ -46,6 +47,8 @@ const DistributionCard = ({ solves }: any) => {
 
     return (
         <GraphCard title={"Distribution of Solve Times"} icon={<BarChartIcon />}>
+            <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={10} fontSize={20} hint="Only a few more to go!">
+
             <BarChart dataset={timeBins} hideLegend={true}
                 grid={{ horizontal: true }}
                 xAxis={[{
@@ -62,6 +65,7 @@ const DistributionCard = ({ solves }: any) => {
                     label: "#Solves",
                     dataKey: "entries"
                 }]} />
+                </LockedOverlay>
         </GraphCard>
     );
 }

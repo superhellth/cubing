@@ -39,7 +39,7 @@ export const CompactTable = styled(Table)(({ }) => ({
     [`& .${tableCellClasses.root}`]: {
         borderBottom: "none",
         padding: "0 0",
-        paddingTop: "1rem",
+        paddingTop: "0.75rem",
     },
     [`& .${tableCellClasses.head}`]: {
         padding: 0,

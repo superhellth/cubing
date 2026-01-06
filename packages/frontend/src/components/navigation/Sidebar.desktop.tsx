@@ -66,7 +66,8 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                 ) : (
                     <Stack direction="row" alignItems="center" spacing={2} sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
                         <i className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(selectedDiscipline)}`} style={{ fontSize: "40px", color: theme.palette.info.dark }} />
-                        <FormControl sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2, height: "48px", flex: 1 }}>
+                        <FormControl sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2, height: "48px", flex: 1,
+                         }}>
                             <Select
                                 value={selectedDiscipline}
                                 variant="standard"
@@ -110,7 +111,13 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                     label="Settings" isCollapsed={isCollapsed}>
                 </NavigationButton>
 
-                <Box sx={{ visibility: isCollapsed ? "hidden" : "visible", width: "100%" }}>
+                <Box sx={{
+                    width: "100%", opacity: isCollapsed ? 0 : 1,
+                    pointerEvents: isCollapsed ? 'none' : 'auto',
+                    transition: !isCollapsed
+                        ? `all 1s cubic-bezier(0.19, 1, 0.22, 1) 0.1s`
+                        : `all 0.1s cubic-bezier(0.19, 1, 0.22, 1) 0s`,
+                }}>
                     <Divider sx={{ width: "100%", marginTop: 2, marginBottom: 2 }} />
                     <PrivacyButton onClick={() => window.open('/privacy-policy', '_blank')}>
                         <Stack direction="row" alignItems="center" spacing={1}>

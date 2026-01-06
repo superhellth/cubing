@@ -6,20 +6,21 @@ import useDownsampling from "../../hooks/solves/useDownsampling";
 import { useLinearRegression } from "../../hooks/solves/useLinearRegression";
 import { useImprovementChartConfig } from "../../hooks/useImprovementChartConfig";
 import { CustomAnimatedLine, ShadedBackground } from "../graphs/PredictionArea";
-import { BlurrableContent, HeaderRow, ImprovementChartCard, LockedOverlay } from "./ImprovementChart.styles";
+import { HeaderRow, ImprovementChartCard } from "./ImprovementChart.styles";
 import ImprovementChartControl from "./ImprovementChartControl";
 import { ImprovementChartLegend } from "./ImprovementChartLegend";
 import { ImprovementChartTooltip } from "./ImprovementChartTooltip";
 import CalculationLoader from "./Loading";
+import { LockedOverlay } from "./LockedOverlay";
 
 interface ImprovementChartProps {
     solvesChrono: Solve[];
-    isLocked: boolean;
     isResizing: boolean;
+    numTrueSolves: number;
 }
 
 const ImprovementChart = memo(({
-    solvesChrono, isLocked, isResizing
+    solvesChrono, isResizing, numTrueSolves
 }: ImprovementChartProps) => {
     if (!solvesChrono?.length) return null;
 
@@ -48,15 +49,9 @@ const ImprovementChart = memo(({
 
     return (
         <ImprovementChartCard>
-            {isLocked && (
-                <LockedOverlay>
-                    <Typography variant="h4">
-                        Keep cubing to unlock
-                    </Typography>
-                </LockedOverlay>
-            )}
 
-            <BlurrableContent isLocked={isLocked}>
+
+            <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={30} fontSize={30} hint="Continue training to look at your improvements!">
                 <HeaderRow>
                     <Typography variant="h4" sx={{ color: '#fff', fontWeight: "bold" }} noWrap>
                         Your Improvements
@@ -75,6 +70,8 @@ const ImprovementChart = memo(({
                 </HeaderRow>
 
                 <ImprovementChartLegend series={seriesConfig} />
+
+
                 <Box sx={{ flex: 1 }}>
                     {!isResizing ? (
                         <ChartDataProvider
@@ -121,7 +118,7 @@ const ImprovementChart = memo(({
                         <CalculationLoader />
                     )}
                 </Box>
-            </BlurrableContent>
+            </LockedOverlay>
         </ImprovementChartCard>
     );
 });

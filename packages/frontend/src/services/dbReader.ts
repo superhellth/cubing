@@ -6,6 +6,7 @@ class DBReader {
 
     private static readonly GET_ALL_SOLVES_URL = "/api/db/solves/getAll";
     private static readonly GET_SOLVES_BY_DISCIPLINE_AND_SESSION = "/api/db/solves/getByDisciplineAndSession";
+    private static readonly GET_DEMO_SOLVES = "/api/db/solves/getDemoSolves";
     private static readonly CHECK_HEALTH_URL = "/api/health";
     static #instance: DBReader;
 
@@ -54,6 +55,20 @@ class DBReader {
 
         } catch (error) {
             console.error('Error fetching user solves:', error);
+            throw error;
+        }
+    }
+
+    public async getDemoSolves() {
+        try {
+            const SolvesArraySchema = z.array(StatlessSolveSchema);
+            const response = await axios.get(DBReader.GET_DEMO_SOLVES);
+
+            const solves: StatlessSolve[] = SolvesArraySchema.parse(response.data);
+            return solves;
+
+        } catch (error) {
+            console.error('Error fetching demo solves:', error);
             throw error;
         }
     }

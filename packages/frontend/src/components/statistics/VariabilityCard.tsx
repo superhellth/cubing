@@ -1,5 +1,4 @@
 import type { Solve } from "@cubing/shared";
-import LockIcon from '@mui/icons-material/Lock';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import { Box, Typography } from "@mui/material";
 import { areaElementClasses, chartsAxisHighlightClasses, lineElementClasses, SparkLineChart } from "@mui/x-charts";
@@ -7,6 +6,7 @@ import { memo, useMemo, useState } from "react";
 import useDownsampling from "../../hooks/solves/useDownsampling";
 import theme from "../../styles/theme";
 import { GraphCard } from "../GraphCard";
+import { LockedOverlay } from "./LockedOverlay";
 
 const windowSize: number = 50;
 const longFormatter = new Intl.DateTimeFormat('en-US', {
@@ -15,7 +15,7 @@ const longFormatter = new Intl.DateTimeFormat('en-US', {
     day: 'numeric'
 });
 
-const VariabilityCard = memo(({ solvesChrono }: any) => {
+const VariabilityCard = memo(({ solvesChrono, numTrueSolves }: any) => {
     const [dataIndex, setDataIndex] = useState<null | number>(null);
     const sampledSolves = useDownsampling(solvesChrono, 500, false);
 
@@ -38,8 +38,8 @@ const VariabilityCard = memo(({ solvesChrono }: any) => {
         <GraphCard
             hint={"This value represents how consistent you are. In the future you will be able to compare your stats to other people's. For now: Zero is bad, 3-5 good, 5-10 excellent, 10+ superhuman"}
             title={dataIndex === null ? 'Consistency' : longFormatter.format(sampledSolves[windowSize + dataIndex].date)} icon={<TimelineIcon />}>
-            {rollingStd.length > 30 ? (
 
+            <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={80} fontSize={20} hint="Cube some more to check your consistency!">
                 <Box sx={{ display: "flex", maxHeight: "300px", flexDirection: "column", height: "100%" }}>
 
                     <Typography sx={{ fontSize: '2rem', fontWeight: "bold", padding: ".4rem", paddingRight: "10px", paddingBottom: 0, whiteSpace: "nowrap" }}>
@@ -85,12 +85,7 @@ const VariabilityCard = memo(({ solvesChrono }: any) => {
                             },
                         }} />
                 </Box>
-            ) : (
-                <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%"}}>
-                    <LockIcon sx={{ fontSize: 40, color: "grey.500", mb: 1 }} />
-                    <Typography variant="h6">Cube some more to unlock your consistency statistic.</Typography>
-                </Box>
-            )}
+            </LockedOverlay>
         </GraphCard>
     );
 });
