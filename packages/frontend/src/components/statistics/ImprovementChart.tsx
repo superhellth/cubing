@@ -10,14 +10,16 @@ import { BlurrableContent, HeaderRow, ImprovementChartCard, LockedOverlay } from
 import ImprovementChartControl from "./ImprovementChartControl";
 import { ImprovementChartLegend } from "./ImprovementChartLegend";
 import { ImprovementChartTooltip } from "./ImprovementChartTooltip";
+import CalculationLoader from "./Loading";
 
 interface ImprovementChartProps {
     solvesChrono: Solve[];
     isLocked: boolean;
+    isResizing: boolean;
 }
 
 const ImprovementChart = memo(({
-    solvesChrono, isLocked
+    solvesChrono, isLocked, isResizing
 }: ImprovementChartProps) => {
     if (!solvesChrono?.length) return null;
 
@@ -39,7 +41,7 @@ const ImprovementChart = memo(({
 
     // Chart Configuration
     const { historyAndPredictions, xAxisData, seriesConfig } = useImprovementChartConfig(sampledSolves, predictions, display);
-     const chartSurfaceSx = {
+    const chartSurfaceSx = {
         '& .line-after path': { strokeDasharray: '10 5' },
         '& .MuiLineElement-series-pb-line': { strokeDasharray: '10 5' },
     };
@@ -73,45 +75,51 @@ const ImprovementChart = memo(({
                 </HeaderRow>
 
                 <ImprovementChartLegend series={seriesConfig} />
+                <Box sx={{ flex: 1 }}>
+                    {!isResizing ? (
+                        <ChartDataProvider
+                            dataset={historyAndPredictions as any}
+                            series={seriesConfig}
+                            skipAnimation={true}
+                            xAxis={[{
+                                scaleType: 'linear',
+                                data: xAxisData,
+                                min: 0,
+                                max: historyAndPredictions.length - 1,
+                            }]}
+                            yAxis={[{
+                                valueFormatter: (v: number) => (v / 1000).toFixed(0)
+                            }]}
+                        >
 
-                <Box sx={{ flexGrow: 1, minHeight: 0 }}>
-                    <ChartDataProvider
-                        dataset={historyAndPredictions as any}
-                        series={seriesConfig}
-                        xAxis={[{
-                            scaleType: 'linear',
-                            data: xAxisData,
-                            min: 0,
-                            max: historyAndPredictions.length - 1,
-                        }]}
-                        yAxis={[{
-                            valueFormatter: (v: number) => (v / 1000).toFixed(0)
-                        }]}
-                    >
-                        <ChartsSurface sx={chartSurfaceSx}>
-                            <ShadedBackground limit={lastIndex} />
-                            <ChartsGrid horizontal />
+                            <ChartsSurface sx={chartSurfaceSx}>
+                                <ShadedBackground limit={lastIndex} />
+                                <ChartsGrid horizontal />
 
-                            <LinePlot
-                                slots={{ line: CustomAnimatedLine }}
-                                slotProps={{ line: { limit: lastIndex } as any }}
-                            />
-                            <ScatterPlot />
+                                <LinePlot
+                                    slots={{ line: CustomAnimatedLine }}
+                                    slotProps={{ line: { limit: lastIndex } as any }}
+                                />
+                                <ScatterPlot />
 
-                            <ChartsAxisHighlight x="line" />
-                            <LineHighlightPlot />
-                            <ChartsXAxis />
-                            <ChartsYAxis />
-                        </ChartsSurface>
+                                <ChartsAxisHighlight x="line" />
+                                <LineHighlightPlot />
+                                <ChartsXAxis />
+                                <ChartsYAxis />
+                            </ChartsSurface>
 
-                        <ChartsTooltipContainer trigger="axis">
-                            <ImprovementChartTooltip
-                                displayedSolves={historyAndPredictions}
-                                display={display}
-                                predictionStart={lastIndex + 1}
-                            />
-                        </ChartsTooltipContainer>
-                    </ChartDataProvider>
+
+                            <ChartsTooltipContainer trigger="axis">
+                                <ImprovementChartTooltip
+                                    displayedSolves={historyAndPredictions}
+                                    display={display}
+                                    predictionStart={lastIndex + 1}
+                                />
+                            </ChartsTooltipContainer>
+                        </ChartDataProvider>
+                    ) : (
+                        <CalculationLoader />
+                    )}
                 </Box>
             </BlurrableContent>
         </ImprovementChartCard>

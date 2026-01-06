@@ -5,59 +5,55 @@ import MenuIcon from '@mui/icons-material/Menu';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { Box, Divider, Fade, FormControl, ListItemText, MenuItem, Select, Stack, Typography, useTheme } from '@mui/material';
-import { useRef, useState } from 'react';
+import { Box, Divider, FormControl, ListItemText, MenuItem, Select, Stack, Typography, useTheme } from '@mui/material';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTimerSettings } from '../../hooks/TimerSettingsContext';
 import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
 import HCButton from '../HCButton';
 import TimerSettings from '../timer/TimerSettings';
-import DisciplineButton from './DisciplineButton';
 import NavigationButton from './NavButton';
-import { DrawerContainer, GradientOverlay, NavContainer, PrivacyButton, ScrollArea, SidebarContainer } from './Sidebar.styles';
+import { NavContainer, PrivacyButton, SidebarContainer } from './Sidebar.styles';
 
 interface SidebarProps {
     selectedDiscipline: Discipline;
     onDisciplineChange: (d: Discipline) => void;
+    isResizing: boolean;
+    toggleResize: (b: boolean) => void;
     isVisible: boolean;
 }
 
-export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange, isVisible }: SidebarProps) {
-    const [openDrawer, setOpenDrawer] = useState(false);
-    const [isScrolling, setIsScrolling] = useState(false);
+export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange, isVisible, isResizing, toggleResize: setIsResizing }: SidebarProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const scrollTimeout: any = useRef(null);
     const theme = useTheme();
     const { updateSetting } = useTimerSettings();
 
-    const handleScroll = () => {
-        if (!isScrolling) setIsScrolling(true);
-
-        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-        scrollTimeout.current = setTimeout(() => {
-            setIsScrolling(false);
-        }, 150);
-    };
-    const handleDisciplineClick = (disc: Discipline) => {
-        setOpenDrawer(false);
-        onDisciplineChange(disc);
-    };
-
+    const handleNavBarToggle = () => {
+        if (isResizing) {
+            return;
+        } else {
+            setIsResizing(true);
+            setIsCollapsed(!isCollapsed);
+            setTimeout(() => {
+                setIsResizing(false);
+            }, 301)
+        }
+    }
 
     return (
         <NavContainer component="nav" isVisible={isVisible}>
             {/* Main Vertical Bar */}
             <SidebarContainer collapsed={isCollapsed} spacing={2}>
                 {isCollapsed ? (
-                    <HCButton isSelected={true} onClick={() => setIsCollapsed(!isCollapsed)}>
+                    <HCButton isSelected={true} onClick={handleNavBarToggle}>
                         <MenuIcon />
                     </HCButton>
                 ) : (
                     <Stack direction="row" alignItems="center" spacing={3}>
-                        <HCButton isSelected={true} onClick={() => setIsCollapsed(!isCollapsed)}>
+                        <HCButton isSelected={true} onClick={handleNavBarToggle}>
                             <MenuIcon />
                         </HCButton>
                         <Typography variant='h5' sx={{ fontWeight: "bold" }}>Cosmic</Typography>
@@ -68,7 +64,7 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                 {isCollapsed ? (
                     <i className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(selectedDiscipline)}`} style={{ fontSize: "40px", color: theme.palette.info.dark }} />
                 ) : (
-                    <Stack direction="row" alignItems="center" spacing={2} sx={{display: "flex", flexDirection: "row", width: "100%"}}>
+                    <Stack direction="row" alignItems="center" spacing={2} sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
                         <i className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(selectedDiscipline)}`} style={{ fontSize: "40px", color: theme.palette.info.dark }} />
                         <FormControl sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2, height: "48px", flex: 1 }}>
                             <Select
@@ -126,25 +122,6 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
             </SidebarContainer>
 
             <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} />
-
-            {/* Slide-out Drawer */}
-            <Fade in={openDrawer}>
-                <DrawerContainer>
-                    <ScrollArea onScroll={handleScroll}>
-                        {[...EVENT_AND_DISCIPLINES_MAP].map(([disc, event]) => (
-                            <DisciplineButton
-                                key={event}
-                                name={event}
-                                size={40}
-                                disc={disc as Discipline}
-                                isSelected={selectedDiscipline === disc}
-                                onClick={handleDisciplineClick}
-                            />
-                        ))}
-                        <GradientOverlay />
-                    </ScrollArea>
-                </DrawerContainer>
-            </Fade>
         </NavContainer >
     );
 }

@@ -40,7 +40,7 @@ const VariabilityCard = memo(({ solvesChrono }: any) => {
             title={dataIndex === null ? 'Consistency' : longFormatter.format(sampledSolves[windowSize + dataIndex].date)} icon={<TimelineIcon />}>
             {rollingStd.length > 30 ? (
 
-                <Box sx={{ display: "flex", maxHeight: "300px", flexDirection: "column" }}>
+                <Box sx={{ display: "flex", maxHeight: "300px", flexDirection: "column", height: "100%" }}>
 
                     <Typography sx={{ fontSize: '2rem', fontWeight: "bold", padding: ".4rem", paddingRight: "10px", paddingBottom: 0, whiteSpace: "nowrap" }}>
                         {rollingStd[dataIndex ?? rollingStd.length - 1]?.toFixed(2)}
@@ -57,6 +57,7 @@ const VariabilityCard = memo(({ solvesChrono }: any) => {
 
                     <SparkLineChart data={rollingStd} showHighlight axisHighlight={{ x: "line" }} color={theme.palette.info.main} area
                         baseline="min"
+                        skipAnimation={true}
                         // yAxis={{
                         //     domainLimit: (minValue: number, maxValue: number) => ({
                         //         min: minValue,

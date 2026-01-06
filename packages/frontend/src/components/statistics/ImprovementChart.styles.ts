@@ -42,11 +42,10 @@ export const BlurrableContent = styled(Box, {
     opacity: isLocked ? 0.5 : 1,
 }));
 
-export const HeaderRow = styled(Box)(({ theme }) => ({
+export const HeaderRow = styled(Box)(({  }) => ({
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing(3)
+    alignItems: 'flex-start'
 }));
 
 export const ChartContainer = styled(Box)({

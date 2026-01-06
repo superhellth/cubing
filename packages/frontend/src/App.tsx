@@ -23,6 +23,7 @@ function App() {
   const [backendOnline, setBackendOnline] = useState(true);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(lastSelectedDiscipline);
   const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
+  const [sidebarResizing, setSidebarResizing] = useState<boolean>(false);
 
   (BigInt.prototype as any).toJSON = function () {
     return this.toString();
@@ -54,11 +55,17 @@ function App() {
         <CssBaseline />
         {backendOnline ? (
           <Box sx={{ width: "100%", height: "100%", bgcolor: theme.palette.primary.main, display: "flex" }}>
-            <Sidebar selectedDiscipline={selectedDiscipline} onDisciplineChange={handleDisciplineChange} isVisible={sidebarVisible} isMobile={isMobile} />
+            <Sidebar selectedDiscipline={selectedDiscipline}
+              onDisciplineChange={handleDisciplineChange}
+              isVisible={sidebarVisible}
+              isMobile={isMobile}
+              isResizing={sidebarResizing}
+              toggleResize={(b: boolean) => setSidebarResizing(b)}
+            />
             <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
               <Routes>
                 <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)} />} />
-                <Route path="/stats" element={<StatisticsScreen selectedDiscipline={selectedDiscipline} />} />
+                <Route path="/stats" element={<StatisticsScreen selectedDiscipline={selectedDiscipline} sidebarResizing={sidebarResizing} />} />
                 <Route path="/privacy-policy" element={<Licenses />} />
               </Routes>
             </Box>
