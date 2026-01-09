@@ -2,7 +2,7 @@ import { Status, type Solve } from "@cubing/shared";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Divider, FormControl, IconButton, Paper, TextField } from "@mui/material";
+import { Divider, IconButton, Paper } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from "@mui/material/DialogActions";
@@ -15,10 +15,11 @@ import Typography from "@mui/material/Typography";
 import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
 import { getDisplayableTime } from "../../../utils/solveUtils";
+import DeleteManyDialog from "./DeleteManyDialog";
 
-function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateStatus }: {
+function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMany, onUpdateStatus }: {
     solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
-    onDeleteSolve: Function
+    onDeleteSolve: Function, onDeleteMany: Function
 }) {
     const theme = useTheme();
     const [status, setStatus] = useState<Status>(solve.status);
@@ -150,7 +151,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                             </ToggleButtonGroup>
                         </Box>
 
-                        <Box sx={{display: "flex", flexDirection: "row", gap: 2}}>
+                        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
                             <Button
                                 variant="outlined"
                                 color="error"
@@ -208,41 +209,8 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                 </DialogActions>
             </Dialog>
 
-            <Dialog
-                open={openDeleteManyDialog}
-                onClose={() => setOpenDeleteDialog(false)}
-                PaperProps={{ sx: { borderRadius: 3, border: `1px solid ${theme.palette.error.dark}` } }}
-            >
-                <DialogTitle sx={{ color: "error.main", display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <DeleteIcon /> Delete Solves?
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        This will permanently remove these times from your history and recalculate your averages.
-                    </DialogContentText>
-                    <FormControl fullWidth sx={{alignItems: "center", justifyContent: "center"}}>
-                    Delete last X solves:
-                        <TextField>
-                        </TextField>
-                    </FormControl>
-                </DialogContent>
-                <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={() => setOpenDeleteManyDialog(false)} color="inherit">
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            onDeleteSolve(solve.pk, solve.uuid);
-                            setOpenDeleteManyDialog(false);
-                        }}
-                        variant="contained"
-                        color="error"
-                        disableElevation
-                    >
-                        Confirm Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <DeleteManyDialog isOpen={openDeleteManyDialog} handleClose={() => {setOpenDeleteManyDialog(false);}}
+                deleteMany={(deleteX: number) => {onDeleteMany(solve.pk, deleteX); onClose();}} />
         </>
     );
 }

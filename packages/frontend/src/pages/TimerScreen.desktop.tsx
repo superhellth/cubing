@@ -19,7 +19,7 @@ import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles"
 function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
     const { settings } = useTimerSettings();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
-    const { solvesChrono, addSolve, deleteSolve, updateSolveStatus, currentScramble, pb } =
+    const { solvesChrono, addSolve, deleteSolve, deleteMany, updateSolveStatus, currentScramble, pb } =
         useSolveManager(selectedDiscipline, "default");
     const percentile = usePercentile(solvesChrono);
     const [reset, setReset] = useState(false);
@@ -104,6 +104,9 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility }: { s
                         }
                     }
                     }
+                    onDeleteMany={(solvePk: bigint, deleteX: number) => {
+                        deleteMany(solvePk, deleteX);
+                    }}
                     onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
                     onClose={() => { setOpenedSolveDetailsDialog(false) }}></SolveDetailsScreen>
             )}

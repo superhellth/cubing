@@ -1,4 +1,4 @@
-import licenseData from '../assets/licenses.json';
+import licenseData from '../../public/licenses.json';
 import {
     Accordion,
     AccordionDetails,
@@ -15,6 +15,7 @@ import {
 import CodeIcon from '@mui/icons-material/Code';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LinkIcon from '@mui/icons-material/Link';
+import { useEffect, useState } from 'react';
 
 interface LicensePackage {
     licenses: string;
@@ -26,9 +27,18 @@ interface LicensePackage {
 
 const Licenses = () => {
     // Transform the data object into an array
-    const licenses = Object.keys(licenseData).map((key: any) => ({
-        ...licenseData[key as keyof typeof licenseData],
-    }));
+    const [licenses, setLicenses] = useState(null);
+    useEffect(() => {
+        // Fetch the file from the public folder
+        fetch('/licenses.json')
+            .then((res) => res.json())
+            .then((data) => setLicenses(data))
+            .catch((err) => console.error("Failed to load licenses", err));
+    }, []);
+    if (!licenses) return <div>Loading...</div>;
+    // const licenses = Object.keys(licenseData).map((key: any) => ({
+    //     ...licenseData[key as keyof typeof licenseData],
+    // }));
 
     return (
         <Box sx={{
