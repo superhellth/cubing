@@ -1,6 +1,4 @@
 import { Discipline, type Solve } from "@cubing/shared";
-import LockIcon from '@mui/icons-material/Lock';
-import { Card, Typography } from "@mui/material";
 import { Box, Grid, useTheme } from "@mui/system";
 import { useEffect, useMemo, useState } from "react";
 import ActivityCard from "../components/statistics/ActivityCard";
@@ -9,9 +7,8 @@ import DistributionCard from "../components/statistics/DistributionCard";
 import ImprovementChart from "../components/statistics/ImprovementChart";
 import CalculationLoader from "../components/statistics/Loading";
 import VariabilityCard from "../components/statistics/VariabilityCard";
-import { useSolveManager } from "../hooks/solves/useSolveManager";
 import { useDemoSolves } from "../hooks/solves/useDemoSolves";
-import { LockedOverlay } from "../components/statistics/LockedOverlay";
+import { useSolveManager } from "../hooks/solves/useSolveManager";
 
 function StatisticsScreen({ selectedDiscipline, sidebarResizing }: { selectedDiscipline: Discipline, sidebarResizing: boolean }) {
     const theme = useTheme();
@@ -20,7 +17,7 @@ function StatisticsScreen({ selectedDiscipline, sidebarResizing }: { selectedDis
     const [selectedSession] = useState<string>("default");
 
     const { solvesChrono, hasFetched } = useSolveManager(selectedDiscipline, selectedSession);
-    const demoSolves = useDemoSolves(!isLoading && isLocked);
+    const {demoSolves, hasFetchedDemo} = useDemoSolves(!isLoading && isLocked);
     const displayData: Solve[] = useMemo(() => {
         if (!hasFetched) return [];
 
@@ -33,7 +30,9 @@ function StatisticsScreen({ selectedDiscipline, sidebarResizing }: { selectedDis
     useEffect(() => {
         setIsLoading(!hasFetched);
         if (hasFetched) {
-            setIsLocked(solvesChrono.length < 12);
+            const locked = solvesChrono.length < 12
+            setIsLocked(locked);
+            setIsLoading(locked && !hasFetchedDemo);
         }
     }, [hasFetched, solvesChrono])
 

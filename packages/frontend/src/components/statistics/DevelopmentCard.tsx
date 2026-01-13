@@ -22,58 +22,58 @@ const DevelopmentCard = ({ solvesChrono, numTrueSolves }: any) => {
     return (
         <GraphCard title={"Improvement speed"} icon={<AutoAwesomeIcon />}>
             <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={15} fontSize={20} hint="Keep solving !">
-            <Typography variant="h4" sx={{ color: impRate < 0 ? theme.palette.error.main : '#fff', m: 1, fontWeight: 700 }}>
-                {impRate}
-                <Box
-                    component="span"
-                    sx={{
-                        fontSize: '0.4em',
-                        ml: 0.5,
-                        color: theme.palette.text.secondary,
-                        fontWeight: 'medium'
-                    }}
-                >
-                    ms/solve
-                </Box>
-            </Typography>
-            <Divider />
-            {solvesChrono.length > 200 &&
-                <FormControl sx={{ p: 2 }}>
-                    <ToggleButtonGroup
-                        value={timeFrame}
-                        exclusive
-                        fullWidth
-                        onChange={(_event: any, v: any) => { if (v !== null) { setTimeFrame(v); } }}
+                <Typography variant="h4" sx={{ color: impRate < 0 ? theme.palette.error.main : '#fff', m: 1, fontWeight: 700 }}>
+                    {impRate}
+                    <Box
+                        component="span"
                         sx={{
-                            borderRadius: 2,
-                            maxHeight: "25px",
-                            bgcolor: "#090909",
-                            border: "1px solid #333333"
+                            fontSize: '0.4em',
+                            ml: 0.5,
+                            color: theme.palette.text.secondary,
+                            fontWeight: 'medium'
                         }}
                     >
-                        <ToggleButton value={"recent"}>
-                            Recent
-                        </ToggleButton>
-                        <ToggleButton value={"all"} >
-                            All
-                        </ToggleButton>
+                        ms/solve
+                    </Box>
+                </Typography>
+                <Divider />
+                {solvesChrono.length > 200 &&
+                    <FormControl sx={{ p: 2 }}>
+                        <ToggleButtonGroup
+                            value={timeFrame}
+                            exclusive
+                            fullWidth
+                            onChange={(_event: any, v: any) => { if (v !== null) { setTimeFrame(v); } }}
+                            sx={{
+                                borderRadius: 2,
+                                maxHeight: "25px",
+                                bgcolor: "#090909",
+                                border: "1px solid #333333"
+                            }}
+                        >
+                            <ToggleButton value={"recent"}>
+                                Recent
+                            </ToggleButton>
+                            <ToggleButton value={"all"} >
+                                All
+                            </ToggleButton>
 
-                    </ToggleButtonGroup>
-                </FormControl>
-            }
-            <Grid container spacing={1.5}>
-                {displayed.map((key: string, _index: number) => {
-                    const trend: any = timeFrame == "all" ? trends.all[key as keyof typeof trends.all] : trends.recent[key as keyof typeof trends.all];
-                    if (trend.relativeChange === 0 && trend.absoluteChange === 0 && trend.slope === 0) {
-                        return null;
-                    }
-                    return (
-                        <Grid size={{ xs: 12, md: 6, sm: 6 }} key={key}>
-                            <TrendCard trend={trend} headerKey={key} current={recentSolve[key]} />
-                        </Grid>
-                    );
-                })}
-            </Grid>
+                        </ToggleButtonGroup>
+                    </FormControl>
+                }
+                <Grid container spacing={1.5}>
+                    {displayed.map((key: string, _index: number) => {
+                        const trend: any = timeFrame == "all" ? trends.all[key as keyof typeof trends.all] : trends.recent[key as keyof typeof trends.all];
+                        if (trend.relativeChange === 0 && trend.absoluteChange === 0 && trend.slope === 0) {
+                            return null;
+                        }
+                        return (
+                            <Grid size={{ xs: 12, md: 6, sm: 6 }} key={key}>
+                                <TrendCard trend={trend} headerKey={key} current={recentSolve[key]} />
+                            </Grid>
+                        );
+                    })}
+                </Grid>
             </LockedOverlay>
         </GraphCard>
     );

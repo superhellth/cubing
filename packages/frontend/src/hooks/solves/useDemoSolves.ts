@@ -34,5 +34,5 @@ export const useDemoSolves = (loadSolves: boolean) => {
         return () => { mounted = false; };
     }, [loadSolves]);
 
-    return solvesChrono;
+    return {demoSolves: solvesChrono, hasFetchedDemo: hasFetched};
 }

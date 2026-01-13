@@ -1,14 +1,12 @@
 import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import MenuIcon from '@mui/icons-material/Menu';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { Box, Divider, FormControl, ListItemText, MenuItem, Select, Stack, Typography, useTheme } from '@mui/material';
-import { useState } from 'react';
+import { Box, Divider, Menu, MenuItem, Stack, Typography, useTheme } from '@mui/material';
+import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useTimerSettings } from '../../hooks/TimerSettingsContext';
 import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
 import HCButton from '../HCButton';
 import TimerSettings from '../timer/TimerSettings';
@@ -20,16 +18,20 @@ interface SidebarProps {
     onDisciplineChange: (d: Discipline) => void;
     isResizing: boolean;
     toggleResize: (b: boolean) => void;
+    isCollapsed: boolean;
     isVisible: boolean;
+    setIsCollapsed: (b: boolean) => void;
 }
 
-export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange, isVisible, isResizing, toggleResize: setIsResizing }: SidebarProps) {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange, isCollapsed, setIsCollapsed,
+    isVisible, isResizing, toggleResize: setIsResizing }: SidebarProps) {
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const navigate = useNavigate();
     const location = useLocation();
     const theme = useTheme();
-    const { updateSetting } = useTimerSettings();
+    const [anchorEl, setAnchorEl] = useState<any>(null);
+    const anchorRef = useRef(null);
+    const open = Boolean(anchorEl);
 
     const handleNavBarToggle = () => {
         if (isResizing) {
@@ -47,56 +49,133 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
         <NavContainer component="nav" isVisible={isVisible}>
             {/* Main Vertical Bar */}
             <SidebarContainer collapsed={isCollapsed} spacing={2}>
-                {isCollapsed ? (
-                    <HCButton isSelected={true} onClick={handleNavBarToggle}>
-                        <MenuIcon />
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ width: "100%", backgroundColor: isCollapsed ? theme.palette.secondary.main : theme.palette.primary.main, borderRadius: "10px" }}
+                >
+                    <HCButton isSelected={true} drawBorder={false} onClick={handleNavBarToggle} ref={anchorRef}>
+                        <i
+                            className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(selectedDiscipline)}`}
+                            style={{
+                                borderRadius: "10px",
+                                fontSize: "40px", transition: "transform 0.3s ease-in-out",
+                                transform: isCollapsed ? "rotate(0deg)" : "rotate(45deg)"
+                            }}
+                        />
                     </HCButton>
-                ) : (
-                    <Stack direction="row" alignItems="center" spacing={3}>
-                        <HCButton isSelected={true} onClick={handleNavBarToggle}>
-                            <MenuIcon />
-                        </HCButton>
-                        <Typography variant='h5' sx={{ fontWeight: "bold" }}>Cosmic</Typography>
-                    </Stack>
-                )}
-                <Divider sx={{ width: "100%" }} />
 
-                {isCollapsed ? (
-                    <i className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(selectedDiscipline)}`} style={{ fontSize: "40px", color: theme.palette.info.dark }} />
-                ) : (
-                    <Stack direction="row" alignItems="center" spacing={2} sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-                        <i className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(selectedDiscipline)}`} style={{ fontSize: "40px", color: theme.palette.info.dark }} />
-                        <FormControl sx={{ bgcolor: "#090909", border: "1px solid #333333", p: 1, borderRadius: 2, height: "48px", flex: 1,
-                         }}>
-                            <Select
-                                value={selectedDiscipline}
-                                variant="standard"
-                                onChange={(event: any) => { onDisciplineChange(event.target.value); updateSetting("lastStatDiscipline", event.target.value) }}
-                                renderValue={(selected) => selected}
-                                sx={{
-                                    '.MuiSelect-icon': {
-                                        color: 'white',
-                                    },
+                    {/* 2. The Dropdown (Only renders when expanded) */}
+                    {!isCollapsed && (
+                        <>
+
+                            <HCButton isSelected={true} drawBorder={true} onClick={() => setAnchorEl(anchorRef.current)} sx={{ flex: 1 }}>
+                                <Typography noWrap sx={{ flex: 1, }}>{selectedDiscipline}</Typography>
+                                <ExpandMoreIcon sx={{
+                                    fontSize: "40px", transition: "transform 0.3s ease-in-out",
+                                    transform: open ? "rotate(180deg)" : "rotate(0deg)", zIndex: 10
+                                }} />
+                            </HCButton>
+                            <Menu
+                                id="basic-menu"
+                                anchorEl={anchorEl}
+                                open={open}
+                                onClose={() => setAnchorEl(null)}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                }}
+                                slotProps={{
+                                    paper: {
+                                        sx: {
+                                            bgcolor: theme.palette.primary.main,
+                                            border: "1px solid rgba(255, 255, 255, 0.1)",
+                                            borderRadius: "10px",
+                                            marginTop: 1,
+                                            width: "236px",
+                                        }
+                                    }
                                 }}
                             >
-                                {[...EVENT_AND_DISCIPLINES_MAP.keys()].map((discipline) => (
-                                    <MenuItem key={discipline} value={discipline} sx={{ bgcolor: "#090909" }}>
-                                        <ListItemText primary={discipline} />
-                                        {discipline === selectedDiscipline && (
-                                            <CheckRoundedIcon
-                                                sx={{
-                                                    color: theme.palette.info.main,
-                                                    fontSize: '1.2rem'
+                                <MenuItem
+                                    disableRipple
+                                    sx={{
+                                        // 1. Remove the gray hover effect on the container
+                                        "&:hover": { backgroundColor: "transparent" },
+                                        // 2. Change cursor so it doesn't look clickable outside the buttons
+                                        cursor: "default",
+                                        padding: 0
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: "grid",
+                                            gridTemplateColumns: "repeat(3, 1fr)", // Force 3 columns
+                                            padding: 0,
+                                            width: "100%"
+                                        }}
+                                    >
+                                        {[...EVENT_AND_DISCIPLINES_MAP.keys()].map((discipline) => (
+                                            <Box
+                                                onClick={() => {
+                                                    onDisciplineChange(discipline);
+                                                    setAnchorEl(null);
                                                 }}
-                                            />
-                                        )}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Stack>
-                )}
-                <NavigationButton isSelected={location.pathname === "/"} onClick={() => navigate("/")} icon={<AlarmFilledIcon />} label="Timer" isCollapsed={isCollapsed}>
+                                                sx={{
+                                                    backgroundColor: discipline === selectedDiscipline ? theme.palette.primary.main : theme.palette.secondary.main,
+                                                    alignItems: "center",
+                                                    justifyContent: "center",
+                                                    display: "flex",
+                                                    width: "100%",
+                                                    aspectRatio: "1 / 1",
+                                                    border: "1px solid",
+                                                    "&:hover": {
+                                                        backgroundColor: discipline === selectedDiscipline ? "rgba(255, 255, 255, 0.01)" : "rgba(255, 255, 255, 0.1)",
+                                                        cursor: "pointer"
+                                                    },
+                                                    borderColor: "rgba(255, 255, 255, 0.1)"
+                                                    // borderRadius: "10px"
+                                                }}>
+
+                                                <HCButton
+                                                    key={discipline}
+                                                    drawBorder={false}
+                                                    isSelected={discipline === selectedDiscipline}
+                                                    sx={{
+                                                        // Optional: Ensure buttons are square or uniform size
+                                                        display: "flex",
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                    }}
+                                                >
+                                                    <Box>
+
+                                                        <i
+                                                            className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(discipline)}`}
+                                                            style={{ fontSize: "40px" }} // Slightly smaller icon for grid
+                                                        />
+                                                        {/* <Typography>{discipline}</Typography> */}
+                                                    </Box>
+                                                </HCButton>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </MenuItem>
+                            </Menu>
+                        </>
+                    )}
+                </Stack>
+                <Divider sx={{ width: "100%" }} />
+
+                <NavigationButton isSelected={location.pathname === "/"} onClick={() => navigate("/")} icon={<AlarmFilledIcon />}
+                    label="Timer"
+                    isCollapsed={isCollapsed}
+                    isVisible={isVisible}>
                 </NavigationButton>
                 <NavigationButton isSelected={location.pathname === "/stats"} onClick={() => navigate("/stats")} icon={<QueryStatsOutlinedIcon />}
                     label="Statistics" isCollapsed={isCollapsed}>
@@ -105,19 +184,27 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                 <Box sx={{ height: "100%" }}>
 
                 </Box>
-                {/* onClick={() => { setSettingsOpen(true); }} isSelected={true}> */}
 
                 <NavigationButton isSelected={false} onClick={() => setSettingsOpen(true)} icon={<SettingsIcon />}
                     label="Settings" isCollapsed={isCollapsed}>
                 </NavigationButton>
 
-                <Box sx={{
-                    width: "100%", opacity: isCollapsed ? 0 : 1,
-                    pointerEvents: isCollapsed ? 'none' : 'auto',
-                    transition: !isCollapsed
-                        ? `all 1s cubic-bezier(0.19, 1, 0.22, 1) 0.1s`
-                        : `all 0.1s cubic-bezier(0.19, 1, 0.22, 1) 0s`,
-                }}>
+                <Box
+                    // Keep the key if you want to force a re-render on visibility change, 
+                    // effectively double-ensuring the "instant" effect.
+                    key={isVisible ? "shown" : "hidden"}
+                    sx={{
+                        width: "100%",
+                        opacity: isCollapsed ? 0 : 1,
+                        // transition: isVisible ? "all 0.1s ease-in-out 0.11s" : "none",
+                        transition: isCollapsed
+                            ? "opacity 0.1s ease-out, maxWidth 0.1s ease-out"   // COLLAPSING (Fast)
+                            : "opacity 0.3s ease-in 0.15s, maxWidth 0.3s ease-in",
+                        // overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        pointerEvents: isCollapsed ? 'none' : 'auto',
+                    }}
+                >
                     <Divider sx={{ width: "100%", marginTop: 2, marginBottom: 2 }} />
                     <PrivacyButton onClick={() => window.open('/privacy-policy', '_blank')}>
                         <Stack direction="row" alignItems="center" spacing={1}>

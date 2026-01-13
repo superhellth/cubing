@@ -26,6 +26,7 @@ const AvgGraphs = memo(({ solves, settings }: { solves: Solve[], settings: any }
             index: i + 1,
             id: solve.id,
             date: new Date(solve.date),
+            duration: cleanVal(solve.duration),
             avg5: cleanVal(solve.avg5),
             avg12: cleanVal(solve.avg12),
             avg100: cleanVal(solve.avg100),

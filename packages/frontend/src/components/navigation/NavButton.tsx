@@ -1,7 +1,7 @@
 import { IconButton, Typography } from "@mui/material";
 import { Box, styled } from "@mui/system";
 
-const NavigationButton = ({ icon, label, isCollapsed, isSelected, onClick }: any) => {
+const NavigationButton = ({ icon, label, isCollapsed, isSelected, onClick, isVisible }: any) => {
   return (
     <NavButton isSelected={isSelected} onClick={onClick}>
       <Box
@@ -23,9 +23,9 @@ const NavigationButton = ({ icon, label, isCollapsed, isSelected, onClick }: any
       <Box
         sx={{
           // Animation Logic
-          maxWidth: isCollapsed ? 0 : "200px", // Animate from 0 to ample space
-          opacity: isCollapsed ? 0 : 1,        // Fade in/out
-          transition: "all 0.1s ease-in-out",  // Smooth speed curve
+          maxWidth: isCollapsed ? 0 : "200px",
+          opacity: isCollapsed ? 0 : 1,
+          transition: isVisible ? "all 0.1s ease-in-out" : "none",
           
           // Layout safety
           overflow: "hidden",     // Hides content as it shrinks

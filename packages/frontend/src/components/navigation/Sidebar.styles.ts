@@ -24,6 +24,7 @@ export const SidebarContainer = styled(Stack)<{ collapsed: boolean }>(({ theme, 
     backgroundColor: theme.palette.secondary.main,
     zIndex: 20,
     position: "relative",
+    overflow: "hidden",
     transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1)'
 }));
 
@@ -43,7 +44,6 @@ export const PrivacyButton = styled(IconButton)(({ theme }) => ({
     borderRadius: '20px',
     padding: 0,
     border: '1px solid transparent',
-    transition: 'all 0.3s ease, visibility 0s',
 
     '&:hover': {
         color: '#fff',

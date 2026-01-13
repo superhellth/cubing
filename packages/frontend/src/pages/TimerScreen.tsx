@@ -3,7 +3,8 @@ import TimerScreenDesktop from "./TimerScreen.desktop";
 import type { Discipline } from "@cubing/shared";
 import TimerScreenMobile from "./TimerScreen.mobile";
 
-function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
+function TimerScreen({ selectedDiscipline, updateSidebarVisibility, setSidebarIsCollapsed }:
+    { selectedDiscipline: Discipline, updateSidebarVisibility: Function, setSidebarIsCollapsed: Function }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -12,7 +13,7 @@ function TimerScreen({ selectedDiscipline, updateSidebarVisibility }: { selected
             {isMobile ? (
                 <TimerScreenMobile selectedDiscipline={selectedDiscipline} updateSidebarVisibility={updateSidebarVisibility} />
             ) : (
-                <TimerScreenDesktop selectedDiscipline={selectedDiscipline} updateSidebarVisibility={updateSidebarVisibility} />
+                <TimerScreenDesktop selectedDiscipline={selectedDiscipline} updateSidebarVisibility={updateSidebarVisibility} setSidebarIsCollapsed={setSidebarIsCollapsed} />
             )}
         </>
     );

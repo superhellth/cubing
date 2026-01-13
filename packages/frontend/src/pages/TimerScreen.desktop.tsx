@@ -16,7 +16,8 @@ import { useTimerLogic } from "../hooks/useTimerLogic";
 import { getDisplayableTime } from "../utils/solveUtils";
 import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
 
-function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
+function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSidebarIsCollapsed }:
+    { selectedDiscipline: Discipline, updateSidebarVisibility: Function, setSidebarIsCollapsed: Function }) {
     const { settings } = useTimerSettings();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const { solvesChrono, addSolve, deleteSolve, deleteMany, updateSolveStatus, currentScramble, pb } =
@@ -40,6 +41,11 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility }: { s
     useEffect(() => {
         updateSidebarVisibility(!hideElements);
     }, [hideElements]);
+    useEffect(() => {
+        if (timerStatus === TimerStatus.Ready) {
+            setSidebarIsCollapsed(true);
+        }
+    }, [timerStatus])
 
     const openSolveDetailsScreen = useCallback((solve: Solve) => {
         setSelectedSolve(solve);

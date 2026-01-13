@@ -53,8 +53,9 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
             display: "flex", justifyContent: 'flex-end', alignItems: 'flex-start', width: "100%", height: "100%", minHeight: "42px"
         }}>
             <SidebarCard>
-
                 <HCButton
+                    drawBorder={true}
+                    isSelected={true}
                     sx={{
                         position: "absolute",
                         top: 0,
@@ -64,7 +65,7 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
                         height: '40px',
                         borderRadius: '50%',
                     }}
-                    onClick={() => onSolveTableVisibilityChange(isCollapsed)} isSelected={true}>
+                    onClick={() => onSolveTableVisibilityChange(isCollapsed)}>
                     {!isCollapsed ? <UnfoldLessIcon /> : <UnfoldMoreIcon />}
                 </HCButton>
 

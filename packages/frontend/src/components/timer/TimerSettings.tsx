@@ -19,7 +19,7 @@ import Typography from "@mui/material/Typography";
 import { Box, Stack, useTheme } from "@mui/system";
 import { useTimerSettings } from "../../hooks/TimerSettingsContext";
 
-const AVERAGE_DISPLAY_ORDER = ["avg5", "avg12", "avg100", "avg1000", "pb"];
+const AVERAGE_DISPLAY_ORDER = ["duration", "avg5", "avg12", "avg100", "avg1000", "pb"];
 
 function TimerSettings({ isOpen, onClose }: { isOpen: boolean, onClose: Function }) {
     const theme = useTheme();

@@ -17,6 +17,7 @@ import { TimerSettingsProvider } from './hooks/TimerSettingsContext';
 const dbReader: DBReader = DBReader.instance;
 
 function App() {
+  const [sidebarIsCollapsed, setSidebarIsCollapsed] = useState<boolean>(false);
   const [hasMounted, setHasMounted] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);
@@ -57,6 +58,8 @@ function App() {
           <Box sx={{ width: "100%", height: "100%", bgcolor: theme.palette.primary.main, display: "flex" }}>
             <Sidebar selectedDiscipline={selectedDiscipline}
               onDisciplineChange={handleDisciplineChange}
+              isCollapsed={sidebarIsCollapsed}
+              setIsCollapsed={setSidebarIsCollapsed}
               isVisible={sidebarVisible}
               isMobile={isMobile}
               isResizing={sidebarResizing}
@@ -64,7 +67,12 @@ function App() {
             />
             <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
               <Routes>
-                <Route path="/" element={<TimerScreen selectedDiscipline={selectedDiscipline} updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)} />} />
+                <Route path="/" element={
+                  <TimerScreen
+                  selectedDiscipline={selectedDiscipline}
+                  updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)}
+                  setSidebarIsCollapsed={setSidebarIsCollapsed}
+                  />} />
                 <Route path="/stats" element={<StatisticsScreen selectedDiscipline={selectedDiscipline} sidebarResizing={sidebarResizing} />} />
                 <Route path="/privacy-policy" element={<Licenses />} />
               </Routes>

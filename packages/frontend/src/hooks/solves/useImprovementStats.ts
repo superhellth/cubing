@@ -79,12 +79,12 @@ const useImprovementStats = (solvesChrono: Solve[]) => {
                 avg1000: getTrend(columns.avg1000),
             },
             recent: {
-                pb: getTrend(columns.pb.slice(RECENT_LIMIT)),
-                duration: getTrend(columns.duration.slice(RECENT_LIMIT)),
-                avg5: getTrend(columns.avg5.slice(RECENT_LIMIT)),
-                avg12: getTrend(columns.avg12.slice(RECENT_LIMIT)),
-                avg100: getTrend(columns.avg100.slice(RECENT_LIMIT)),
-                avg1000: getTrend(columns.avg1000.slice(RECENT_LIMIT)),
+                pb: getTrend(columns.pb.slice(-RECENT_LIMIT)),
+                duration: getTrend(columns.duration.slice(-RECENT_LIMIT)),
+                avg5: getTrend(columns.avg5.slice(-RECENT_LIMIT)),
+                avg12: getTrend(columns.avg12.slice(-RECENT_LIMIT)),
+                avg100: getTrend(columns.avg100.slice(-RECENT_LIMIT)),
+                avg1000: getTrend(columns.avg1000.slice(-RECENT_LIMIT)),
             }
         };
     }, [solvesChrono]);

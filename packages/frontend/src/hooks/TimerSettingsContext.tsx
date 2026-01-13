@@ -7,7 +7,7 @@ const defaultSettings = {
     hideElementsWhileSolving: false,
     readyAfter: 200,
     avgGraphXAxis: 'id',
-    avgGraphDisplay: ["avg5", "avg12"],
+    avgGraphDisplay: ["duration", "avg5", "avg12"],
     avgGraphNumSolves: 50,
     lastStatDiscipline: Discipline.ThreeByThree,
     clickToTime: false,
