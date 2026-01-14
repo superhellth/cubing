@@ -18,8 +18,7 @@ function descendingComparator(a: any, b: any, orderBy: any) {
     if (!isNaN(Number(valA)) && !isNaN(Number(valB))) {
         valA = Number(valA);
         valB = Number(valB);
-    }
-    else if (typeof valA === 'string' && typeof valB === 'string') {
+    } else if (typeof valA === 'string' && typeof valB === 'string') {
         valA = valA.toLowerCase();
         valB = valB.toLowerCase();
     }

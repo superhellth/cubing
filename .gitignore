@@ -16,6 +16,7 @@ licenses.json
 dist
 dist-ssr
 *.local
+# importSolves.ts
 
 # Editor directories and files
 .vscode/*
