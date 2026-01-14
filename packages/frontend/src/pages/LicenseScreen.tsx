@@ -27,7 +27,7 @@ interface LicensePackage {
 
 const Licenses = () => {
     // Transform the data object into an array
-    const [licenses, setLicenses] = useState(null);
+    const [licenses, setLicenses] = useState<any>(null);
     useEffect(() => {
         // Fetch the file from the public folder
         fetch('/licenses.json')

@@ -20,7 +20,8 @@ const DevelopmentCard = ({ solvesChrono, numTrueSolves }: any) => {
     }, [solvesChrono, timeFrame])
 
     return (
-        <GraphCard title={"Improvement speed"} icon={<AutoAwesomeIcon />}>
+        <GraphCard title={"Improvement speed"} icon={<AutoAwesomeIcon />}
+        hint="These statistics do not simply compare your current stats with your stats of the past, but use averaging to more realistically reflect your development.">
             <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={15} fontSize={20} hint="Keep solving !">
                 <Typography variant="h4" sx={{ color: impRate < 0 ? theme.palette.error.main : '#fff', m: 1, fontWeight: 700 }}>
                     {impRate}
@@ -37,7 +38,7 @@ const DevelopmentCard = ({ solvesChrono, numTrueSolves }: any) => {
                     </Box>
                 </Typography>
                 <Divider />
-                {solvesChrono.length > 200 &&
+                {solvesChrono.length > 200 ? (
                     <FormControl sx={{ p: 2 }}>
                         <ToggleButtonGroup
                             value={timeFrame}
@@ -60,6 +61,11 @@ const DevelopmentCard = ({ solvesChrono, numTrueSolves }: any) => {
 
                         </ToggleButtonGroup>
                     </FormControl>
+                ) : (
+                    <Box sx={{height: "1rem"}}>
+
+                    </Box>
+                )
                 }
                 <Grid container spacing={1.5}>
                     {displayed.map((key: string, _index: number) => {

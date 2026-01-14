@@ -27,6 +27,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
     const [currentScramble, setCurrentScramble] = useState<string>("Generating Scramble...");
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [hasFetched, setHasFetched] = useState(false);
+    const [dataIsReady, setDataIsReady] = useState<boolean>(false);
     const [userID] = useState<string>(() => {
         const USER_ID_KEY = "userID";
         let uID = localStorage.getItem(USER_ID_KEY);
@@ -38,10 +39,11 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
     });
 
     useEffect(() => {
-        setHasFetched(false);
-    }, [selectedDiscipline, selectedSession, userID]);
+        setDataIsReady(hasFetched && statlessSolvesChrono.length === solvesChrono.length);
+    }, [statlessSolvesChrono, solvesChrono, hasFetched])
 
     useEffect(() => {
+        setHasFetched(false);
         let mounted = true;
 
         const initData = async () => {
@@ -119,7 +121,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         currentScramble,
         isLimitDialogOpen,
         pb,
-        hasFetched,
+        dataIsReady,
         setIsLimitDialogOpen,
         addSolve,
         deleteSolve,

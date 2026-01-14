@@ -1,7 +1,5 @@
-import { getGrossDuration, SOLVE_STATS_KEYS, Status, type Solve, type SolveStats, type StatlessSolve } from "@cubing/shared";
+import { getGrossDuration, SOLVE_STATS_KEYS, Status, type Solve, type SolveStats } from "@cubing/shared";
 import { randomScrambleForEvent } from "cubing/scramble";
-import DBReader from "../services/dbReader";
-import { useSolveStats } from "../hooks/solves/useSolveStats";
 
 export async function generateScramble(event: string = "333") {
     return (await randomScrambleForEvent(event)).toString();

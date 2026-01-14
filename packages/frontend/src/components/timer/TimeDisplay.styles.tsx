@@ -24,7 +24,7 @@ export const FadeContent = styled(Box, {
     
     transition: !isCollapsed
         ? `opacity 1s cubic-bezier(0.19, 1, 0.22, 1) 0.1s`
-        : `opacity 0.1s cubic-bezier(0.19, 1, 0.22, 1) 0s`,
+        : `opacity 0.05s cubic-bezier(0.19, 1, 0.22, 1) 0s`,
 }));
 
 export const PanelPaper = styled(Paper)(({ theme }) => ({

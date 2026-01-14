@@ -10,7 +10,7 @@ export const ScreenContainer = styled(Box)<any>(({ theme, isMobile }) => ({
     overflow: 'hidden',
 }));
 
-export const TimerPanel = styled(Box)(({ theme }) => ({
+export const TimerPanel = styled(Box)<any>(({ theme }) => ({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
@@ -18,7 +18,7 @@ export const TimerPanel = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.primary.main,
     alignItems: "center",
     justifyContent: 'space-between',
-    padding: "16px 40px",
+    padding: "16px 32px",
     position: 'relative',
 }));
 

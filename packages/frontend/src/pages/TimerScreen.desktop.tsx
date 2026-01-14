@@ -90,11 +90,10 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
 
             <Box sx={{
                 visibility: !hideElements ? "visible" : "hidden",
-                m: "16px 16px",
-                marginLeft: "auto",
-                width: solveTableVisible ? "350px" : '42px',
-                maxHeight: solveTableVisible ? "1000px" : '42px',
-                transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1), max-height 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
+                marginTop: "16px",
+                marginRight: "16px",
+                minWidth: "91px",
+                p: 0
             }}>
                 <TimeDisplay solves={solvesChrono} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={!solveTableVisible}
                     onSolveTableVisibilityChange={onSolveTableVisibilityChange} />

@@ -36,7 +36,7 @@ export default function SidebarMobile({ selectedDiscipline, onDisciplineChange, 
                     {/* Mobile Header: Close + Main Nav */}
                     <MobileDrawerHeader>
                         {/* Home */}
-                        <HCButton isSelected={location.pathname === "/"} onClick={() => { navigate("/"); setOpenDrawer(false); }}>
+                        <HCButton onClick={() => { navigate("/"); setOpenDrawer(false); }}>
                             <AlarmFilledIcon sx={{ fontSize: 24 }} />| Timer
                         </HCButton>
 

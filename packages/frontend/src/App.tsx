@@ -17,7 +17,7 @@ import { TimerSettingsProvider } from './hooks/TimerSettingsContext';
 const dbReader: DBReader = DBReader.instance;
 
 function App() {
-  const [sidebarIsCollapsed, setSidebarIsCollapsed] = useState<boolean>(false);
+  const [sidebarIsCollapsed, setSidebarIsCollapsed] = useState<boolean>(true);
   const [hasMounted, setHasMounted] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);

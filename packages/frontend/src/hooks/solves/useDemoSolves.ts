@@ -7,11 +7,16 @@ export const useDemoSolves = (loadSolves: boolean) => {
     const [statlessSolvesChrono, setStatlessSolvesChrono] = useState<StatlessSolve[]>([]);
     const solvesChrono: Solve[] = useSolveStats(statlessSolvesChrono);
     const [hasFetched, setHasFetched] = useState(false);
+    const [demoIsReady, setDemoIsReady] = useState<boolean>(false);
 
     useEffect(() => {
+        setDemoIsReady(hasFetched && solvesChrono.length !== 0);
+    }, [statlessSolvesChrono, solvesChrono, hasFetched])
+
+    useEffect(() => {
+        console.log("Load solves: " + loadSolves)
         if (!loadSolves) {
             setStatlessSolvesChrono([]);
-            setHasFetched(true);
             return;
         }
 
@@ -34,5 +39,5 @@ export const useDemoSolves = (loadSolves: boolean) => {
         return () => { mounted = false; };
     }, [loadSolves]);
 
-    return {demoSolves: solvesChrono, hasFetchedDemo: hasFetched};
+    return { demoSolves: solvesChrono, demoIsReady };
 }

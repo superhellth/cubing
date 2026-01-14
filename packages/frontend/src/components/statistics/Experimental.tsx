@@ -1,13 +1,11 @@
-import { memo, useMemo } from "react";
-import { useSolveManager } from "../../hooks/solves/useSolveManager";
 import { Discipline } from "@cubing/shared";
 import { LineChart } from "@mui/x-charts";
+import { memo, useMemo } from "react";
 import useDownsampling from "../../hooks/solves/useDownsampling";
-import { useOutlierDetection } from "../../hooks/solves/useOutlierDetection";
+import { useSolveManager } from "../../hooks/solves/useSolveManager";
 
 const Experimental = memo(() => {
     const { solvesChrono } = useSolveManager(Discipline.OneHanded, "default");
-    const { nonOutliers } = useOutlierDetection(solvesChrono);
     const sampledSolves = useDownsampling(solvesChrono, 500, false);
     const avgs: (number | null | undefined)[] = sampledSolves.map(s => s.avg100);
     const detrendedTimes: (number | null)[] = useMemo(() => {

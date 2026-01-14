@@ -33,12 +33,12 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
     const anchorRef = useRef(null);
     const open = Boolean(anchorEl);
 
-    const handleNavBarToggle = () => {
+    const onMouseEvent = (isEntering: boolean) => {
         if (isResizing) {
             return;
         } else {
             setIsResizing(true);
-            setIsCollapsed(!isCollapsed);
+            setIsCollapsed(!isEntering);
             setTimeout(() => {
                 setIsResizing(false);
             }, 301)
@@ -46,31 +46,39 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
     }
 
     return (
-        <NavContainer component="nav" isVisible={isVisible}>
+        <NavContainer component="nav" isVisible={isVisible} onMouseEnter={() => onMouseEvent(true)} onMouseLeave={() => {if (!isCollapsed) onMouseEvent(false)}}>
             {/* Main Vertical Bar */}
             <SidebarContainer collapsed={isCollapsed} spacing={2}>
                 <Stack
                     direction="row"
                     alignItems="center"
                     spacing={2}
-                    sx={{ width: "100%", backgroundColor: isCollapsed ? theme.palette.secondary.main : theme.palette.primary.main, borderRadius: "10px" }}
+                    ref={anchorRef}
+                    sx={{ width: "100%", borderRadius: "10px" }}
                 >
-                    <HCButton isSelected={true} drawBorder={false} onClick={handleNavBarToggle} ref={anchorRef}>
-                        <i
-                            className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(selectedDiscipline)}`}
-                            style={{
-                                borderRadius: "10px",
-                                fontSize: "40px", transition: "transform 0.3s ease-in-out",
-                                transform: isCollapsed ? "rotate(0deg)" : "rotate(45deg)"
-                            }}
-                        />
-                    </HCButton>
+
+                    <i
+                        onMouseEnter={() => onMouseEvent(true)}
+                        className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(selectedDiscipline)}`}
+                        style={{
+                            color: theme.palette.info.main,
+                            padding: 0,
+                            borderRadius: "10px",
+                            fontSize: "40px", transition: "transform 0.3s ease-in-out",
+                            transform: isCollapsed ? "rotate(0deg)" : "rotate(45deg)"
+                        }}
+                    />
 
                     {/* 2. The Dropdown (Only renders when expanded) */}
                     {!isCollapsed && (
                         <>
 
-                            <HCButton isSelected={true} drawBorder={true} onClick={() => setAnchorEl(anchorRef.current)} sx={{ flex: 1 }}>
+                            <HCButton onClick={() => setAnchorEl(anchorRef.current)}
+                                sx={{
+                                    flex: 1, backgroundColor: theme.palette.primary.main, height: "100%", '&:hover': {
+                                        backgroundColor: theme.palette.primary.main
+                                    },
+                                }}>
                                 <Typography noWrap sx={{ flex: 1, }}>{selectedDiscipline}</Typography>
                                 <ExpandMoreIcon sx={{
                                     fontSize: "40px", transition: "transform 0.3s ease-in-out",
@@ -106,7 +114,7 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                                     disableRipple
                                     sx={{
                                         // 1. Remove the gray hover effect on the container
-                                        "&:hover": { backgroundColor: "transparent" },
+                                        // "&:hover": { backgroundColor: "transparent" },
                                         // 2. Change cursor so it doesn't look clickable outside the buttons
                                         cursor: "default",
                                         padding: 0
@@ -125,6 +133,7 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                                                 onClick={() => {
                                                     onDisciplineChange(discipline);
                                                     setAnchorEl(null);
+                                                    onMouseEvent(false);
                                                 }}
                                                 sx={{
                                                     backgroundColor: discipline === selectedDiscipline ? theme.palette.primary.main : theme.palette.secondary.main,
@@ -141,27 +150,12 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                                                     borderColor: "rgba(255, 255, 255, 0.1)"
                                                     // borderRadius: "10px"
                                                 }}>
+                                                <i
 
-                                                <HCButton
-                                                    key={discipline}
-                                                    drawBorder={false}
-                                                    isSelected={discipline === selectedDiscipline}
-                                                    sx={{
-                                                        // Optional: Ensure buttons are square or uniform size
-                                                        display: "flex",
-                                                        justifyContent: "center",
-                                                        alignItems: "center",
-                                                    }}
-                                                >
-                                                    <Box>
-
-                                                        <i
-                                                            className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(discipline)}`}
-                                                            style={{ fontSize: "40px" }} // Slightly smaller icon for grid
-                                                        />
-                                                        {/* <Typography>{discipline}</Typography> */}
-                                                    </Box>
-                                                </HCButton>
+                                                    className={`cubing-icon event-${EVENT_AND_DISCIPLINES_MAP.get(discipline)}`}
+                                                    style={{ fontSize: "40px", color: theme.palette.info.main }} // Slightly smaller icon for grid
+                                                />
+                                                {/* <Typography>{discipline}</Typography> */}
                                             </Box>
                                         ))}
                                     </Box>

@@ -50,12 +50,17 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
 
     return (
         <Box sx={{
-            display: "flex", justifyContent: 'flex-end', alignItems: 'flex-start', width: "100%", height: "100%", minHeight: "42px"
+            display: "flex",
+            justifyContent: 'flex-end',
+            alignItems: 'flex-start',
+            marginLeft: "auto",
+            width: !isCollapsed ? "350px" : '42px',
+            maxHeight: !isCollapsed ? "100%" : '42px',
+            height: "100%",
+            transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1), max-height 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
         }}>
             <SidebarCard>
                 <HCButton
-                    drawBorder={true}
-                    isSelected={true}
                     sx={{
                         position: "absolute",
                         top: 0,
