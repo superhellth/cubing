@@ -12,8 +12,20 @@ interface SolvesTableProps {
 }
 
 function descendingComparator(a: any, b: any, orderBy: any) {
-    if (b[orderBy] < a[orderBy]) return -1;
-    if (b[orderBy] > a[orderBy]) return 1;
+    let valA = a[orderBy];
+    let valB = b[orderBy];
+
+    if (!isNaN(Number(valA)) && !isNaN(Number(valB))) {
+        valA = Number(valA);
+        valB = Number(valB);
+    }
+    else if (typeof valA === 'string' && typeof valB === 'string') {
+        valA = valA.toLowerCase();
+        valB = valB.toLowerCase();
+    }
+
+    if (valB < valA) return -1;
+    if (valB > valA) return 1;
     return 0;
 }
 

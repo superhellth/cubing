@@ -93,7 +93,7 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
                 marginTop: "16px",
                 marginRight: "16px",
                 minWidth: "91px",
-                p: 0
+                paddingBottom: "16px"
             }}>
                 <TimeDisplay solves={solvesChrono} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={!solveTableVisible}
                     onSolveTableVisibilityChange={onSolveTableVisibilityChange} />
