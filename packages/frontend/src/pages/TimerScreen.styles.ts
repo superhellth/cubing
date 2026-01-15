@@ -1,7 +1,9 @@
 import { Typography } from "@mui/material";
 import { Box, styled } from "@mui/system";
 
-export const ScreenContainer = styled(Box)<any>(({ theme, isMobile }) => ({
+export const ScreenContainer = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'isMobile',
+})<any>(({ theme, isMobile }) => ({
     display: 'flex',
     flexDirection: isMobile ? "column" : "row",
     backgroundColor: theme.palette.primary.main,

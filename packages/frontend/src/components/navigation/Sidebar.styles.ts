@@ -12,7 +12,9 @@ export const NavContainer = styled(Box, {
 }));
 
 // 2. The Fixed Sidebar (Left Bar)
-export const SidebarContainer = styled(Stack)<{ collapsed: boolean }>(({ theme, collapsed }) => ({
+export const SidebarContainer = styled(Stack, {
+    shouldForwardProp: (prop) => prop !== 'collapsed',
+})<{ collapsed: boolean }>(({ theme, collapsed }) => ({
     width: collapsed ? "75px" : "14vw",
     borderRadius: "24px",
     border: "1px solid rgba(255, 255, 255, 0.1)",

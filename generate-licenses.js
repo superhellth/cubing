@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const OUTPUT_PATH = path.join(__dirname, './public/licenses.json');
+const OUTPUT_PATH = path.join(__dirname, './packages/frontend/public/licenses.json');
 
 console.log('Asking pnpm for production dependency tree...');
 
@@ -20,7 +20,7 @@ try {
   const pnpmData = JSON.parse(pnpmOutput);
   
   // pnpm returns an array (workspaces). We want the current project (usually the first item or find by name)
-  const currentProject = pnpmData.find(p => p.name === require('./package.json').name) || pnpmData[0];
+  const currentProject = pnpmData.find(p => p.name === require('./packages/frontend/package.json').name) || pnpmData[0];
 
   const packagesMap = new Map();
 

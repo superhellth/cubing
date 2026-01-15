@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-licenses": "node generate-licenses.js",
+    "prebuild": "npm run generate-licenses"
   },
   "author": "superhellth",
   "license": "ISC",
@@ -26,6 +28,7 @@
     "downsample-lttb": "^0.0.1",
     "express-rate-limit": "^8.2.1",
     "react-chartjs-2": "^5.3.1",
+    "react-dropzone": "^14.3.8",
     "react-virtuoso": "^4.15.0",
     "tinycolor2": "^1.6.0",
     "zod": "^4.1.13"

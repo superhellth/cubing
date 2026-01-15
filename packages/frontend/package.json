@@ -3,9 +3,7 @@
   "version": "1.2.0",
   "scripts": {
     "dev": "vite",
-    "prebuild": "npm run generate-licenses",
     "build": "tsc -b && vite build",
-    "generate-licenses": "node generate-licenses.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },

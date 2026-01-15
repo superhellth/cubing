@@ -14,7 +14,6 @@ export const useDemoSolves = (loadSolves: boolean) => {
     }, [statlessSolvesChrono, solvesChrono, hasFetched])
 
     useEffect(() => {
-        console.log("Load solves: " + loadSolves)
         if (!loadSolves) {
             setStatlessSolvesChrono([]);
             return;

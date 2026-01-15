@@ -1,4 +1,3 @@
-import licenseData from '../../public/licenses.json';
 import {
     Accordion,
     AccordionDetails,
@@ -10,12 +9,14 @@ import {
     ListItem,
     ListItemText,
     Paper,
-    Typography
+    Typography,
+    useTheme
 } from '@mui/material';
 import CodeIcon from '@mui/icons-material/Code';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LinkIcon from '@mui/icons-material/Link';
 import { useEffect, useState } from 'react';
+import Loading from '../components/statistics/Loading';
 
 interface LicensePackage {
     licenses: string;
@@ -28,6 +29,7 @@ interface LicensePackage {
 const Licenses = () => {
     // Transform the data object into an array
     const [licenses, setLicenses] = useState<any>(null);
+    const theme = useTheme();
     useEffect(() => {
         // Fetch the file from the public folder
         fetch('/licenses.json')
@@ -35,10 +37,7 @@ const Licenses = () => {
             .then((data) => setLicenses(data))
             .catch((err) => console.error("Failed to load licenses", err));
     }, []);
-    if (!licenses) return <div>Loading...</div>;
-    // const licenses = Object.keys(licenseData).map((key: any) => ({
-    //     ...licenseData[key as keyof typeof licenseData],
-    // }));
+    if (!licenses) return <Box sx={{bgcolor: theme.palette.primary.main, height: "100%"}}><Loading></Loading></Box>;
 
     return (
         <Box sx={{
@@ -142,9 +141,9 @@ const Licenses = () => {
 
             {/* List of Licenses */}
             <Box component={Paper} elevation={0} variant="outlined" sx={{ width: "50%" }}>
-                {(Object.values(licenseData) as LicensePackage[]).map((pkg, index) => (
+                {(Object.values(licenses) as LicensePackage[]).map((pkg, index) => (
                     <Accordion
-                        key={pkg.name}
+                        key={index}
                         disableGutters
                         elevation={0}
                         sx={{

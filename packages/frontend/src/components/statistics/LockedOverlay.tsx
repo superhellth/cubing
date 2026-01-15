@@ -34,7 +34,9 @@ export function LockedOverlay({ children, numSolves, solvesToUnlock, hint, fontS
     );
 }
 
-const BlurrableContent = styled(Box)<{ active: boolean }>(({ active }) => ({
+const BlurrableContent = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'active',
+})<{ active: boolean }>(({ active }) => ({
     flex: 1,
     height: "100%",
     display: "flex",

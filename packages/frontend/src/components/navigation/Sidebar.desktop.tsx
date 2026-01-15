@@ -2,6 +2,7 @@ import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Box, Divider, Menu, MenuItem, Stack, Typography, useTheme } from '@mui/material';
@@ -9,9 +10,10 @@ import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
 import HCButton from '../HCButton';
-import TimerSettings from '../timer/TimerSettings';
+import TimerSettings from '../dialogs/TimerSettings';
 import NavigationButton from './NavButton';
 import { NavContainer, PrivacyButton, SidebarContainer } from './Sidebar.styles';
+import ImportDialog from '../dialogs/ImportDialog';
 
 interface SidebarProps {
     selectedDiscipline: Discipline;
@@ -26,6 +28,7 @@ interface SidebarProps {
 export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange, isCollapsed, setIsCollapsed,
     isVisible, isResizing, toggleResize: setIsResizing }: SidebarProps) {
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+    const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
     const navigate = useNavigate();
     const location = useLocation();
     const theme = useTheme();
@@ -46,9 +49,9 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
     }
 
     return (
-        <NavContainer component="nav" isVisible={isVisible} onMouseEnter={() => onMouseEvent(true)} onMouseLeave={() => {if (!isCollapsed) onMouseEvent(false)}}>
+        <NavContainer component="nav" isVisible={isVisible}>
             {/* Main Vertical Bar */}
-            <SidebarContainer collapsed={isCollapsed} spacing={2}>
+            <SidebarContainer collapsed={isCollapsed} spacing={2} onMouseEnter={() => onMouseEvent(true)} onMouseLeave={() => { if (!isCollapsed) onMouseEvent(false) }}>
                 <Stack
                     direction="row"
                     alignItems="center"
@@ -179,7 +182,11 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
 
                 </Box>
 
-                <NavigationButton isSelected={false} onClick={() => setSettingsOpen(true)} icon={<SettingsIcon />}
+                <NavigationButton isSelected={false} onClick={() => { setImportDialogOpen(true); setIsCollapsed(true) }} icon={<FileUploadIcon />}
+                    label="Import Times" isCollapsed={isCollapsed}>
+                </NavigationButton>
+
+                <NavigationButton isSelected={false} onClick={() => { setSettingsOpen(true); setIsCollapsed(true) }} icon={<SettingsIcon />}
                     label="Settings" isCollapsed={isCollapsed}>
                 </NavigationButton>
 
@@ -193,7 +200,7 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                         // transition: isVisible ? "all 0.1s ease-in-out 0.11s" : "none",
                         transition: isCollapsed
                             ? "opacity 0.1s ease-out, maxWidth 0.1s ease-out"   // COLLAPSING (Fast)
-                            : "opacity 0.3s ease-in 0.15s, maxWidth 0.3s ease-in",
+                            : "opacity 0.3s ease-in 0s, maxWidth 0.3s ease-in",
                         // overflow: "hidden",
                         whiteSpace: "nowrap",
                         pointerEvents: isCollapsed ? 'none' : 'auto',
@@ -210,6 +217,7 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
             </SidebarContainer>
 
             <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} />
+            <ImportDialog isOpen={importDialogOpen} onClose={() => setImportDialogOpen(false)} selectedDiscipline={selectedDiscipline} />
         </NavContainer >
     );
 }

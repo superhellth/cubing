@@ -10,7 +10,7 @@ const NavigationButton = ({ icon, label, isCollapsed, isSelected, onClick, isVis
           alignItems: "center",
           justifyContent: "center",
           minWidth: "24px", // Keeps icon size consistent
-          
+
           // Optional: slight scale effect on active
           transform: isSelected ? "scale(1.1)" : "scale(1)",
           transition: "transform 0.2s",
@@ -26,17 +26,17 @@ const NavigationButton = ({ icon, label, isCollapsed, isSelected, onClick, isVis
           maxWidth: isCollapsed ? 0 : "200px",
           opacity: isCollapsed ? 0 : 1,
           transition: isVisible ? "all 0.1s ease-in-out" : "none",
-          
+
           // Layout safety
           overflow: "hidden",     // Hides content as it shrinks
           whiteSpace: "nowrap",   // Prevents text wrapping
         }}
       >
         {/* Padding is applied inside the collapsing box so it disappears too */}
-        <Typography 
-          variant="body1" 
+        <Typography
+          variant="body1"
           fontWeight={isSelected ? "bold" : "medium"}
-          sx={{ marginLeft: "12px" }} 
+          sx={{ marginLeft: "12px" }}
         >
           {label}
         </Typography>
@@ -45,15 +45,17 @@ const NavigationButton = ({ icon, label, isCollapsed, isSelected, onClick, isVis
   );
 };
 
-const NavButton = styled(IconButton)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
-    color: isSelected ? theme.palette.secondary.main : theme.palette.text.primary,
-    width: "100%",
-    justifyContent: "flex-start",
-    borderRadius: "10px",
-    backgroundColor: isSelected ? theme.palette.text.primary : theme.palette.secondary.main,
-    '&:hover': {
-        backgroundColor: isSelected ? theme.palette.text.secondary : theme.palette.secondary.light,
-    },
+const NavButton = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== 'isSelected'
+})<{ isSelected: boolean }>(({ theme, isSelected }) => ({
+  color: isSelected ? theme.palette.secondary.main : theme.palette.text.primary,
+  width: "100%",
+  justifyContent: "flex-start",
+  borderRadius: "10px",
+  backgroundColor: isSelected ? theme.palette.text.primary : theme.palette.secondary.main,
+  '&:hover': {
+    backgroundColor: isSelected ? theme.palette.text.secondary : theme.palette.secondary.light,
+  },
 }));
 
 export default NavigationButton;

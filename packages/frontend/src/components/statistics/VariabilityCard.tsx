@@ -57,7 +57,7 @@ const VariabilityCard = memo(({ solvesChrono, numTrueSolves }: any) => {
 
                     <SparkLineChart data={rollingStd} showHighlight axisHighlight={{ x: "line" }} color={theme.palette.info.main} area
                         baseline="min"
-                        skipAnimation={true}
+                        // skipAnimation={true}
                         // yAxis={{
                         //     domainLimit: (minValue: number, maxValue: number) => ({
                         //         min: minValue,
