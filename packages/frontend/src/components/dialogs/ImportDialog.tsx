@@ -10,10 +10,10 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import { Box, Stack, useTheme } from "@mui/system";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
 import FileUpload from './FileUpload';
-import { extractCsTimerSession } from '../../utils/importUtils';
+import { csTimerFileToObject } from '../../utils/importUtils';
 
 const IMPORT_SOURCES = ["CsTimer"]
 
@@ -22,10 +22,48 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
     const [toDiscipline, setToDiscipline] = useState<Discipline>(selectedDiscipline);
     const [importFrom, setImportFrom] = useState<string>("CsTimer");
     const [currentFile, setCurrentFile] = useState<any>(null);
+    const [csData, setCsData] = useState<any>(null);
+    const [relevantCsTimerSessions, setRelevantCsTimerSessions] = useState<any>(null);
+
+    useEffect(() => {
+        if (currentFile == null) {
+            setCsData(null);
+            return;
+        }
+        if (importFrom == "CsTimer") {
+            let data;
+            const convertToObject = async () => {
+                data = await csTimerFileToObject(currentFile);
+                setCsData(data);
+            }
+            convertToObject();
+        }
+    }, [currentFile])
+
+    useEffect(() => {
+        if (csData == null) {
+            setRelevantCsTimerSessions(null);
+        } else {
+            const sessionData = csData.properties.sessionData;
+            const relevantSessions: any[] = [];
+            Object.entries(sessionData).forEach(([key, value]: any) => {
+                if (value.stat && value.stat[0] > 0) {
+                    relevantSessions.push({name: value.name, count: value.stat[0], solves: csData["session" + key]});
+                }
+            })
+            console.log(relevantSessions);
+            setRelevantCsTimerSessions(relevantSessions);
+        }
+    }, [csData]);
 
     const handleDisplayChange = (event: any) => {
         setToDiscipline(event.target.value);
     };
+
+    const handleFileUpload = (file: any) => {
+        setCurrentFile(file);
+    }
+
 
     return (
         <Dialog open={isOpen}>
@@ -116,7 +154,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
                         </FormControl>
                     </Stack>
                     {currentFile === null ? (
-                        <FileUpload currentFile={currentFile} uploadFile={(file: any) => { setCurrentFile(file); extractCsTimerSession(file) }}></FileUpload>
+                        <FileUpload currentFile={currentFile} uploadFile={handleFileUpload}></FileUpload>
                     ) : (
                         <Box>
                             {/* File Card */}
