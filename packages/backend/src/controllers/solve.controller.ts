@@ -1,4 +1,5 @@
-import { Discipline, NewSolve, NewSolveSchema, Status } from "@cubing/shared";
+import { Discipline, NewSolve, NewSolveSchema, NewSolvesArraySchema, Status } from "@cubing/shared";
+import format from 'pg-format';
 import { Request, Response } from 'express';
 import { z } from "zod";
 import { pool } from '../config/db';
@@ -72,6 +73,29 @@ export const insertSolve = async (req: Request, res: Response) => {
 
         const values = [solve.uuid, solve.date, solve.duration, solve.scramble, solve.discipline, solve.status, solve.session];
         const result = await pool.query(queryText, values);
+
+        res.status(201).json(result.rows[0]);
+    } catch (error: any) {
+        if (error.code === '23505' && error.message.includes('User limit')) {
+            res.status(403).json({ message: 'Limit reached.' });
+            return;
+        }
+        console.error('Error inserting solve:', error);
+        res.status(500).json({ message: 'Failed to insert solve.' });
+    }
+};
+
+export const insertSolvesBulk = async (req: Request, res: Response) => {
+    try {
+        const solves: NewSolve[] = NewSolvesArraySchema.parse(req.body.solves);
+        if (solves.length === 0) return res.json([]);
+        const rows = solves.map(s => [s.uuid, s.date, s.duration, s.scramble, s.discipline, s.status, s.session]);
+
+        const queryText = format(
+            'INSERT INTO solves (uuid, date, duration, scramble, discipline, status, session) VALUES %L RETURNING *',
+            rows
+        );
+        const result = await pool.query(queryText);
 
         res.status(201).json(result.rows[0]);
     } catch (error: any) {

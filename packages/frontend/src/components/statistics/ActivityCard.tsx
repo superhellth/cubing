@@ -1,6 +1,6 @@
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import { Box, Typography } from "@mui/material";
-import { GraphCard } from "../GraphCard";
+import { GraphCard } from "./GraphCard";
 
 const ActivityCard = () => {
     // const heatmapData = [

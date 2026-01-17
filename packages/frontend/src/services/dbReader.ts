@@ -1,6 +1,5 @@
-import { StatlessSolveSchema, type Discipline, type StatlessSolve } from "@cubing/shared";
+import { StatlessSolvesArraySchema, type Discipline, type StatlessSolve } from "@cubing/shared";
 import axios from "axios";
-import z from "zod";
 
 class DBReader {
 
@@ -23,14 +22,13 @@ class DBReader {
 
     public async getAllUserSolves(uuid: string) {
         try {
-            const SolvesArraySchema = z.array(StatlessSolveSchema);
             const response = await axios.get(DBReader.GET_ALL_SOLVES_URL, {
                 params: {
                     uuid: uuid
                 }
             });
 
-            const solves: StatlessSolve[] = SolvesArraySchema.parse(response.data);
+            const solves: StatlessSolve[] = StatlessSolvesArraySchema.parse(response.data);
             return solves;
 
         } catch (error) {
@@ -41,7 +39,6 @@ class DBReader {
 
     public async getSolvesByDisciplineAndSession(uuid: string, discipline: Discipline, session: string) {
         try {
-            const SolvesArraySchema = z.array(StatlessSolveSchema);
             const response = await axios.get(DBReader.GET_SOLVES_BY_DISCIPLINE_AND_SESSION, {
                 params: {
                     uuid: uuid,
@@ -50,7 +47,7 @@ class DBReader {
                 }
             });
 
-            const solves: StatlessSolve[] = SolvesArraySchema.parse(response.data);
+            const solves: StatlessSolve[] = StatlessSolvesArraySchema.parse(response.data);
             return solves;
 
         } catch (error) {
@@ -61,10 +58,9 @@ class DBReader {
 
     public async getDemoSolves() {
         try {
-            const SolvesArraySchema = z.array(StatlessSolveSchema);
             const response = await axios.get(DBReader.GET_DEMO_SOLVES);
 
-            const solves: StatlessSolve[] = SolvesArraySchema.parse(response.data);
+            const solves: StatlessSolve[] = StatlessSolvesArraySchema.parse(response.data);
             return solves;
 
         } catch (error) {

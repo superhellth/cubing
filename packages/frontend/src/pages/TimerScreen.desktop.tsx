@@ -5,8 +5,6 @@ import { Box } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
 import AvgGraphs from "../components/timer/AvgGraphs";
-import LimitReachedDialog from "../components/timer/dialogs/LimitReachedDialog";
-import SolveDetailsScreen from "../components/timer/dialogs/SolveDetailsDialog";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
 import usePercentile from "../hooks/solves/usePercentile";
@@ -15,6 +13,8 @@ import { useTimerSettings } from "../hooks/TimerSettingsContext";
 import { useTimerLogic } from "../hooks/useTimerLogic";
 import { getDisplayableTime } from "../utils/solveUtils";
 import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
+import SolveDetailsScreen from "../components/dialogs/SolveDetailsDialog";
+import LimitReachedDialog from "../components/dialogs/LimitReachedDialog";
 
 function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSidebarIsCollapsed }:
     { selectedDiscipline: Discipline, updateSidebarVisibility: Function, setSidebarIsCollapsed: Function }) {

@@ -5,6 +5,7 @@ import DBWriter from '../../services/dbWriter';
 import { EVENT_TO_SCRAMBLE_KEY } from "../../utils/constants";
 import { generateScramble, solveWithUpdatedStatus } from '../../utils/solveUtils';
 import { useSolveStats } from './useSolveStats';
+import { useUserID } from "../useUserID";
 
 const dbWriter = DBWriter.instance;
 const dbReader = DBReader.instance;
@@ -28,15 +29,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [hasFetched, setHasFetched] = useState(false);
     const [dataIsReady, setDataIsReady] = useState<boolean>(false);
-    const [userID] = useState<string>(() => {
-        const USER_ID_KEY = "userID";
-        let uID = localStorage.getItem(USER_ID_KEY);
-        if (!uID) {
-            uID = crypto.randomUUID();
-            localStorage.setItem(USER_ID_KEY, uID);
-        }
-        return uID;
-    });
+    const userID = useUserID();
 
     useEffect(() => {
         setDataIsReady(hasFetched && statlessSolvesChrono.length === solvesChrono.length);

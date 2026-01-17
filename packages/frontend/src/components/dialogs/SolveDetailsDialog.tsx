@@ -14,8 +14,8 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
-import { getDisplayableTime } from "../../../utils/solveUtils";
 import DeleteManyDialog from "./DeleteManyDialog";
+import { getDisplayableTime } from "../../utils/solveUtils";
 
 function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMany, onUpdateStatus }: {
     solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,

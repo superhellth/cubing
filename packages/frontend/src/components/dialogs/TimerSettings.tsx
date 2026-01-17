@@ -150,40 +150,6 @@ function TimerSettings({ isOpen, onClose }: { isOpen: boolean, onClose: Function
                                 />
                                 <FormHelperText>How many solves to display.</FormHelperText>
                             </FormControl>
-                            {/* <FormControl fullWidth size="small">
-                                <InputLabel>Graph Axis</InputLabel>
-                                <Select
-                                    value={settings.avgGraphXAxis}
-                                    variant="outlined"
-                                    label="Graph Axis"
-                                    onChange={(e) => { updateSetting('avgGraphXAxis', e.target.value) }}
-                                    renderValue={(selected) => selected == "id" ? "Solve ID" : "Date"}
-                                >
-                                    <MenuItem value={"date"}>
-                                        <ListItemText primary="Date" />
-                                        {settings.avgGraphXAxis == "date" && (
-                                            <CheckRoundedIcon
-                                                sx={{
-                                                    color: theme.palette.info.main,
-                                                    fontSize: '1.2rem'
-                                                }}
-                                            />
-                                        )}
-                                    </MenuItem>
-                                    <MenuItem value="id">
-                                        <ListItemText primary="Solve ID" />
-                                        {settings.avgGraphXAxis == "id" && (
-                                            <CheckRoundedIcon
-                                                sx={{
-                                                    color: theme.palette.info.main,
-                                                    fontSize: '1.2rem'
-                                                }}
-                                            />
-                                        )}
-                                    </MenuItem>
-                                </Select>
-                                <FormHelperText>Unit of the X-Axis of the Timer Graph.</FormHelperText>
-                            </FormControl> */}
 
                         </Stack>
                     </Box>

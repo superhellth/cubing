@@ -3,7 +3,7 @@ import { Divider, FormControl, ToggleButton, ToggleButtonGroup, Typography, useT
 import { Box, Grid } from "@mui/system";
 import { useMemo, useState } from 'react';
 import useImprovementStats from '../../hooks/solves/useImprovementStats';
-import { GraphCard } from "../GraphCard";
+import { GraphCard } from "./GraphCard";
 import TrendCard from './TrendCard';
 import { LockedOverlay } from './LockedOverlay';
 

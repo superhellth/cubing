@@ -5,7 +5,7 @@ import { areaElementClasses, chartsAxisHighlightClasses, lineElementClasses, Spa
 import { memo, useMemo, useState } from "react";
 import useDownsampling from "../../hooks/solves/useDownsampling";
 import theme from "../../styles/theme";
-import { GraphCard } from "../GraphCard";
+import { GraphCard } from "./GraphCard";
 import { LockedOverlay } from "./LockedOverlay";
 
 const windowSize: number = 50;

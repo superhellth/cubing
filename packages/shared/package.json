@@ -15,5 +15,8 @@
   "packageManager": "pnpm@10.20.0",
   "devDependencies": {
     "typescript": "~5.9.3"
+  },
+  "dependencies": {
+    "pg-format": "^1.0.4"
   }
 }

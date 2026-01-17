@@ -4,8 +4,6 @@ import { Divider, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
-import LimitReachedDialog from "../components/timer/dialogs/LimitReachedDialog";
-import SolveDetailsScreen from "../components/timer/dialogs/SolveDetailsDialog";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
 import usePercentile from "../hooks/solves/usePercentile";
@@ -14,6 +12,8 @@ import { useTimerLogic } from "../hooks/useTimerLogic";
 import { useTimerSettings } from "../hooks/TimerSettingsContext";
 import { getDisplayableTime } from "../utils/solveUtils";
 import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
+import SolveDetailsScreen from "../components/dialogs/SolveDetailsDialog";
+import LimitReachedDialog from "../components/dialogs/LimitReachedDialog";
 
 function TimerScreenMobile({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
     const { settings } = useTimerSettings();

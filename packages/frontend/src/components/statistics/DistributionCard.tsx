@@ -3,7 +3,7 @@ import { BarChart } from "@mui/x-charts";
 import { useMemo } from "react";
 import { useOutlierDetection } from "../../hooks/solves/useOutlierDetection";
 import { formatTime } from '../../utils/solveUtils';
-import { GraphCard } from "../GraphCard";
+import { GraphCard } from "./GraphCard";
 import { LockedOverlay } from './LockedOverlay';
 
 const DistributionCard = ({ solves, numTrueSolves }: any) => {

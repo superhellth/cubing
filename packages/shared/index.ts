@@ -63,6 +63,7 @@ export const NewSolveSchema = z.object({
     scramble: z.string(),
     status: z.enum(Status),
 });
+export const NewSolvesArraySchema = z.array(NewSolveSchema);
 export type NewSolve = z.infer<typeof NewSolveSchema>;
 
 const BaseStatlessSolveSchema = z.object({
@@ -71,6 +72,7 @@ const BaseStatlessSolveSchema = z.object({
     id: z.coerce.number(),
 });
 export const StatlessSolveSchema = BaseStatlessSolveSchema.transform(computeGrossDuration);
+export const StatlessSolvesArraySchema = z.array(StatlessSolveSchema);
 export type StatlessSolve = z.infer<typeof StatlessSolveSchema>;
 
 const SolveStatsSchema = z.object({

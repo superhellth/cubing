@@ -1,9 +1,10 @@
 
-import { StatlessSolveSchema, type NewSolve, type Solve, type StatlessSolve } from "@cubing/shared";
+import { StatlessSolvesArraySchema, StatlessSolveSchema, type NewSolve, type Solve, type StatlessSolve } from "@cubing/shared";
 import axios from "axios";
 
 class DBWriter {
     private static readonly INSERT_SOLVE_URL = "/api/db/solves/insert";
+    private static readonly INSERT_SOLVES_BULK_URL = "/api/db/solves/insertBulk";
     private static readonly DELETE_SOLVE_URL = "/api/db/solves/delete";
     private static readonly UPDATE_SOLVE_URL = "/api/db/solves/updateStatus";
     static #instance: DBWriter;
@@ -42,6 +43,26 @@ class DBWriter {
 
             const fullSolve: StatlessSolve = StatlessSolveSchema.parse(response.data);
             return fullSolve;
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                if (error.response.status === 403) {
+                    console.warn('User limit reached:', error.response.data.message);
+                    throw new Error('LIMIT_REACHED');
+                }
+            }
+            console.error('Error inserting solve:', error);
+            throw error;
+        }
+    }
+
+    public async insertSolvesBulk(solves: NewSolve[]): Promise<StatlessSolve[]> {
+        try {
+            const response = await axios.post(DBWriter.INSERT_SOLVES_BULK_URL, {
+                solves: solves
+            });
+
+            const fullSolves: StatlessSolve[] = StatlessSolvesArraySchema.parse(response.data);
+            return fullSolves;
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 if (error.response.status === 403) {
