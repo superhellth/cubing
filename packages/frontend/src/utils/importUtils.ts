@@ -1,4 +1,4 @@
-import { Status, type Discipline, type NewSolve } from "@cubing/shared";
+import { ImportSource, Status, type Discipline, type NewSolve } from "@cubing/shared";
 
 export async function csTimerFileToObject(file: any) {
     const text = await file.text();
@@ -20,15 +20,42 @@ export function csTimerSolveArrayToSolves(csTimerSolveArray: any[], disc: Discip
         const duration: number = solve[0][1];
         const scramble: string = solve[1];
         const status: Status = CODE_TO_STATUS.get(solve[0][0]) ?? Status.Valid;
+        const timestamp: number = solve[3] * 1000;
         solves.push({
             uuid: uuid,
             discipline: disc,
             session: session,
             duration: duration,
-            date: new Date(),
+            date: new Date(timestamp),
             scramble: scramble,
             status: status,
+            importSource: ImportSource.CsTimer,
+            importKey: generateNumericKey(timestamp, scramble, duration)
         })
     }
+    console.log(solves)
     return solves;
+}
+
+function generateNumericKey(timestamp: number, scramble: string, duration: number): bigint {
+    // 1. Combine all inputs into a unique string
+    const input = `${timestamp}|${scramble}|${duration}`;
+
+    // 2. FNV-1a 64-bit Hash Algorithm
+    // Initial offset basis (standard constant)
+    let hash = 0xcbf29ce484222325n;
+    // FNV prime (standard constant)
+    const fnvPrime = 0x100000001b3n;
+
+    for (let i = 0; i < input.length; i++) {
+        // XOR the lower 8 bits with the character code
+        hash ^= BigInt(input.charCodeAt(i));
+        // Multiply by the FNV prime
+        hash *= fnvPrime;
+        // Wrap to 64-bit unsigned to mimic C++ behavior (optional but safe)
+        hash &= 0xffffffffffffffffn;
+    }
+
+    // Return as BigInt (or .toString() if you need to send it over JSON)
+    return BigInt.asIntN(64, hash);;
 }

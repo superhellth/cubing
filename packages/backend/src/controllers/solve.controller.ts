@@ -1,4 +1,4 @@
-import { Discipline, NewSolve, NewSolveSchema, NewSolvesArraySchema, Status } from "@cubing/shared";
+import { Discipline, ImportSource, NewSolve, NewSolveSchema, NewSolvesArraySchema, Status } from "@cubing/shared";
 import format from 'pg-format';
 import { Request, Response } from 'express';
 import { z } from "zod";
@@ -10,18 +10,40 @@ const GetByDisciplineQS = z.object({
     discipline: z.enum(Discipline),
     session: z.string()
 });
+const GetByImportSourceQS = z.object({
+    uuid: z.uuid(),
+    importSource: z.enum(ImportSource).nullable()
+});
 
 export const getSolvesByDisciplineAndSession = async (req: Request, res: Response) => {
     try {
         const { uuid, discipline, session } = GetByDisciplineQS.parse(req.query);
 
         const queryText = `
-            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
+            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source as "importSource", import_key as "importKey"
             FROM solves
             WHERE uuid = $1 AND discipline = $2 AND session = $3
             ORDER BY date ASC`;
 
-        const result = await pool.query(queryText, [uuid, discipline, session]);
+            const result = await pool.query(queryText, [uuid, discipline, session]);
+        res.status(200).json(result.rows);
+    } catch (error: any) {
+        console.error('Error fetching solves:', error);
+        res.status(500).json({ message: 'Failed to load solves.' });
+    }
+};
+
+export const getSolvesByImportSource = async (req: Request, res: Response) => {
+    try {
+        const { uuid, importSource } = GetByImportSourceQS.parse(req.query);
+
+        const queryText = `
+            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source, import_key
+            FROM solves
+            WHERE uuid = $1 AND import_source = $2
+            ORDER BY date ASC`;
+
+        const result = await pool.query(queryText, [uuid, importSource]);
         res.status(200).json(result.rows);
     } catch (error: any) {
         console.error('Error fetching solves:', error);
@@ -33,7 +55,7 @@ export const getDemoSolves = async (req: Request, res: Response) => {
     try {
         // Oldest first, newest last
         const queryText = `
-            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
+            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source, import_key
             FROM solves WHERE uuid = $1 AND discipline = $2 AND session = $3
             ORDER BY date ASC`;
 
@@ -51,7 +73,7 @@ export const getAllSolves = async (req: Request, res: Response) => {
 
         // Oldest first, newest last
         const queryText = `
-            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk
+            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source, import_key
             FROM solves WHERE uuid = $1 ORDER BY date ASC`;
 
         const result = await pool.query(queryText, [uuid]);
@@ -67,11 +89,11 @@ export const insertSolve = async (req: Request, res: Response) => {
         const solve: NewSolve = NewSolveSchema.parse(req.body.solve);
 
         const queryText = `
-            INSERT INTO solves(uuid, date, duration, scramble, discipline, status, session) 
-            VALUES($1, $2, $3, $4, $5, $6, $7) 
+            INSERT INTO solves(uuid, date, duration, scramble, discipline, status, session, import_source, import_key) 
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) 
             RETURNING *`;
 
-        const values = [solve.uuid, solve.date, solve.duration, solve.scramble, solve.discipline, solve.status, solve.session];
+        const values = [solve.uuid, solve.date, solve.duration, solve.scramble, solve.discipline, solve.status, solve.session, solve.importSource, solve.importKey];
         const result = await pool.query(queryText, values);
 
         res.status(201).json(result.rows[0]);
@@ -86,18 +108,18 @@ export const insertSolve = async (req: Request, res: Response) => {
 };
 
 export const insertSolvesBulk = async (req: Request, res: Response) => {
-    try {
+    try { 
         const solves: NewSolve[] = NewSolvesArraySchema.parse(req.body.solves);
         if (solves.length === 0) return res.json([]);
-        const rows = solves.map(s => [s.uuid, s.date, s.duration, s.scramble, s.discipline, s.status, s.session]);
+        const rows = solves.map(s => [s.uuid, s.date, s.duration, s.scramble, s.discipline, s.status, s.session, s.importSource, s.importKey]);
 
         const queryText = format(
-            'INSERT INTO solves (uuid, date, duration, scramble, discipline, status, session) VALUES %L RETURNING *',
+            'INSERT INTO solves (uuid, date, duration, scramble, discipline, status, session, import_source, import_key) VALUES %L RETURNING *',
             rows
         );
         const result = await pool.query(queryText);
 
-        res.status(201).json(result.rows[0]);
+        res.status(201).json(result.rows);
     } catch (error: any) {
         if (error.code === '23505' && error.message.includes('User limit')) {
             res.status(403).json({ message: 'Limit reached.' });

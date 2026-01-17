@@ -23,6 +23,7 @@ router.post('/delete', SolveController.deleteSolve);
 
 // GETs
 router.get('/getAll', SolveController.getAllSolves);
+router.get('/getByImportSource', SolveController.getSolvesByImportSource);
 router.get('/getByDisciplineAndSession', SolveController.getSolvesByDisciplineAndSession);
 router.get('/getDemoSolves', SolveController.getDemoSolves);
 

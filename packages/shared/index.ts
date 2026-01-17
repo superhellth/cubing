@@ -6,6 +6,10 @@ export enum Status {
     DNF = "DNF"
 }
 
+export enum ImportSource {
+    CsTimer = "csTimer"
+}
+
 export enum Discipline {
     TwoByTwo = "2x2",
     ThreeByThree = "3x3",
@@ -62,6 +66,8 @@ export const NewSolveSchema = z.object({
     date: z.coerce.date(),
     scramble: z.string(),
     status: z.enum(Status),
+    importSource: z.enum(ImportSource).nullish().default(null),
+    importKey: z.coerce.bigint().nullish().default(null)
 });
 export const NewSolvesArraySchema = z.array(NewSolveSchema);
 export type NewSolve = z.infer<typeof NewSolveSchema>;

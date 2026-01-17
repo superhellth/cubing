@@ -1,4 +1,4 @@
-import { Discipline, type NewSolve } from '@cubing/shared';
+import { Discipline, ImportSource, type NewSolve, type StatlessSolve } from '@cubing/shared';
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { Paper, Typography } from '@mui/material';
@@ -15,13 +15,14 @@ import CCSingleSelect from '../CCSingleSelect';
 import HCButton from '../HCButton';
 import FileUpload from './FileUpload';
 import ImportDetailSelectDialog from './ImportDetailSelectDialog';
+import DBReader from '../../services/dbReader';
 
 const IMPORT_SOURCES = ["CsTimer"]
 
 function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean, onClose: Function, selectedDiscipline: Discipline }) {
     const theme = useTheme();
     const userID = useUserID();
-    const [importFrom, setImportFrom] = useState<string>("CsTimer");
+    const [importFrom, setImportFrom] = useState<ImportSource>(ImportSource.CsTimer);
     const [currentFile, setCurrentFile] = useState<any>(null);
     const [csData, setCsData] = useState<any>(null);
     const [relevantCsTimerSessions, setRelevantCsTimerSessions] = useState<any>(null);
@@ -32,7 +33,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
             setCsData(null);
             return;
         }
-        if (importFrom == "CsTimer") {
+        if (importFrom == ImportSource.CsTimer) {
             let data;
             const convertToObject = async () => {
                 data = await csTimerFileToObject(currentFile);
@@ -60,10 +61,14 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
         }
     }, [csData]);
 
-    const importSolves = (solves: any[], toDisc: Discipline) => {
+    const importSolves = async (solves: any[], toDisc: Discipline, checkDuplicates: boolean) => {
         const asNewSolves: NewSolve[] = csTimerSolveArrayToSolves(solves, toDisc, userID, "default");
-        DBWriter.instance.insertSolvesBulk(asNewSolves);
-        // onClose();
+        if (checkDuplicates) {
+            const solvesToCompare: StatlessSolve[] = await DBReader.instance.getSolvesByImportSource(userID, importFrom);
+            const existingImportKeys: bigint[] = solvesToCompare.map(s => s.importKey!);
+            
+        }
+        const insertedStatless: StatlessSolve[] = await DBWriter.instance.insertSolvesBulk(asNewSolves);
     }
 
     return (
@@ -95,7 +100,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
 
                         </Stack>
                         <FileUpload currentFile={currentFile} setCurrentFile={setCurrentFile}></FileUpload>
-                        {relevantCsTimerSessions != null && importFrom == "CsTimer" &&
+                        {relevantCsTimerSessions != null && importFrom == ImportSource.CsTimer &&
                             <>
                                 {relevantCsTimerSessions.map((session: any) => {
                                     return (

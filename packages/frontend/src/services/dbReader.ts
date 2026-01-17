@@ -1,9 +1,10 @@
-import { StatlessSolvesArraySchema, type Discipline, type StatlessSolve } from "@cubing/shared";
+import { ImportSource, StatlessSolvesArraySchema, type Discipline, type StatlessSolve } from "@cubing/shared";
 import axios from "axios";
 
 class DBReader {
 
     private static readonly GET_ALL_SOLVES_URL = "/api/db/solves/getAll";
+    private static readonly GET_SOLVES_BY_IMPORT_SOURCE = "/api/db/solves/getByImportSource";
     private static readonly GET_SOLVES_BY_DISCIPLINE_AND_SESSION = "/api/db/solves/getByDisciplineAndSession";
     private static readonly GET_DEMO_SOLVES = "/api/db/solves/getDemoSolves";
     private static readonly CHECK_HEALTH_URL = "/api/health";
@@ -37,6 +38,24 @@ class DBReader {
         }
     }
 
+    public async getSolvesByImportSource(uuid: string, importSource: ImportSource) {
+        try {
+            const response = await axios.get(DBReader.GET_SOLVES_BY_IMPORT_SOURCE, {
+                params: {
+                    uuid: uuid,
+                    importSource: importSource,
+                }
+            });
+
+            const solves: StatlessSolve[] = StatlessSolvesArraySchema.parse(response.data);
+            return solves;
+
+        } catch (error) {
+            console.error('Error fetching user solves:', error);
+            throw error;
+        }
+    }
+
     public async getSolvesByDisciplineAndSession(uuid: string, discipline: Discipline, session: string) {
         try {
             const response = await axios.get(DBReader.GET_SOLVES_BY_DISCIPLINE_AND_SESSION, {
@@ -46,8 +65,10 @@ class DBReader {
                     session: session
                 }
             });
+            console.log(response.data)
 
             const solves: StatlessSolve[] = StatlessSolvesArraySchema.parse(response.data);
+            console.log(solves)
             return solves;
 
         } catch (error) {

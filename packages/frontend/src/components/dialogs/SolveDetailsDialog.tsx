@@ -35,6 +35,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
     useEffect(() => {
         setStatus(solve.status);
     }, [solve]);
+    console.log(solve.importSource)
 
     const handleStatusChange = (_event: React.MouseEvent<HTMLElement>, newStatus: Status) => {
         if (newStatus !== null) {
@@ -78,6 +79,8 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
                                 <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                                 <Typography variant="caption" color="text.secondary">
                                     {longFormatter.format(date)}
+                                    <br></br>
+                                    Imported from {solve.importSource}
                                 </Typography>
                             </Stack>
                         </Box>

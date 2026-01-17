@@ -115,6 +115,15 @@ const theme = createTheme({
                 })
             }
         },
+        MuiCheckbox: {
+            styleOverrides: {
+                root: {
+                    '&.Mui-checked': {
+                        color: accent
+                    },
+                },
+            },
+        },
         MuiChartsTooltip: {
             styleOverrides: {
                 paper: ({ }) => ({

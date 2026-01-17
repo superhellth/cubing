@@ -69,7 +69,9 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
                 scramble: currentScramble,
                 discipline: selectedDiscipline,
                 status: solveStatus,
-                session: "default"
+                session: "default",
+                importSource: null,
+                importKey: null
             });
 
             setStatlessSolvesChrono(prev => [...prev, newSolve]);
