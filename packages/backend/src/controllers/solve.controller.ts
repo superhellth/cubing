@@ -38,7 +38,7 @@ export const getSolvesByImportSource = async (req: Request, res: Response) => {
         const { uuid, importSource } = GetByImportSourceQS.parse(req.query);
 
         const queryText = `
-            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source, import_key
+            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source as "importSource", import_key as "importKey"
             FROM solves
             WHERE uuid = $1 AND import_source = $2
             ORDER BY date ASC`;
@@ -55,7 +55,7 @@ export const getDemoSolves = async (req: Request, res: Response) => {
     try {
         // Oldest first, newest last
         const queryText = `
-            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source, import_key
+            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source as "importSource", import_key as "importKey"
             FROM solves WHERE uuid = $1 AND discipline = $2 AND session = $3
             ORDER BY date ASC`;
 
@@ -73,7 +73,7 @@ export const getAllSolves = async (req: Request, res: Response) => {
 
         // Oldest first, newest last
         const queryText = `
-            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source, import_key
+            SELECT id, scramble, uuid, date, duration, discipline, status, session, pk, import_source as "importSource", import_key as "importKey"
             FROM solves WHERE uuid = $1 ORDER BY date ASC`;
 
         const result = await pool.query(queryText, [uuid]);

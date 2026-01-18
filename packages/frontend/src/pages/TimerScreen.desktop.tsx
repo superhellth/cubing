@@ -3,25 +3,24 @@ import "@fontsource/dseg7-classic/700.css";
 import { Divider, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import LimitReachedDialog from "../components/dialogs/LimitReachedDialog";
+import SolveDetailsScreen from "../components/dialogs/SolveDetailsDialog";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
 import AvgGraphs from "../components/timer/AvgGraphs";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
+import { useSolves } from "../contexts/SolveContext";
+import { useTimerSettings } from "../contexts/TimerSettingsContext";
 import usePercentile from "../hooks/solves/usePercentile";
-import { useSolveManager } from "../hooks/solves/useSolveManager";
-import { useTimerSettings } from "../hooks/TimerSettingsContext";
 import { useTimerLogic } from "../hooks/useTimerLogic";
 import { getDisplayableTime } from "../utils/solveUtils";
 import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
-import SolveDetailsScreen from "../components/dialogs/SolveDetailsDialog";
-import LimitReachedDialog from "../components/dialogs/LimitReachedDialog";
 
 function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSidebarIsCollapsed }:
     { selectedDiscipline: Discipline, updateSidebarVisibility: Function, setSidebarIsCollapsed: Function }) {
     const { settings } = useTimerSettings();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
-    const { solvesChrono, addSolve, deleteSolve, deleteMany, updateSolveStatus, currentScramble, pb } =
-        useSolveManager(selectedDiscipline, "default");
+    const { solvesChrono, addSolve, deleteSolve, deleteMany, updateSolveStatus, currentScramble, pb } = useSolves();
     const percentile = usePercentile(solvesChrono);
     const [reset, setReset] = useState(false);
     const { timerStatus, timerHandlers } = useTimerLogic(

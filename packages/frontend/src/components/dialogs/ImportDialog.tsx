@@ -10,12 +10,14 @@ import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from 'react';
 import { useUserID } from '../../hooks/useUserID';
 import DBWriter from '../../services/dbWriter';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { csTimerFileToObject, csTimerSolveArrayToSolves } from '../../utils/importUtils';
 import CCSingleSelect from '../CCSingleSelect';
 import HCButton from '../HCButton';
 import FileUpload from './FileUpload';
 import ImportDetailSelectDialog from './ImportDetailSelectDialog';
 import DBReader from '../../services/dbReader';
+import { useSolves } from '../../contexts/SolveContext';
 
 const IMPORT_SOURCES = ["CsTimer"]
 
@@ -24,9 +26,13 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
     const userID = useUserID();
     const [importFrom, setImportFrom] = useState<ImportSource>(ImportSource.CsTimer);
     const [currentFile, setCurrentFile] = useState<any>(null);
+
+    // Unify data layout
     const [csData, setCsData] = useState<any>(null);
     const [relevantCsTimerSessions, setRelevantCsTimerSessions] = useState<any>(null);
-    const [selectedSession, setSelectedSession] = useState<number | null>(null);
+    const [selectedSession, setSelectedSession] = useState<any | null>(null);
+    const [importedSessions, setImportedSessions] = useState<number[]>([]);
+    const { insertBulk } = useSolves();
 
     useEffect(() => {
         if (currentFile == null) {
@@ -44,6 +50,12 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
     }, [currentFile])
 
     useEffect(() => {
+        if (currentFile == null) {
+            setImportedSessions([]);
+        }
+    }, [currentFile])
+
+    useEffect(() => {
         if (csData == null) {
             setRelevantCsTimerSessions(null);
         } else {
@@ -57,7 +69,6 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
             if (relevantSessions.length > 0) {
                 setRelevantCsTimerSessions(relevantSessions);
             }
-            console.log(relevantSessions);
         }
     }, [csData]);
 
@@ -65,12 +76,13 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
         const asNewSolves: NewSolve[] = csTimerSolveArrayToSolves(solves, toDisc, userID, "default");
         let toInsert: NewSolve[] = asNewSolves;
         if (checkDuplicates) {
+            // Add session check: Allow duplicate imports into different sessions
             const solvesToCompare: StatlessSolve[] = await DBReader.instance.getSolvesByImportSource(userID, importFrom);
             const existingImportKeys: bigint[] = solvesToCompare.map(s => s.importKey!);
             toInsert = toInsert.filter(s => !existingImportKeys.includes(s.importKey!));
-            console.log(toInsert);
         }
-        const insertedStatless: StatlessSolve[] = await DBWriter.instance.insertSolvesBulk(asNewSolves);
+        insertBulk(toInsert);
+        setImportedSessions(prev => [...prev, selectedSession.name])
     }
 
     return (
@@ -117,9 +129,13 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
 
                                                 </Box>
 
-                                                <HCButton onClick={() => setSelectedSession(session)}>
-                                                    <FileUploadIcon sx={{ fontSize: "2rem" }} />
-                                                </HCButton>
+                                                {importedSessions.includes(session.name) ? (
+                                                    <CheckRoundedIcon />
+                                                ) : (
+                                                    <HCButton onClick={() => setSelectedSession(session)}>
+                                                        <FileUploadIcon sx={{ fontSize: "2rem" }} />
+                                                    </HCButton>
+                                                )}
                                             </Paper>
                                         </Box>
                                     );

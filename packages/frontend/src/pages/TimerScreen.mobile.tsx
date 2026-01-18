@@ -3,23 +3,22 @@ import "@fontsource/dseg7-classic/700.css";
 import { Divider, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import LimitReachedDialog from "../components/dialogs/LimitReachedDialog";
+import SolveDetailsScreen from "../components/dialogs/SolveDetailsDialog";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
 import TimeDisplay from "../components/timer/TimeDisplay";
 import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
+import { useSolves } from "../contexts/SolveContext";
+import { useTimerSettings } from "../contexts/TimerSettingsContext";
 import usePercentile from "../hooks/solves/usePercentile";
-import { useSolveManager } from "../hooks/solves/useSolveManager";
 import { useTimerLogic } from "../hooks/useTimerLogic";
-import { useTimerSettings } from "../hooks/TimerSettingsContext";
 import { getDisplayableTime } from "../utils/solveUtils";
 import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles";
-import SolveDetailsScreen from "../components/dialogs/SolveDetailsDialog";
-import LimitReachedDialog from "../components/dialogs/LimitReachedDialog";
 
 function TimerScreenMobile({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
     const { settings } = useTimerSettings();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
-    const { solvesChrono, addSolve, deleteSolve, updateSolveStatus, currentScramble, pb } =
-        useSolveManager(selectedDiscipline, "default");
+    const { solvesChrono, addSolve, deleteSolve, updateSolveStatus, currentScramble, pb } = useSolves();
     const percentile = usePercentile(solvesChrono);
     const [reset, setReset] = useState(false);
     const { timerStatus, timerHandlers } = useTimerLogic(

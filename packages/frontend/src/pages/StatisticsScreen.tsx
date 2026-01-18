@@ -7,16 +7,16 @@ import DistributionCard from "../components/statistics/DistributionCard";
 import ImprovementChart from "../components/statistics/ImprovementChart";
 import CalculationLoader from "../components/statistics/Loading";
 import VariabilityCard from "../components/statistics/VariabilityCard";
+import { useSolves } from "../contexts/SolveContext";
 import { useDemoSolves } from "../hooks/solves/useDemoSolves";
-import { useSolveManager } from "../hooks/solves/useSolveManager";
 
 function StatisticsScreen({ selectedDiscipline, sidebarResizing }: { selectedDiscipline: Discipline, sidebarResizing: boolean }) {
     const theme = useTheme();
     const [isLoading, setIsLoading] = useState(true);
     const [isLocked, setIsLocked] = useState(true);
-    const [selectedSession] = useState<string>("default");
+    // const [selectedSession] = useState<string>("default");
 
-    const { solvesChrono, dataIsReady } = useSolveManager(selectedDiscipline, selectedSession);
+    const { solvesChrono, dataIsReady } = useSolves();
     const { demoSolves, demoIsReady } = useDemoSolves(dataIsReady && solvesChrono.length < 50);
     const displayData: Solve[] = useMemo(() => {
         if (!dataIsReady) return [];

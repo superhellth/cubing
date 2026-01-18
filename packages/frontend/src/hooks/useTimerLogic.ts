@@ -1,7 +1,7 @@
 import { Discipline, inspectionlessDisciplines } from '@cubing/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { TimerStatus } from '../components/timer/TimerText';
-import { useTimerSettings } from './TimerSettingsContext';
+import { useTimerSettings } from '../contexts/TimerSettingsContext';
 
 export const useTimerLogic = (selectedDiscipline: Discipline) => {
     const [timerStatus, setTimerStatus] = useState<TimerStatus>(TimerStatus.Idle);

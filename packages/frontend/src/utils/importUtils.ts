@@ -16,6 +16,8 @@ const CODE_TO_STATUS = new Map<number, Status>([
 
 export function csTimerSolveArrayToSolves(csTimerSolveArray: any[], disc: Discipline, uuid: string, session: string): NewSolve[] {
     const solves: NewSolve[] = [];
+    let i: number = 0;
+    const timeNow: number = (new Date()).getTime();
     for (let solve of csTimerSolveArray) {
         const duration: number = solve[0][1];
         const scramble: string = solve[1];
@@ -26,14 +28,13 @@ export function csTimerSolveArrayToSolves(csTimerSolveArray: any[], disc: Discip
             discipline: disc,
             session: session,
             duration: duration,
-            date: new Date(timestamp),
+            date: new Date(timeNow + i++),
             scramble: scramble,
             status: status,
             importSource: ImportSource.CsTimer,
             importKey: generateNumericKey(timestamp, scramble, duration)
         })
     }
-    console.log(solves)
     return solves;
 }
 

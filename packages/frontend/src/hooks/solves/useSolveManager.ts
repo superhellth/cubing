@@ -1,11 +1,12 @@
-import { Discipline, Status, type Solve, type StatlessSolve } from "@cubing/shared";
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Discipline, Status, type NewSolve, type Solve, type StatlessSolve } from "@cubing/shared";
+import { useCallback, useEffect, useState } from 'react';
 import DBReader from '../../services/dbReader';
 import DBWriter from '../../services/dbWriter';
 import { EVENT_TO_SCRAMBLE_KEY } from "../../utils/constants";
 import { generateScramble, solveWithUpdatedStatus } from '../../utils/solveUtils';
-import { useSolveStats } from './useSolveStats';
 import { useUserID } from "../useUserID";
+import { usePB } from "./usePB";
+import { useSolveStats } from './useSolveStats';
 
 const dbWriter = DBWriter.instance;
 const dbReader = DBReader.instance;
@@ -14,17 +15,8 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
     // Solves
     const [statlessSolvesChrono, setStatlessSolvesChrono] = useState<StatlessSolve[]>([]);
     const solvesChrono: Solve[] = useSolveStats(statlessSolvesChrono);
-    const pb = useMemo(() => {
-        let currentPb: number = Infinity;
-        for (let i = 0; i < statlessSolvesChrono.length; i++) {
-            const solve: StatlessSolve = statlessSolvesChrono[i];
-            if (solve.duration < currentPb && solve.status === Status.Valid) {
-                currentPb = solve.duration;
-            }
-        }
-        return currentPb;
-    }, [statlessSolvesChrono]);
     // Other
+    const pb = usePB(statlessSolvesChrono);
     const [currentScramble, setCurrentScramble] = useState<string>("Generating Scramble...");
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [hasFetched, setHasFetched] = useState(false);
@@ -88,6 +80,11 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         }
     }, [userID, currentScramble, selectedDiscipline]);
 
+    const insertBulk = useCallback(async (solves: NewSolve[]) => {
+        const insertedSolves: StatlessSolve[] = await dbWriter.insertSolvesBulk(solves);
+        setStatlessSolvesChrono(prev => [...prev, ...insertedSolves]);
+    }, [])
+
     const deleteSolve = useCallback((solvePk: bigint, uuid: string) => {
         dbWriter.deleteSolve(solvePk, uuid);
         setStatlessSolvesChrono(prev => prev.filter(s => s.pk !== solvePk));
@@ -122,6 +119,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         dataIsReady,
         setIsLimitDialogOpen,
         addSolve,
+        insertBulk,
         deleteSolve,
         deleteMany,
         updateSolveStatus,

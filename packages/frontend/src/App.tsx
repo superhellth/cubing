@@ -12,7 +12,8 @@ import TimerScreen from './pages/TimerScreen';
 import DBReader from './services/dbReader';
 import theme from './styles/theme';
 import Sidebar from './components/navigation/Sidebar';
-import { TimerSettingsProvider } from './hooks/TimerSettingsContext';
+import { TimerSettingsProvider } from './contexts/TimerSettingsContext';
+import { SolveProvider } from './contexts/SolveContext';
 
 const dbReader: DBReader = DBReader.instance;
 
@@ -23,6 +24,7 @@ function App() {
   const [lastSelectedDiscipline, setLastSelectedDiscipline] = useLocalStorage("selectedDiscipline", Discipline.ThreeByThree);
   const [backendOnline, setBackendOnline] = useState(true);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline>(lastSelectedDiscipline);
+  const [selectedSession] = useState<string>("default");
   const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
   const [sidebarResizing, setSidebarResizing] = useState<boolean>(false);
 
@@ -53,32 +55,34 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <TimerSettingsProvider>
-        <CssBaseline />
-        {backendOnline ? (
-          <Box sx={{ width: "100%", height: "100%", bgcolor: theme.palette.primary.main, display: "flex" }}>
-            <Sidebar selectedDiscipline={selectedDiscipline}
-              onDisciplineChange={handleDisciplineChange}
-              isCollapsed={sidebarIsCollapsed}
-              setIsCollapsed={setSidebarIsCollapsed}
-              isVisible={sidebarVisible}
-              isMobile={isMobile}
-              isResizing={sidebarResizing}
-              toggleResize={(b: boolean) => setSidebarResizing(b)}
-            />
-            <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
-              <Routes>
-                <Route path="/" element={
-                  <TimerScreen
-                  selectedDiscipline={selectedDiscipline}
-                  updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)}
-                  setSidebarIsCollapsed={setSidebarIsCollapsed}
-                  />} />
-                <Route path="/stats" element={<StatisticsScreen selectedDiscipline={selectedDiscipline} sidebarResizing={sidebarResizing} />} />
-                <Route path="/privacy-policy" element={<Licenses />} />
-              </Routes>
+        <SolveProvider selectedDiscipline={selectedDiscipline} selectedSession={selectedSession}>
+          <CssBaseline />
+          {backendOnline ? (
+            <Box sx={{ width: "100%", height: "100%", bgcolor: theme.palette.primary.main, display: "flex" }}>
+              <Sidebar selectedDiscipline={selectedDiscipline}
+                onDisciplineChange={handleDisciplineChange}
+                isCollapsed={sidebarIsCollapsed}
+                setIsCollapsed={setSidebarIsCollapsed}
+                isVisible={sidebarVisible}
+                isMobile={isMobile}
+                isResizing={sidebarResizing}
+                toggleResize={(b: boolean) => setSidebarResizing(b)}
+              />
+              <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>
+                <Routes>
+                  <Route path="/" element={
+                    <TimerScreen
+                      selectedDiscipline={selectedDiscipline}
+                      updateSidebarVisibility={(visible: boolean) => setSidebarVisible(visible)}
+                      setSidebarIsCollapsed={setSidebarIsCollapsed}
+                    />} />
+                  <Route path="/stats" element={<StatisticsScreen selectedDiscipline={selectedDiscipline} sidebarResizing={sidebarResizing} />} />
+                  <Route path="/privacy-policy" element={<Licenses />} />
+                </Routes>
+              </Box>
             </Box>
-          </Box>
-        ) : (<h1>There seems to be something wrong</h1>)}
+          ) : (<h1>There seems to be something wrong</h1>)}
+        </SolveProvider>
       </TimerSettingsProvider>
     </ThemeProvider >
   )

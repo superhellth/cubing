@@ -65,10 +65,8 @@ class DBReader {
                     session: session
                 }
             });
-            console.log(response.data)
 
             const solves: StatlessSolve[] = StatlessSolvesArraySchema.parse(response.data);
-            console.log(solves)
             return solves;
 
         } catch (error) {

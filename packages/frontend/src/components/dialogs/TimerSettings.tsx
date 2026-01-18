@@ -17,7 +17,7 @@ import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { Box, Stack, useTheme } from "@mui/system";
-import { useTimerSettings } from "../../hooks/TimerSettingsContext";
+import { useTimerSettings } from "../../contexts/TimerSettingsContext";
 
 const AVERAGE_DISPLAY_ORDER = ["duration", "avg5", "avg12", "avg100", "avg1000", "pb"];
 

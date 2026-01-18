@@ -1,5 +1,5 @@
 import { Discipline } from "@cubing/shared";
-import { useLocalStorage } from "./useLocalStorage"; // Import your utility
+import { useLocalStorage } from "../hooks/useLocalStorage"; // Import your utility
 import { createContext, useContext, type ReactNode } from "react";
 
 const defaultSettings = {
