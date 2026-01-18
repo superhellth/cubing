@@ -35,7 +35,6 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
     useEffect(() => {
         setStatus(solve.status);
     }, [solve]);
-    console.log(solve.importSource)
 
     const handleStatusChange = (_event: React.MouseEvent<HTMLElement>, newStatus: Status) => {
         if (newStatus !== null) {
@@ -79,8 +78,12 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
                                 <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                                 <Typography variant="caption" color="text.secondary">
                                     {longFormatter.format(date)}
-                                    <br></br>
-                                    Imported from {solve.importSource}
+                                    {solve.importKey &&
+                                        <>
+                                            <br></br>
+                                            Imported from {solve.importSource}
+                                        </>
+                                    }
                                 </Typography>
                             </Stack>
                         </Box>
@@ -212,8 +215,8 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
                 </DialogActions>
             </Dialog>
 
-            <DeleteManyDialog isOpen={openDeleteManyDialog} handleClose={() => {setOpenDeleteManyDialog(false);}}
-                deleteMany={(deleteX: number) => {onDeleteMany(solve.pk, deleteX); onClose();}} />
+            <DeleteManyDialog isOpen={openDeleteManyDialog} handleClose={() => { setOpenDeleteManyDialog(false); }}
+                deleteMany={(deleteX: number) => { onDeleteMany(solve.pk, deleteX); onClose(); }} />
         </>
     );
 }

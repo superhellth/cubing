@@ -63,10 +63,12 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
 
     const importSolves = async (solves: any[], toDisc: Discipline, checkDuplicates: boolean) => {
         const asNewSolves: NewSolve[] = csTimerSolveArrayToSolves(solves, toDisc, userID, "default");
+        let toInsert: NewSolve[] = asNewSolves;
         if (checkDuplicates) {
             const solvesToCompare: StatlessSolve[] = await DBReader.instance.getSolvesByImportSource(userID, importFrom);
             const existingImportKeys: bigint[] = solvesToCompare.map(s => s.importKey!);
-            
+            toInsert = toInsert.filter(s => !existingImportKeys.includes(s.importKey!));
+            console.log(toInsert);
         }
         const insertedStatless: StatlessSolve[] = await DBWriter.instance.insertSolvesBulk(asNewSolves);
     }

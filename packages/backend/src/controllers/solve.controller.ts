@@ -162,3 +162,17 @@ export const deleteSolve = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Failed to delete solve.' });
     }
 };
+
+export const deleteSolvesBulk = async (req: Request, res: Response) => {
+    try {
+        const solvePks = req.body.pks.map((pk: any) => BigInt(pk));
+        const uuid = String(req.body.uuid);
+        if (solvePks.length == 0) throw new Error("Empty Array");
+
+        const result = await pool.query("DELETE FROM solves WHERE pk = ANY($1) AND uuid = $2 RETURNING pk", [solvePks, uuid]);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error deleting solve:', error);
+        res.status(500).json({ message: 'Failed to delete solve.' });
+    }
+};

@@ -94,14 +94,17 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
     }, []);
 
     const deleteMany = useCallback((solvePk: bigint, lastX: number) => {
+        console.log(lastX)
         const solveIndex = solvesChrono.findIndex(s => s.pk === solvePk);
         const deletedPks: bigint[] = []
         for (let i = Math.max(0, solveIndex - lastX); i <= solveIndex; i++) {
-            dbWriter.deleteSolve(solvesChrono[i].pk, solvesChrono[i].uuid);
+            console.log(i)
             deletedPks.push(solvesChrono[i].pk);
         }
+        console.log(deletedPks.length)
+        dbWriter.deleteSolvesBulk(deletedPks, userID)
         setStatlessSolvesChrono(prev => prev.filter(s => !deletedPks.includes(s.pk)));
-    }, []);
+    }, [solvesChrono]);
 
     const updateSolveStatus = useCallback((oldSolve: Solve, newStatus: Status) => {
         const updatedSolve = solveWithUpdatedStatus(oldSolve, newStatus);

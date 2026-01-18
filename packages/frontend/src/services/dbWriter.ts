@@ -6,6 +6,7 @@ class DBWriter {
     private static readonly INSERT_SOLVE_URL = "/api/db/solves/insert";
     private static readonly INSERT_SOLVES_BULK_URL = "/api/db/solves/insertBulk";
     private static readonly DELETE_SOLVE_URL = "/api/db/solves/delete";
+    private static readonly DELETE_SOLVES_BULK_URL = "/api/db/solves/deleteBulk";
     private static readonly UPDATE_SOLVE_URL = "/api/db/solves/updateStatus";
     static #instance: DBWriter;
 
@@ -79,6 +80,20 @@ class DBWriter {
         try {
             const response = await axios.post(DBWriter.DELETE_SOLVE_URL, {
                 pk: pk.toString(),
+                uuid: uuid
+            });
+
+            return response.data;
+        } catch (error: any) {
+            console.error("Error deleting solve:", error);
+            throw error;
+        }
+    }
+
+    public async deleteSolvesBulk(pks: bigint[], uuid: string) {
+        try {
+            const response = await axios.post(DBWriter.DELETE_SOLVES_BULK_URL, {
+                pks: pks,
                 uuid: uuid
             });
 
