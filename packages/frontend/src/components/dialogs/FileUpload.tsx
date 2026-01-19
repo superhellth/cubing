@@ -1,8 +1,8 @@
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import { Box, IconButton, Paper, Stack, Typography, useTheme } from '@mui/material';
+import { alpha, Box, Fade, IconButton, Paper, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
@@ -67,40 +67,102 @@ const FileUpload = ({ currentFile, setCurrentFile }: { currentFile: any, setCurr
 
 
             ) : (
-                <Box>
-                    {/* File Card */}
-                    <Paper
-                        variant="outlined"
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            p: 2,
-                            borderColor: 'success.light',
-                            backgroundColor: theme.palette.secondary.light
-                        }}
-                    >
-                        <InsertDriveFileIcon sx={{ color: 'primary.main', mr: 2, fontSize: 30 }} />
+                <Box sx={{ width: '100%' }}>
+                    <Fade in={true} timeout={500}>
+                        <Box>
+                            {/* The File Card */}
+                            <Paper
+                                variant="outlined"
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    p: 2,
+                                    mb: 1.5, // Spacing between card and success text
+                                    gap: 2,
+                                    borderRadius: "12px",
+                                    // Glassy Dark Theme Look
+                                    bgcolor: alpha(theme.palette.background.paper, 0.6),
+                                    backdropFilter: "blur(10px)",
+                                    // The border carries the "Success" meaning subtly
+                                    border: `1px solid ${alpha(theme.palette.success.main, 0.3)}`,
+                                    transition: "border-color 0.2s, background-color 0.2s",
+                                    "&:hover": {
+                                        bgcolor: alpha(theme.palette.background.paper, 0.8),
+                                        borderColor: theme.palette.success.main,
+                                    }
+                                }}
+                            >
+                                {/* Icon Container */}
+                                <Box
+                                    sx={{
+                                        width: 48,
+                                        height: 48,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: "8px",
+                                        bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                        color: theme.palette.primary.main
+                                    }}
+                                >
+                                    <InsertDriveFileIcon fontSize="medium" />
+                                </Box>
 
-                        <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-                            <Typography variant="subtitle2" noWrap>
-                                {currentFile.name}
-                            </Typography>
-                            <Typography variant="caption" color="textSecondary">
-                                {(currentFile.size / 1024).toFixed(1)} KB
-                            </Typography>
+                                {/* File Details */}
+                                <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                                    <Typography
+                                        variant="body1"
+                                        fontWeight="600"
+                                        noWrap
+                                        color="text.primary"
+                                    >
+                                        {currentFile.name}
+                                    </Typography>
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ fontFamily: 'monospace', letterSpacing: 0.5 }}
+                                    >
+                                        {(currentFile.size / 1024).toFixed(1)} KB
+                                    </Typography>
+                                </Box>
+
+                                {/* Delete Action */}
+                                <Tooltip title="Remove file">
+                                    <IconButton
+                                        onClick={() => setCurrentFile(null)}
+                                        size="small"
+                                        sx={{
+                                            color: 'text.secondary',
+                                            "&:hover": {
+                                                color: 'error.main',
+                                                bgcolor: alpha(theme.palette.error.main, 0.1)
+                                            }
+                                        }}
+                                    >
+                                        <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
+                            </Paper>
+
+                            {/* Success Status Message */}
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={1}
+                                sx={{
+                                    pl: 1, // Slight indent to align with card content visually
+                                    color: 'success.main',
+                                    opacity: 0.9
+                                }}
+                            >
+                                <CheckCircleRoundedIcon sx={{ fontSize: 18 }} />
+                                <Typography variant="body2" fontWeight="600">
+                                    Upload complete
+                                </Typography>
+                            </Stack>
                         </Box>
-
-                        <IconButton onClick={() => setCurrentFile(null)} color="error" title="Delete file">
-                            <DeleteIcon />
-                        </IconButton>
-                    </Paper>
-
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2, color: 'success.main' }}>
-                        <CheckCircleIcon />
-                        <Typography variant="subtitle1" fontWeight="bold">
-                            File uploaded successfully!
-                        </Typography>
-                    </Stack>
+                    </Fade>
                 </Box>
             )
             }

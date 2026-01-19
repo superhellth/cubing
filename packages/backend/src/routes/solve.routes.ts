@@ -16,10 +16,10 @@ const updateLimit = rateLimit({
 router.use(updateLimit);
 
 // POSTs
-router.post('/insert', SolveController.insertSolve);
+// router.post('/insert', SolveController.insertSolve);
 router.post('/insertBulk', SolveController.insertSolvesBulk);
 router.post('/updateStatus', SolveController.updateSolveStatus);
-router.post('/delete', SolveController.deleteSolve);
+// router.post('/delete', SolveController.deleteSolve);
 router.post('/deleteBulk', SolveController.deleteSolvesBulk);
 
 // GETs

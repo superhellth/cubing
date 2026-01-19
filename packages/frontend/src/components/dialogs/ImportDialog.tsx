@@ -1,25 +1,26 @@
 import { Discipline, ImportSource, type NewSolve, type StatlessSolve } from '@cubing/shared';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import { Paper, Typography } from '@mui/material';
+import { Chip, Paper, Typography, Zoom } from '@mui/material';
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
-import { Box, Stack, useTheme } from "@mui/system";
+import { alpha, Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from 'react';
+import { useSolves } from '../../contexts/SolveContext';
+import { useExtractSessions, type Session } from '../../hooks/useExtractSessions';
 import { useUserID } from '../../hooks/useUserID';
-import DBWriter from '../../services/dbWriter';
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
-import { csTimerFileToObject, csTimerSolveArrayToSolves } from '../../utils/importUtils';
+import DBReader from '../../services/dbReader';
+import { csTimerSolveArrayToSolves } from '../../utils/importUtils';
 import CCSingleSelect from '../CCSingleSelect';
 import HCButton from '../HCButton';
 import FileUpload from './FileUpload';
 import ImportDetailSelectDialog from './ImportDetailSelectDialog';
-import DBReader from '../../services/dbReader';
-import { useSolves } from '../../contexts/SolveContext';
+import DBWriter from '../../services/dbWriter';
 
-const IMPORT_SOURCES = ["CsTimer"]
+const IMPORT_SOURCES = [ImportSource.CsTimer]
 
 function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean, onClose: Function, selectedDiscipline: Discipline }) {
     const theme = useTheme();
@@ -27,27 +28,10 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
     const [importFrom, setImportFrom] = useState<ImportSource>(ImportSource.CsTimer);
     const [currentFile, setCurrentFile] = useState<any>(null);
 
-    // Unify data layout
-    const [csData, setCsData] = useState<any>(null);
-    const [relevantCsTimerSessions, setRelevantCsTimerSessions] = useState<any>(null);
+    const loadedSessions: (Session[] | null) = useExtractSessions(currentFile, importFrom);
     const [selectedSession, setSelectedSession] = useState<any | null>(null);
     const [importedSessions, setImportedSessions] = useState<number[]>([]);
     const { insertBulk } = useSolves();
-
-    useEffect(() => {
-        if (currentFile == null) {
-            setCsData(null);
-            return;
-        }
-        if (importFrom == ImportSource.CsTimer) {
-            let data;
-            const convertToObject = async () => {
-                data = await csTimerFileToObject(currentFile);
-                setCsData(data);
-            }
-            convertToObject();
-        }
-    }, [currentFile])
 
     useEffect(() => {
         if (currentFile == null) {
@@ -55,23 +39,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
         }
     }, [currentFile])
 
-    useEffect(() => {
-        if (csData == null) {
-            setRelevantCsTimerSessions(null);
-        } else {
-            const sessionData = csData.properties.sessionData;
-            const relevantSessions: any[] = [];
-            Object.entries(sessionData).forEach(([key, value]: any) => {
-                if (value.stat && value.stat[0] > 0) {
-                    relevantSessions.push({ name: value.name, count: value.stat[0], solves: csData["session" + key] });
-                }
-            })
-            if (relevantSessions.length > 0) {
-                setRelevantCsTimerSessions(relevantSessions);
-            }
-        }
-    }, [csData]);
-
+    // Move to useSolveManager
     const importSolves = async (solves: any[], toDisc: Discipline, checkDuplicates: boolean) => {
         const asNewSolves: NewSolve[] = csTimerSolveArrayToSolves(solves, toDisc, userID, "default");
         let toInsert: NewSolve[] = asNewSolves;
@@ -81,7 +49,13 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
             const existingImportKeys: bigint[] = solvesToCompare.map(s => s.importKey!);
             toInsert = toInsert.filter(s => !existingImportKeys.includes(s.importKey!));
         }
-        insertBulk(toInsert);
+
+        // Register new solves if imported to current discipline, else only write to db
+        if (selectedDiscipline === toDisc) {
+            insertBulk(toInsert);
+        } else {
+            DBWriter.instance.insertSolvesBulk(toInsert);
+        }
         setImportedSessions(prev => [...prev, selectedSession.name])
     }
 
@@ -114,30 +88,87 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
 
                         </Stack>
                         <FileUpload currentFile={currentFile} setCurrentFile={setCurrentFile}></FileUpload>
-                        {relevantCsTimerSessions != null && importFrom == ImportSource.CsTimer &&
+                        {loadedSessions != null && importFrom == ImportSource.CsTimer &&
                             <>
-                                {relevantCsTimerSessions.map((session: any) => {
+                                {loadedSessions.map((session: any) => {
                                     return (
-                                        <Box>
-                                            <Paper sx={{
+                                        <Paper
+                                            elevation={0}
+                                            sx={{
                                                 bgcolor: theme.palette.secondary.main,
-                                                borderRadius: "10px", p: 2, gap: 2, display: "flex", justifyContent: "space-between", alignItems: "center"
-                                            }}>
+                                                backdropFilter: "blur(12px)",
+
+                                                border: "1px solid",
+                                                borderColor: "divider",
+                                                borderRadius: "16px",
+
+                                                p: 2.5,
+                                                gap: 2,
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+
+                                                transition: "all 0.3s ease",
+                                                "&:hover": {
+                                                    borderColor: theme.palette.secondary.main,
+                                                    bgcolor: alpha(theme.palette.background.paper, 0.8),
+                                                    transform: "translateY(-2px)",
+                                                    boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.4)}`
+                                                }
+                                            }}
+                                        >
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                <Typography variant="h6" fontWeight="700" color="text.primary">
+                                                    Session {session.name}
+                                                </Typography>
+
                                                 <Box>
-                                                    <Typography>Session {session.name}</Typography>
-                                                    <Typography>Solve Count: {session.count}</Typography>
-
+                                                    <Chip
+                                                        label={`${session.count} Solves`}
+                                                        size="small"
+                                                        sx={{
+                                                            height: 24,
+                                                            fontWeight: 500,
+                                                            bgcolor: alpha(theme.palette.secondary.main, 0.1),
+                                                            color: theme.palette.secondary.light,
+                                                            border: '1px solid',
+                                                            borderColor: alpha(theme.palette.secondary.main, 0.2)
+                                                        }}
+                                                    />
                                                 </Box>
+                                            </Box>
 
+                                            <Box sx={{
+                                                width: 48,
+                                                height: 48,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
                                                 {importedSessions.includes(session.name) ? (
-                                                    <CheckRoundedIcon />
+                                                    <Zoom in={true} key="check">
+                                                        <Box
+                                                            sx={{
+                                                                p: 1,
+                                                                borderRadius: "50%",
+                                                                bgcolor: alpha(theme.palette.success.main, 0.1),
+                                                                display: 'flex'
+                                                            }}
+                                                        >
+                                                            <CheckRoundedIcon color="success" sx={{ fontSize: "1.8rem" }} />
+                                                        </Box>
+                                                    </Zoom>
                                                 ) : (
-                                                    <HCButton onClick={() => setSelectedSession(session)}>
-                                                        <FileUploadIcon sx={{ fontSize: "2rem" }} />
-                                                    </HCButton>
+                                                    <Zoom in={true} key="upload">
+                                                        <div style={{ display: 'inline-block' }}>
+                                                            <HCButton onClick={() => setSelectedSession(session)}>
+                                                                <FileUploadIcon sx={{ fontSize: "2.4rem", color: "text.secondary" }} />
+                                                            </HCButton>
+                                                        </div>
+                                                    </Zoom>
                                                 )}
-                                            </Paper>
-                                        </Box>
+                                            </Box>
+                                        </Paper>
                                     );
                                 })}
                             </>

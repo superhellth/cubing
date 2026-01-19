@@ -3,9 +3,7 @@ import { StatlessSolvesArraySchema, StatlessSolveSchema, type NewSolve, type Sol
 import axios from "axios";
 
 class DBWriter {
-    private static readonly INSERT_SOLVE_URL = "/api/db/solves/insert";
     private static readonly INSERT_SOLVES_BULK_URL = "/api/db/solves/insertBulk";
-    private static readonly DELETE_SOLVE_URL = "/api/db/solves/delete";
     private static readonly DELETE_SOLVES_BULK_URL = "/api/db/solves/deleteBulk";
     private static readonly UPDATE_SOLVE_URL = "/api/db/solves/updateStatus";
     static #instance: DBWriter;
@@ -37,23 +35,7 @@ class DBWriter {
     }
 
     public async insertSolve(solve: NewSolve): Promise<StatlessSolve> {
-        try {
-            const response = await axios.post(DBWriter.INSERT_SOLVE_URL, {
-                solve: solve
-            });
-
-            const fullSolve: StatlessSolve = StatlessSolveSchema.parse(response.data);
-            return fullSolve;
-        } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                if (error.response.status === 403) {
-                    console.warn('User limit reached:', error.response.data.message);
-                    throw new Error('LIMIT_REACHED');
-                }
-            }
-            console.error('Error inserting solve:', error);
-            throw error;
-        }
+        return (await this.insertSolvesBulk([solve]))[0];
     }
 
     public async insertSolvesBulk(solves: NewSolve[]): Promise<StatlessSolve[]> {
@@ -77,17 +59,7 @@ class DBWriter {
     }
 
     public async deleteSolve(pk: bigint, uuid: string) {
-        try {
-            const response = await axios.post(DBWriter.DELETE_SOLVE_URL, {
-                pk: pk.toString(),
-                uuid: uuid
-            });
-
-            return response.data;
-        } catch (error: any) {
-            console.error("Error deleting solve:", error);
-            throw error;
-        }
+        return await this.deleteSolvesBulk([pk], uuid);
     }
 
     public async deleteSolvesBulk(pks: bigint[], uuid: string) {
