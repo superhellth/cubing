@@ -182,11 +182,11 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
 
                 </Box>
 
-                <NavigationButton isSelected={false} onClick={() => { setImportDialogOpen(true); setIsCollapsed(true) }} icon={<FileUploadIcon />}
+                <NavigationButton isSelected={false} onClick={() => { setImportDialogOpen(true); onMouseEvent(false) }} icon={<FileUploadIcon />}
                     label="Import Solves" isCollapsed={isCollapsed}>
                 </NavigationButton>
 
-                <NavigationButton isSelected={false} onClick={() => { setSettingsOpen(true); setIsCollapsed(true) }} icon={<SettingsIcon />}
+                <NavigationButton isSelected={false} onClick={() => { setSettingsOpen(true); onMouseEvent(false) }} icon={<SettingsIcon />}
                     label="Settings" isCollapsed={isCollapsed}>
                 </NavigationButton>
 

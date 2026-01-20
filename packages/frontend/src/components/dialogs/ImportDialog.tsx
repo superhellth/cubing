@@ -2,7 +2,7 @@ import { Discipline, ImportSource, type NewSolve, type StatlessSolve } from '@cu
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import { Chip, Paper, Typography, Zoom } from '@mui/material';
+import { Chip, Typography, Zoom } from '@mui/material';
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -13,12 +13,13 @@ import { useSolves } from '../../contexts/SolveContext';
 import { useExtractSessions, type Session } from '../../hooks/useExtractSessions';
 import { useUserID } from '../../hooks/useUserID';
 import DBReader from '../../services/dbReader';
+import DBWriter from '../../services/dbWriter';
 import { csTimerSolveArrayToSolves } from '../../utils/importUtils';
 import CCSingleSelect from '../CCSingleSelect';
 import HCButton from '../HCButton';
 import FileUpload from './FileUpload';
 import ImportDetailSelectDialog from './ImportDetailSelectDialog';
-import DBWriter from '../../services/dbWriter';
+import { SessionCard } from './ImportDialog.styles';
 
 const IMPORT_SOURCES = [ImportSource.CsTimer]
 
@@ -92,30 +93,8 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
                             <>
                                 {loadedSessions.map((session: any) => {
                                     return (
-                                        <Paper
+                                        <SessionCard
                                             elevation={0}
-                                            sx={{
-                                                bgcolor: theme.palette.secondary.main,
-                                                backdropFilter: "blur(12px)",
-
-                                                border: "1px solid",
-                                                borderColor: "divider",
-                                                borderRadius: "16px",
-
-                                                p: 2.5,
-                                                gap: 2,
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                alignItems: "center",
-
-                                                transition: "all 0.3s ease",
-                                                "&:hover": {
-                                                    borderColor: theme.palette.secondary.main,
-                                                    bgcolor: alpha(theme.palette.background.paper, 0.8),
-                                                    transform: "translateY(-2px)",
-                                                    boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.4)}`
-                                                }
-                                            }}
                                         >
                                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                                 <Typography variant="h6" fontWeight="700" color="text.primary">
@@ -129,8 +108,8 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
                                                         sx={{
                                                             height: 24,
                                                             fontWeight: 500,
-                                                            bgcolor: alpha(theme.palette.secondary.main, 0.1),
-                                                            color: theme.palette.secondary.light,
+                                                            bgcolor: theme.palette.secondary.dark,
+                                                            color: theme.palette.text.secondary,
                                                             border: '1px solid',
                                                             borderColor: alpha(theme.palette.secondary.main, 0.2)
                                                         }}
@@ -138,37 +117,29 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
                                                 </Box>
                                             </Box>
 
-                                            <Box sx={{
-                                                width: 48,
-                                                height: 48,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}>
-                                                {importedSessions.includes(session.name) ? (
-                                                    <Zoom in={true} key="check">
-                                                        <Box
-                                                            sx={{
-                                                                p: 1,
-                                                                borderRadius: "50%",
-                                                                bgcolor: alpha(theme.palette.success.main, 0.1),
-                                                                display: 'flex'
-                                                            }}
-                                                        >
-                                                            <CheckRoundedIcon color="success" sx={{ fontSize: "1.8rem" }} />
-                                                        </Box>
-                                                    </Zoom>
-                                                ) : (
-                                                    <Zoom in={true} key="upload">
-                                                        <div style={{ display: 'inline-block' }}>
-                                                            <HCButton onClick={() => setSelectedSession(session)}>
-                                                                <FileUploadIcon sx={{ fontSize: "2.4rem", color: "text.secondary" }} />
-                                                            </HCButton>
-                                                        </div>
-                                                    </Zoom>
-                                                )}
-                                            </Box>
-                                        </Paper>
+                                            {importedSessions.includes(session.name) ? (
+                                                <Zoom in={true} key="check">
+                                                    <Box
+                                                        sx={{
+                                                            p: 1,
+                                                            borderRadius: "50%",
+                                                            bgcolor: alpha(theme.palette.success.main, 0.1),
+                                                            display: 'flex'
+                                                        }}
+                                                    >
+                                                        <CheckRoundedIcon color="success" sx={{ fontSize: "1.8rem" }} />
+                                                    </Box>
+                                                </Zoom>
+                                            ) : (
+                                                <Zoom in={true} key="upload">
+                                                    <div style={{ display: 'inline-block' }}>
+                                                        <HCButton onClick={() => setSelectedSession(session)}>
+                                                            <FileUploadIcon sx={{ fontSize: "2.4rem" }} />
+                                                        </HCButton>
+                                                    </div>
+                                                </Zoom>
+                                            )}
+                                        </SessionCard>
                                     );
                                 })}
                             </>
