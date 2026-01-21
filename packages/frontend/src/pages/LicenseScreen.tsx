@@ -37,7 +37,7 @@ const Licenses = () => {
             .then((data) => setLicenses(data))
             .catch((err) => console.error("Failed to load licenses", err));
     }, []);
-    if (!licenses) return <Box sx={{bgcolor: theme.palette.primary.main, height: "100%"}}><Loading></Loading></Box>;
+    if (!licenses) return <Box sx={{bgcolor: theme.palette.primary.main, height: "100%"}}><Loading size="medium"></Loading></Box>;
 
     return (
         <Box sx={{

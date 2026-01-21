@@ -1,12 +1,12 @@
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import { alpha, Box, useTheme } from '@mui/material';
 
-export default function CalculationLoader() {
+export default function CalculationLoader({ size }: { size: string }) {
     const theme = useTheme();
 
     // --- Colors based on your theme ---
     // We create an alpha (transparent) version of the bright accent for the "trails"
-    const glowColor = theme.palette.info.main; 
+    const glowColor = theme.palette.info.main;
     const secondaryColor = theme.palette.secondary.main;
     const orbitalColor = theme.palette.warning.main; // Adding an extra pop of color (Orange/Gold) for contrast
 
@@ -41,11 +41,11 @@ export default function CalculationLoader() {
             }}
         >
             {/* 1. Ambient Background Glow - Gives depth to the dark theme */}
-            <Box 
+            <Box
                 sx={{
                     position: 'absolute',
-                    width: '300px',
-                    height: '300px',
+                    width: size == "small" ? "200px" : '300px',
+                    height: size == "small" ? "200px" : '300px',
                     background: `radial-gradient(circle, ${alpha(glowColor, 0.15)} 0%, transparent 70%)`,
                     borderRadius: '50%',
                     zIndex: 0,
@@ -77,10 +77,10 @@ export default function CalculationLoader() {
                         // We use a transparent border but add a glow to the top edge
                         border: '2px solid transparent',
                         borderTopColor: glowColor,
-                        
+
                         // Neon Glow effect
-                        filter: `drop-shadow(0 0 4px ${glowColor})`, 
-                        
+                        filter: `drop-shadow(0 0 4px ${glowColor})`,
+
                         animation: 'spin 2s linear infinite',
                         '@keyframes spin': spin,
 
@@ -89,7 +89,7 @@ export default function CalculationLoader() {
                             content: '""',
                             position: 'absolute',
                             top: '12%', // Adjust based on curvature
-                            left: '84%', 
+                            left: '84%',
                             width: '6px',
                             height: '6px',
                             borderRadius: '50%',
@@ -109,9 +109,9 @@ export default function CalculationLoader() {
                         border: '2px solid transparent',
                         borderBottomColor: orbitalColor, // Using Warning/Orange for contrast against Blue
                         borderLeftColor: alpha(orbitalColor, 0.5), // Fading tail
-                        
+
                         filter: `drop-shadow(0 0 2px ${orbitalColor})`,
-                        
+
                         animation: 'reverseSpin 1.5s linear infinite',
                         '@keyframes reverseSpin': spinReverse,
                     }}

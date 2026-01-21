@@ -18,7 +18,6 @@ import ImportDialog from '../dialogs/ImportDialog';
 interface SidebarProps {
     selectedDiscipline: Discipline;
     onDisciplineChange: (d: Discipline) => void;
-    isResizing: boolean;
     toggleResize: (b: boolean) => void;
     isCollapsed: boolean;
     isVisible: boolean;
@@ -26,7 +25,7 @@ interface SidebarProps {
 }
 
 export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange, isCollapsed, setIsCollapsed,
-    isVisible, isResizing, toggleResize: setIsResizing }: SidebarProps) {
+    isVisible, toggleResize: setIsResizing }: SidebarProps) {
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
     const navigate = useNavigate();
@@ -34,18 +33,18 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = useState<any>(null);
     const anchorRef = useRef(null);
+    const resizeRef = useRef<any>(null);
     const open = Boolean(anchorEl);
 
     const onMouseEvent = (isEntering: boolean) => {
-        if (isResizing) {
-            return;
-        } else {
-            setIsResizing(true);
-            setIsCollapsed(!isEntering);
-            setTimeout(() => {
-                setIsResizing(false);
-            }, 301)
+        if (resizeRef.current) {
+            clearTimeout(resizeRef.current);
         }
+        setIsCollapsed(!isEntering);
+        setIsResizing(true);
+        resizeRef.current = setTimeout(() => {
+            setIsResizing(false);
+        }, theme.transitions.duration.standard);
     }
 
     return (
@@ -116,9 +115,6 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                                 <MenuItem
                                     disableRipple
                                     sx={{
-                                        // 1. Remove the gray hover effect on the container
-                                        // "&:hover": { backgroundColor: "transparent" },
-                                        // 2. Change cursor so it doesn't look clickable outside the buttons
                                         cursor: "default",
                                         padding: 0
                                     }}

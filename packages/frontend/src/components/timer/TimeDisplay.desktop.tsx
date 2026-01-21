@@ -6,13 +6,12 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Box from '@mui/system/Box';
 import { memo, useMemo } from "react";
 import { formatTime, getDisplayableTime } from '../../utils/solveUtils';
-import SolvesTable from './SolvesTable';
-import { CompactTable, FadeContent, PanelPaper, SidebarCard } from './TimeDisplay.styles';
-import { HEAD_CELLS } from './TimeDisplay';
 import HCButton from '../HCButton';
+import SolvesTable from './SolvesTable';
+import { HEAD_CELLS } from './TimeDisplay';
+import { CompactTable, FadeContent, PanelPaper, SidebarCard, TimeDisplayWrapper } from './TimeDisplay.styles';
 
 interface Stats {
     [key: string]: number | null;
@@ -22,7 +21,7 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
     solves: Solve[],
     openSolveDetailsScreen: Function,
     isCollapsed: boolean,
-    onSolveTableVisibilityChange: Function
+    onSolveTableVisibilityChange: Function,
 }) => {
     const latestSolve = solves?.[solves.length - 1];
 
@@ -49,16 +48,7 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
 
 
     return (
-        <Box sx={{
-            display: "flex",
-            justifyContent: 'flex-end',
-            alignItems: 'flex-start',
-            marginLeft: "auto",
-            width: !isCollapsed ? "350px" : '42px',
-            maxHeight: !isCollapsed ? "100%" : '42px',
-            height: "100%",
-            transition: 'width 0.3s cubic-bezier(0.19, 1, 0.22, 1), max-height 0.3s cubic-bezier(0.19, 1, 0.22, 1)',
-        }}>
+        <TimeDisplayWrapper isCollapsed={isCollapsed}>
             <SidebarCard>
                 <HCButton
                     sx={{
@@ -125,7 +115,7 @@ const TimeDisplayDesktop = memo(({ solves, openSolveDetailsScreen, isCollapsed, 
                     </CardContent>
                 </FadeContent>
             </SidebarCard>
-        </Box>
+        </TimeDisplayWrapper>
     );
 });
 

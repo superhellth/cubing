@@ -1,8 +1,8 @@
 import { Discipline, inspectionlessDisciplines, type Solve } from "@cubing/shared";
 import "@fontsource/dseg7-classic/700.css";
-import { Divider, Typography } from "@mui/material";
+import { Divider, Typography, useTheme } from "@mui/material";
 import { Box } from "@mui/system";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import LimitReachedDialog from "../components/dialogs/LimitReachedDialog";
 import SolveDetailsScreen from "../components/dialogs/SolveDetailsDialog";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
@@ -19,6 +19,7 @@ import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles"
 function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSidebarIsCollapsed }:
     { selectedDiscipline: Discipline, updateSidebarVisibility: Function, setSidebarIsCollapsed: Function }) {
     const { settings } = useTimerSettings();
+    const theme = useTheme();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
     const { solvesChrono, addSolve, deleteSolve, deleteMany, updateSolveStatus, currentScramble, pb } = useSolves();
     const percentile = usePercentile(solvesChrono);
@@ -35,11 +36,28 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
 
     const [isLimitDialogOpen, setIsLimitDialogOpen] = useState(false);
     const [selectedSolve, setSelectedSolve] = useState<Solve | null>();
-    const [solveTableVisible, setSolveTableVisible] = useState(true);
+    const [solveTableIsExpanded, setSolveTableIsExpanded] = useState<boolean>(true);
+    const resizeRef = useRef<any>(null);
+    const [solveTableIsResizing, setSolveTableIsResizing] = useState<boolean>(false);
+
+    useLayoutEffect(() => {
+        setSolveTableIsResizing(true);
+        if (resizeRef.current) {
+            clearTimeout(resizeRef.current);
+        }
+        resizeRef.current = setTimeout(() => {
+            setSolveTableIsResizing(false);
+        }, theme.transitions.duration.standard);
+
+        return () => {
+            if (resizeRef.current) clearTimeout(resizeRef.current);
+        }
+    }, [solveTableIsExpanded])
 
     useEffect(() => {
         updateSidebarVisibility(!hideElements);
     }, [hideElements]);
+
     useEffect(() => {
         if (timerStatus === TimerStatus.Ready) {
             setSidebarIsCollapsed(true);
@@ -52,7 +70,7 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
     }, [reset]);
 
     const onSolveTableVisibilityChange = (newState: boolean) => {
-        setSolveTableVisible(newState);
+        setSolveTableIsExpanded(newState);
     };
 
     return (
@@ -83,7 +101,7 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
                     </Typography>
                 </Box>
                 <Box sx={{ flex: 5, visibility: hideElements ? "hidden" : "visible", width: "100%", alignContent: "flex-end" }}>
-                    <AvgGraphs solves={solvesChrono} settings={settings} />
+                    <AvgGraphs solves={solvesChrono} settings={settings} isResizing={solveTableIsResizing} />
                 </Box>
             </TimerPanel>
 
@@ -92,9 +110,9 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
                 marginTop: "16px",
                 marginRight: "16px",
                 minWidth: "91px",
-                paddingBottom: "16px"
+                paddingBottom: "16px",
             }}>
-                <TimeDisplay solves={solvesChrono} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={!solveTableVisible}
+                <TimeDisplay solves={solvesChrono} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={!solveTableIsExpanded}
                     onSolveTableVisibilityChange={onSolveTableVisibilityChange} />
             </Box>
 

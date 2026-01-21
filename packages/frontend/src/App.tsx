@@ -65,7 +65,6 @@ function App() {
                 setIsCollapsed={setSidebarIsCollapsed}
                 isVisible={sidebarVisible}
                 isMobile={isMobile}
-                isResizing={sidebarResizing}
                 toggleResize={(b: boolean) => setSidebarResizing(b)}
               />
               <Box sx={{ height: "100%", bgcolor: "blue", width: "100%" }}>

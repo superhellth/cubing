@@ -45,26 +45,26 @@ function StatisticsScreen({ selectedDiscipline, sidebarResizing }: { selectedDis
     return (
         <Box sx={{ height: "100%", padding: 3, bgcolor: theme.palette.primary.main, display: "flex", flexDirection: "column", gap: 2 }}>
             {isLoading ? (
-                <CalculationLoader />
+                <CalculationLoader size="normal" />
             ) : (
                 <>
                     <Box sx={{ flex: 65, minHeight: 0 }}>
                         <Grid container spacing={2} sx={{ height: '100%' }}>
                             <Grid size={{ xs: 12, md: 9.7 }} sx={{ height: '100%' }}>
-                                <ImprovementChart solvesChrono={displayData} isResizing={sidebarResizing} numTrueSolves={solvesChrono.length} />
+                                <ImprovementChart solvesChrono={solvesChrono} isResizing={sidebarResizing} numTrueSolves={solvesChrono.length} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 2.3 }} sx={{ height: '100%' }}>
-                                <DevelopmentCard solvesChrono={displayData} numTrueSolves={solvesChrono.length} />
+                                <DevelopmentCard solvesChrono={solvesChrono} numTrueSolves={solvesChrono.length} />
                             </Grid>
                         </Grid>
                     </Box>
                     <Box sx={{ flex: 35, minHeight: 0 }}>
                         <Grid container spacing={2} sx={{ height: '100%' }}>
                             <Grid size={{ xs: 12, md: 4.85 }} sx={{ height: '100%' }}>
-                                <VariabilityCard solvesChrono={solvesChrono.length < 50 ? demoSolves : solvesChrono} numTrueSolves={solvesChrono.length} />
+                                <VariabilityCard solvesChrono={solvesChrono} numTrueSolves={solvesChrono.length} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 4.85 }} sx={{ height: '100%' }}>
-                                <DistributionCard solves={displayData} numTrueSolves={solvesChrono.length} />
+                                <DistributionCard solves={solvesChrono} numTrueSolves={solvesChrono.length} />
                             </Grid>
                             <Grid size={{ xs: 12, md: 2.3 }} sx={{ height: '100%' }}>
                                 <ActivityCard />

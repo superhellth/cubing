@@ -1,13 +1,13 @@
-import { keyToLabels } from '@cubing/shared';
+import { keyToLabels, type Solve } from '@cubing/shared';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { Paper, Stack, Typography } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import { useTheme } from "@mui/system";
 import { memo } from 'react';
-import { formatTime } from '../../utils/solveUtils';
+import { getDisplayableTime } from '../../utils/solveUtils';
 
-const TrendCard = memo(({ trend, headerKey, current }: {trend: any, headerKey: any, current: number}) => {
+const TrendCard = memo(({ trend, headerKey, solve }: {trend: any, headerKey: keyof Solve, solve: Solve}) => {
     const theme = useTheme();
     return (
         <Paper
@@ -52,7 +52,7 @@ const TrendCard = memo(({ trend, headerKey, current }: {trend: any, headerKey: a
                         letterSpacing: -1
                     }}
                 >
-                    {formatTime(current)}s
+                    {getDisplayableTime(solve, headerKey) + (solve[headerKey] === null ? "" : "s")}
                 </Typography>
 
                 <Stack

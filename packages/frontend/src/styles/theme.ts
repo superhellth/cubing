@@ -72,6 +72,11 @@ const theme = createTheme({
             duration: "#F0E442",
         }
     },
+    transitions: {
+        easing: {
+            easeInOut: "cubic-bezier(0.19, 1, 0.22, 1)",
+        }
+    },
     typography: {
         fontFamily: [
             "IBM Plex Sans",
@@ -107,6 +112,14 @@ const theme = createTheme({
                         backgroundColor: "rgba(0, 0, 0, 0.5)",
                         backdropFilter: "blur(3px)",
                     }
+                }
+            }
+        },
+        MuiSkeleton: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: secondary,
+                    borderRadius: "10px"
                 }
             }
         },

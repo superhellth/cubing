@@ -1,5 +1,18 @@
-import { Card, Paper, Table, TableCell, tableCellClasses } from "@mui/material";
+import { Card, Paper, Table, TableCell, tableCellClasses, type Theme } from "@mui/material";
 import { Box, styled } from "@mui/system";
+
+export const TimeDisplayWrapper = styled(Box, { shouldForwardProp: (prop) => prop !== "isCollapsed" })<{ isCollapsed: boolean }>(({ theme, isCollapsed }) => ({
+    display: "flex",
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    marginLeft: "auto",
+    width: !isCollapsed ? "350px" : '42px',
+    maxHeight: !isCollapsed ? "100%" : '42px',
+    height: "100%",
+    transition: (theme as Theme).transitions.create(['width', 'max-height'], {
+        duration: (theme as Theme).transitions.duration.standard,
+    }),
+}));
 
 export const SidebarCard = styled(Card, {
     shouldForwardProp: (prop) => prop !== 'isCollapsed'
@@ -9,7 +22,7 @@ export const SidebarCard = styled(Card, {
     border: "1px solid rgba(255, 255, 255, 0.1)",
     overflow: 'visible',
     position: "relative",
-    
+
     width: "100%",
     height: "100%",
 }));
@@ -21,7 +34,7 @@ export const FadeContent = styled(Box, {
     height: "100%",
     opacity: isCollapsed ? 0 : 1,
     pointerEvents: isCollapsed ? 'none' : 'auto',
-    
+
     transition: !isCollapsed
         ? `opacity 1s cubic-bezier(0.19, 1, 0.22, 1) 0.1s`
         : `opacity 0.05s cubic-bezier(0.19, 1, 0.22, 1) 0s`,

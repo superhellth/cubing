@@ -28,7 +28,7 @@ function ImportDetailSelectDialog({ session, onClose, importSolves, defaultDisci
                     label="Event" helperText="Import solves to this event" />
                 <FormControlLabel
                     control={<Checkbox checked={checkDuplicates} onChange={() => setCheckDuplicates(!checkDuplicates)} />}
-                    label="Check for duplicate solves" />
+                    label="Don't import duplicate solves" />
             </DialogContent>
             <DialogActions sx={{ p: 2 }}>
                 <Button onClick={() => onClose()} color="inherit">

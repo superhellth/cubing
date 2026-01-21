@@ -16,7 +16,6 @@ import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
 import DeleteManyDialog from "./DeleteManyDialog";
 import { getDisplayableTime } from "../../utils/solveUtils";
-import { useSolves } from "../../contexts/SolveContext";
 
 function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMany, onUpdateStatus }: {
     solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
@@ -32,10 +31,10 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
     });
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [openDeleteManyDialog, setOpenDeleteManyDialog] = useState(false);
-    const {solvesChrono} = useSolves();
-    const solveIndex = solvesChrono.findIndex(s => s.pk === solve.pk);
-    const avg12Solves = solvesChrono.slice(solveIndex - 11, solveIndex + 1);
-    console.log(avg12Solves)
+    // const { solvesChrono } = useSolves();
+    // const solveIndex = solvesChrono.findIndex(s => s.pk === solve.pk);
+    // const avg12Solves = solvesChrono.slice(solveIndex - 11, solveIndex + 1);
+    // console.log(avg12Solves)
 
     useEffect(() => {
         setStatus(solve.status);
@@ -83,14 +82,13 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
                                 <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                                 <Typography variant="caption" color="text.secondary">
                                     {longFormatter.format(date)}
-                                    {solve.importKey &&
-                                        <>
-                                            <br></br>
-                                            Imported from {solve.importSource}
-                                        </>
-                                    }
                                 </Typography>
                             </Stack>
+                            {solve.importKey &&
+                                <Typography variant="caption" color="text.secondary">
+                                    Imported from {solve.importSource}
+                                </Typography>
+                            }
                         </Box>
 
                         {/* SCRAMBLE BOX */}

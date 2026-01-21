@@ -3,13 +3,14 @@ import { Box, useTheme } from "@mui/system";
 import { LineChart } from "@mui/x-charts";
 import { memo, useMemo } from "react";
 import { formatTime } from "../../utils/solveUtils";
+import Loading from "../statistics/Loading";
 
 const cleanVal = (val: number | undefined | null) => {
     if (val === undefined || val === null || val === -1) return null;
     return val;
 };
 
-const AvgGraphs = memo(({ solves, settings }: { solves: Solve[], settings: any }) => {
+const AvgGraphs = memo(({ solves, settings, isResizing }: { solves: Solve[], settings: any, isResizing: boolean }) => {
     const theme = useTheme();
     const xByDate: boolean = useMemo(() => { return settings.avgGraphXAxis == "date" }, [settings]);
     const display: any[] = useMemo(() => { return settings.avgGraphDisplay }, [settings]);
@@ -47,29 +48,33 @@ const AvgGraphs = memo(({ solves, settings }: { solves: Solve[], settings: any }
     }, [display]);
 
     return (
-        <Box>
-            <LineChart
-                dataset={chartData}
-                xAxis={[{
-                    label: xByDate ? "Date" : "Solve",
-                    dataKey: xByDate ? "date" : "id",
-                    scaleType: xByDate ? 'time' : 'linear',
-                    valueFormatter: xByDate
-                        ? (date: Date) => date.toLocaleDateString()
-                        : (v: number) => v.toString()
-                }]}
-                yAxis={[{ label: 'Time (s)', valueFormatter: (v: number) => (v / 1000).toFixed(0), domainLimit: "strict" }]}
-                slotProps={{
-                    legend: {
-                        position: {
-                            vertical: 'bottom'
+        <Box sx={{height: 200}}>
+            {isResizing ? (
+                <Loading size="small" />
+            ) : (
+                <LineChart
+                    // skipAnimation
+                    dataset={chartData}
+                    xAxis={[{
+                        label: xByDate ? "Date" : "Solve",
+                        dataKey: xByDate ? "date" : "id",
+                        scaleType: xByDate ? 'time' : 'linear',
+                        valueFormatter: xByDate
+                            ? (date: Date) => date.toLocaleDateString()
+                            : (v: number) => v.toString()
+                    }]}
+                    yAxis={[{ label: 'Time (s)', valueFormatter: (v: number) => (v / 1000).toFixed(0), domainLimit: "strict" }]}
+                    slotProps={{
+                        legend: {
+                            position: {
+                                vertical: 'bottom'
+                            },
                         },
-                    },
-                }}
-                hideLegend={true}
-                series={series}
-                height={200}
-            />
+                    }}
+                    hideLegend={true}
+                    series={series}
+                />
+            )}
         </Box>
     );
 });

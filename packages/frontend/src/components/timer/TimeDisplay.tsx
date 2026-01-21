@@ -17,7 +17,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
     solves: Solve[],
     openSolveDetailsScreen: Function,
     isCollapsed: boolean,
-    onSolveTableVisibilityChange: Function
+    onSolveTableVisibilityChange: Function,
 }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -28,7 +28,7 @@ const TimeDisplay = memo(({ solves, openSolveDetailsScreen, isCollapsed, onSolve
                     onSolveTableVisibilityChange={onSolveTableVisibilityChange} />
             ) : (
                 <TimeDisplayDesktop solves={solves} openSolveDetailsScreen={openSolveDetailsScreen} isCollapsed={isCollapsed}
-                    onSolveTableVisibilityChange={onSolveTableVisibilityChange} />
+                    onSolveTableVisibilityChange={onSolveTableVisibilityChange}/>
             )}
         </>
     );

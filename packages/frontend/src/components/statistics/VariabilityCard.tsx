@@ -18,6 +18,7 @@ const longFormatter = new Intl.DateTimeFormat('en-US', {
 const VariabilityCard = memo(({ solvesChrono, numTrueSolves }: any) => {
     const [dataIndex, setDataIndex] = useState<null | number>(null);
     const sampledSolves = useDownsampling(solvesChrono, 500, false);
+    const dummyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     const rollingStd: number[] = useMemo(() => {
         if (windowSize > sampledSolves.length) return [];
@@ -39,7 +40,7 @@ const VariabilityCard = memo(({ solvesChrono, numTrueSolves }: any) => {
             hint={"This value represents how consistent you are. In the future you will be able to compare your stats to other people's. For now: Zero is bad, 3-5 good, 5-10 excellent, 10+ superhuman"}
             title={dataIndex === null ? 'Consistency' : longFormatter.format(sampledSolves[windowSize + dataIndex].date)} icon={<TimelineIcon />}>
 
-            <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={80} fontSize={20} hint="Cube some more to check your consistency!">
+            <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={60} fontSize={20} hint="Cube some more to check your consistency!">
                 <Box sx={{ display: "flex", maxHeight: "300px", flexDirection: "column", height: "100%" }}>
 
                     <Typography sx={{ fontSize: '2rem', fontWeight: "bold", padding: ".4rem", paddingRight: "10px", paddingBottom: 0, whiteSpace: "nowrap" }}>
@@ -55,7 +56,7 @@ const VariabilityCard = memo(({ solvesChrono, numTrueSolves }: any) => {
                         </defs>
                     </svg>
 
-                    <SparkLineChart data={rollingStd} showHighlight axisHighlight={{ x: "line" }} color={theme.palette.info.main} area
+                    <SparkLineChart data={solvesChrono.length < 52 ? dummyData : rollingStd} showHighlight axisHighlight={{ x: "line" }} color={theme.palette.info.main} area
                         baseline="min"
                         // skipAnimation={true}
                         // yAxis={{

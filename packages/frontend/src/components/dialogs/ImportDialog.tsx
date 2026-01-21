@@ -2,7 +2,7 @@ import { Discipline, ImportSource, type NewSolve, type StatlessSolve } from '@cu
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
-import { Chip, Typography, Zoom } from '@mui/material';
+import { Button, Chip, DialogActions, Typography, Zoom } from '@mui/material';
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -60,13 +60,18 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
         setImportedSessions(prev => [...prev, selectedSession.name])
     }
 
+    const handleClose = () => {
+        onClose();
+        setCurrentFile(null);
+    }
+
     return (
         <>
             <Dialog open={isOpen}>
                 <DialogTitle sx={{ textAlign: "center", fontSize: "3rem", fontWeight: "bold", color: "#FFFFFF" }}>Import Solves
                     <IconButton
                         aria-label="close"
-                        onClick={() => { onClose(); setCurrentFile(null); }}
+                        onClick={handleClose}
                         sx={{
                             position: 'absolute',
                             right: 8,
@@ -146,6 +151,15 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
                         }
                     </Stack>
                 </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={handleClose}
+                        variant="contained"
+                        color="info"
+                    >
+                        Done
+                    </Button>
+                </DialogActions>
             </Dialog>
             <ImportDetailSelectDialog onClose={() => setSelectedSession(null)} session={selectedSession} defaultDiscipline={selectedDiscipline}
                 importSolves={importSolves} />

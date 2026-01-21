@@ -6,12 +6,13 @@ import useImprovementStats from '../../hooks/solves/useImprovementStats';
 import { GraphCard } from "./GraphCard";
 import TrendCard from './TrendCard';
 import { LockedOverlay } from './LockedOverlay';
+import type { Solve } from '@cubing/shared';
 
-const displayed = ["duration", "pb", "avg5", "avg12", "avg100", "avg1000"];
+const displayed: (keyof Solve)[] = ["duration", "pb", "avg5", "avg12", "avg100", "avg1000"];
 
 const DevelopmentCard = ({ solvesChrono, numTrueSolves }: any) => {
-    if (solvesChrono.length <= 0) return null;
-    const recentSolve = solvesChrono[solvesChrono.length - 1];
+    // if (solvesChrono.length <= 0) return null;
+    const recentSolve: Solve = solvesChrono[solvesChrono.length - 1];
     const theme = useTheme();
     const [timeFrame, setTimeFrame] = useState("recent");
     const trends = useImprovementStats(solvesChrono);
@@ -21,7 +22,7 @@ const DevelopmentCard = ({ solvesChrono, numTrueSolves }: any) => {
 
     return (
         <GraphCard title={"Improvement speed"} icon={<AutoAwesomeIcon />}
-        hint="These statistics do not simply compare your current stats with your stats of the past, but use averaging to more realistically reflect your development.">
+            hint="These statistics do not simply compare your current stats with your stats of the past, but use averaging to more realistically reflect your development.">
             <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={15} fontSize={20} hint="Keep solving !">
                 <Typography variant="h4" sx={{ color: impRate < 0 ? theme.palette.error.main : '#fff', m: 1, fontWeight: 700 }}>
                     {impRate}
@@ -62,20 +63,19 @@ const DevelopmentCard = ({ solvesChrono, numTrueSolves }: any) => {
                         </ToggleButtonGroup>
                     </FormControl>
                 ) : (
-                    <Box sx={{height: "1rem"}}>
+                    <Box sx={{ height: "1rem" }}>
 
                     </Box>
-                )
-                }
-                <Grid container spacing={1.5}>
-                    {displayed.map((key: string, _index: number) => {
+                )}
+                <Grid container spacing={1.5} sx={{ height: "100%", p: 1.5, alignContent: "flex-start" }}>
+                    {displayed.map((key: (keyof Solve), _index: number) => {
                         const trend: any = timeFrame == "all" ? trends.all[key as keyof typeof trends.all] : trends.recent[key as keyof typeof trends.all];
                         if (trend.relativeChange === 0 && trend.absoluteChange === 0 && trend.slope === 0) {
                             return null;
                         }
                         return (
                             <Grid size={{ xs: 12, md: 6, sm: 6 }} key={key}>
-                                <TrendCard trend={trend} headerKey={key} current={recentSolve[key]} />
+                                <TrendCard trend={trend} headerKey={key} solve={recentSolve} />
                             </Grid>
                         );
                     })}
