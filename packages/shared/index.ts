@@ -7,7 +7,8 @@ export enum Status {
 }
 
 export enum ImportSource {
-    CsTimer = "csTimer"
+    CsTimer = "csTimer",
+    CubicTimer = "Cubic Timer"
 }
 
 export enum Discipline {

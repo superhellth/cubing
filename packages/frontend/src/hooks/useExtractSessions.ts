@@ -1,15 +1,17 @@
-import { ImportSource, type StatlessSolve } from "@cubing/shared";
+import { ImportSource, type NewSolve } from "@cubing/shared";
 import { useEffect, useState } from "react";
-import { csTimerFileToObject } from "../utils/importUtils";
+import { csTimerFileToSessions, cubicTimerFileToSessions } from "../utils/importUtils";
+import { useUserID } from "./useUserID";
 
 export interface Session {
     name: string;
     solveCount: number;
-    solves: StatlessSolve[];
+    solves: NewSolve[];
 }
 
-export const useExtractSessions = (file: any, importSource: ImportSource) => {
+export const useExtractSessions = (file: any, importSource: ImportSource): Session[] | null => {
     const [extractedSessions, setExtractedSessions] = useState<Session[] | null>(null);
+    const uuid = useUserID();
 
     useEffect(() => {
         if (file == null) {
@@ -17,23 +19,16 @@ export const useExtractSessions = (file: any, importSource: ImportSource) => {
             return;
         }
         const loadSessionsFromFile = async () => {
-            let data: any;
+            let sessions: Session[];
             switch (importSource) {
+                case ImportSource.CubicTimer:
+                    sessions = await cubicTimerFileToSessions(file, uuid);
+                    break;
                 case ImportSource.CsTimer:
-                default:
                     // ensure unique session names
-                    data = await csTimerFileToObject(file);
+                    sessions = await csTimerFileToSessions(file, uuid);
             }
-            const sessionData = data.properties.sessionData;
-            const relevantSessions: any[] = [];
-            Object.entries(sessionData).forEach(([key, value]: any) => {
-                if (value.stat && value.stat[0] > 0) {
-                    relevantSessions.push({ name: value.name, count: value.stat[0], solves: data["session" + key] });
-                }
-            })
-            if (relevantSessions.length > 0) {
-                setExtractedSessions(relevantSessions);
-            }
+            setExtractedSessions(sessions);
         }
         loadSessionsFromFile();
     }, [file, importSource])

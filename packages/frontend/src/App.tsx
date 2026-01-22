@@ -41,7 +41,7 @@ function App() {
     checkStatus();
     setHasMounted(true);
 
-    const interval = setInterval(checkStatus, 20000);
+    const interval = setInterval(checkStatus, 2000);
     return () => clearInterval(interval);
   }, []);
 

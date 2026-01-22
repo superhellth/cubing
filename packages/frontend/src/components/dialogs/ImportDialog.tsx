@@ -14,14 +14,13 @@ import { useExtractSessions, type Session } from '../../hooks/useExtractSessions
 import { useUserID } from '../../hooks/useUserID';
 import DBReader from '../../services/dbReader';
 import DBWriter from '../../services/dbWriter';
-import { csTimerSolveArrayToSolves } from '../../utils/importUtils';
 import CCSingleSelect from '../CCSingleSelect';
 import HCButton from '../HCButton';
 import FileUpload from './FileUpload';
 import ImportDetailSelectDialog from './ImportDetailSelectDialog';
 import { SessionCard } from './ImportDialog.styles';
 
-const IMPORT_SOURCES = [ImportSource.CsTimer]
+const IMPORT_SOURCES = [ImportSource.CsTimer, ImportSource.CubicTimer]
 
 function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean, onClose: Function, selectedDiscipline: Discipline }) {
     const theme = useTheme();
@@ -40,12 +39,20 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
         }
     }, [currentFile])
 
-    // Move to useSolveManager
+    // TODO: Move to useSolveManager
     const importSolves = async (solves: any[], toDisc: Discipline, checkDuplicates: boolean) => {
-        const asNewSolves: NewSolve[] = csTimerSolveArrayToSolves(solves, toDisc, userID, "default");
+        const asNewSolves: NewSolve[] = [];
+        // Update Discipline
+        for (let solve of solves) {
+            asNewSolves.push({
+                ...solve,
+                discipline: toDisc
+            });
+        }
+
         let toInsert: NewSolve[] = asNewSolves;
         if (checkDuplicates) {
-            // Add session check: Allow duplicate imports into different sessions
+            // TODO: Add session check: Allow duplicate imports into different sessions
             const solvesToCompare: StatlessSolve[] = await DBReader.instance.getSolvesByImportSource(userID, importFrom);
             const existingImportKeys: bigint[] = solvesToCompare.map(s => s.importKey!);
             toInsert = toInsert.filter(s => !existingImportKeys.includes(s.importKey!));
@@ -94,7 +101,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
 
                         </Stack>
                         <FileUpload currentFile={currentFile} setCurrentFile={setCurrentFile}></FileUpload>
-                        {loadedSessions != null && importFrom == ImportSource.CsTimer &&
+                        {loadedSessions != null &&
                             <>
                                 {loadedSessions.map((session: any) => {
                                     return (
@@ -108,7 +115,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
 
                                                 <Box>
                                                     <Chip
-                                                        label={`${session.count} Solves`}
+                                                        label={`${session.solveCount} Solves`}
                                                         size="small"
                                                         sx={{
                                                             height: 24,

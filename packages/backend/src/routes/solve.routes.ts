@@ -11,8 +11,6 @@ const updateLimit = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
 });
-
-
 router.use(updateLimit);
 
 // POSTs
