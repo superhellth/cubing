@@ -7,7 +7,7 @@ import LimitReachedDialog from "../components/dialogs/LimitReachedDialog";
 import SolveDetailsScreen from "../components/dialogs/SolveDetailsDialog";
 import { PercentileGauge } from "../components/graphs/PercentileGauge";
 import AvgGraphs from "../components/timer/AvgGraphs";
-import TimeDisplay from "../components/timer/TimeDisplay";
+import TimeDisplay from "../components/timer/table/TimeDisplay";
 import TimerDisplay, { ACTIVE_TIMER_STATUS, TimerStatus } from "../components/timer/TimerText";
 import { useSolves } from "../contexts/SolveContext";
 import { useTimerSettings } from "../contexts/TimerSettingsContext";

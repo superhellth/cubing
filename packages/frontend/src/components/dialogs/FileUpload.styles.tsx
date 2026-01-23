@@ -32,7 +32,4 @@ export const FileCard = styled(Paper)(({ theme }) => ({
     backdropFilter: "blur(10px)",
     border: `1px solid ${alpha(theme.palette.success.main, 0.3)}`,
     transition: "border-color 0.2s, background-color 0.2s",
-    "&:hover": {
-        borderColor: theme.palette.success.main,
-    }
 }));

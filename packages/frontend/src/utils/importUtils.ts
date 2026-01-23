@@ -33,6 +33,8 @@ export async function cubicTimerFileToSessions(file: any, uuid: string): Promise
     const dataRows: string[] = lines.slice(1);
     const nonEmpty = dataRows.filter((line: string) => line.trim() !== "");
     const sessions: Map<string, Session> = new Map();
+    const timeNow: number = (new Date()).getTime();
+    let i: number = 0;
 
     for (let line of nonEmpty) {
         const cleanedLine = line.trim().replace(/^"|"$/g, "");
@@ -51,7 +53,7 @@ export async function cubicTimerFileToSessions(file: any, uuid: string): Promise
             discipline: Discipline.ThreeByThree,
             session: "default",
             duration: duration,
-            date: new Date(timestamp),
+            date: new Date(timeNow + i++),
             scramble: scramble,
             status: CUBIC_TIMER_CODE_TO_STATUS.get(parseInt(columns[5])) ?? Status.Valid,
             importSource: ImportSource.CubicTimer,

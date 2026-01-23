@@ -9,15 +9,18 @@ export interface Session {
     solves: NewSolve[];
 }
 
-export const useExtractSessions = (file: any, importSource: ImportSource): Session[] | null => {
+export const useExtractSessions = (file: any, importSource: ImportSource) => {
     const [extractedSessions, setExtractedSessions] = useState<Session[] | null>(null);
+    const [error, setError] = useState(null);
     const uuid = useUserID();
 
     useEffect(() => {
+        setError(null);
+        setExtractedSessions(null);
         if (file == null) {
-            setExtractedSessions(null);
             return;
         }
+
         const loadSessionsFromFile = async () => {
             let sessions: Session[];
             switch (importSource) {
@@ -30,8 +33,9 @@ export const useExtractSessions = (file: any, importSource: ImportSource): Sessi
             }
             setExtractedSessions(sessions);
         }
-        loadSessionsFromFile();
+
+        loadSessionsFromFile().catch((error) => {setError(error)});
     }, [file, importSource])
 
-    return extractedSessions;
+    return { sessions: extractedSessions, error: error };
 }

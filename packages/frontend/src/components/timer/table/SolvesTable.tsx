@@ -62,7 +62,6 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
     const handleSortRequest = (property: string) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
-        console.log(property)
         setOrderBy(property);
     };
     return (

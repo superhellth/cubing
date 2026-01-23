@@ -11,7 +11,6 @@ function DeleteManyDialog({ isOpen, handleClose, deleteMany }: { isOpen: boolean
 
         // Regex checks for empty string OR digits only (no decimals, no letters)
         if (inputValue === '' || /^\d+$/.test(inputValue)) {
-            console.log("updated")
             setDeleteManyInput(inputValue);
         }
     };

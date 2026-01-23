@@ -1,13 +1,14 @@
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { alpha, Box, Fade, IconButton, LinearProgress, Stack, Tooltip, Typography, useTheme } from '@mui/material';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { FileCard, UploadZone } from './FileUpload.styles';
 
-const FileUpload = ({ currentFile, setCurrentFile }: { currentFile: any, setCurrentFile: Function }) => {
+const FileUpload = ({ currentFile, setCurrentFile, hasError }: { currentFile: any, setCurrentFile: Function, hasError: boolean }) => {
     const theme = useTheme();
     // 1. Add local state to track uploading status
     const [uploading, setUploading] = useState(false);
@@ -16,7 +17,7 @@ const FileUpload = ({ currentFile, setCurrentFile }: { currentFile: any, setCurr
         if (acceptedFiles?.length) {
             // 2. Start loading immediately
             setUploading(true);
-            
+
             // SIMULATION: Simulate a 2-second network request
             // In a real app, you would await your API call here
             setTimeout(() => {
@@ -31,7 +32,7 @@ const FileUpload = ({ currentFile, setCurrentFile }: { currentFile: any, setCurr
         accept: { 'text/plain': ['.txt'] },
         maxFiles: 1,
         // Disable dropzone while uploading
-        disabled: uploading 
+        disabled: uploading
     });
 
     // 3. Helper to determine what to render
@@ -44,18 +45,18 @@ const FileUpload = ({ currentFile, setCurrentFile }: { currentFile: any, setCurr
                         <FileCard sx={{ borderColor: theme.palette.primary.main }}>
                             {/* Spinning or pulsing icon */}
                             <InsertDriveFileIcon sx={{ color: theme.palette.primary.main, opacity: 0.5, fontSize: "3rem" }} />
-                            
+
                             <Box sx={{ flexGrow: 1, px: 2 }}>
                                 <Typography variant="body2" fontWeight="600" gutterBottom>
                                     Uploading...
                                 </Typography>
                                 {/* The Progress Bar */}
-                                <LinearProgress 
-                                    sx={{ 
-                                        height: 6, 
+                                <LinearProgress
+                                    sx={{
+                                        height: 6,
                                         borderRadius: 3,
-                                        bgcolor: alpha(theme.palette.primary.main, 0.1) 
-                                    }} 
+                                        bgcolor: alpha(theme.palette.primary.main, 0.1)
+                                    }}
                                 />
                             </Box>
                         </FileCard>
@@ -69,9 +70,9 @@ const FileUpload = ({ currentFile, setCurrentFile }: { currentFile: any, setCurr
             return (
                 <Fade in={true} timeout={500}>
                     <Box sx={{ width: '100%' }}>
-                        <FileCard>
+                        <FileCard sx={{borderColor: hasError ? theme.palette.error.main : theme.palette.success.main}}>
                             <InsertDriveFileIcon sx={{ color: theme.palette.text.secondary, fontSize: "3rem" }} />
-                            
+
                             <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
                                 <Typography variant="body1" fontWeight="600" noWrap color="text.primary">
                                     {currentFile.name}
@@ -89,17 +90,24 @@ const FileUpload = ({ currentFile, setCurrentFile }: { currentFile: any, setCurr
                                         '&:hover': { color: 'error.main', bgcolor: alpha(theme.palette.error.main, 0.1) }
                                     }}
                                 >
-                                    <DeleteIcon fontSize="large" /> 
+                                    <DeleteIcon fontSize="large" />
                                     {/* Note: I adjusted fontSize to "large" as "3rem" on iconbutton can be messy */}
                                 </IconButton>
                             </Tooltip>
                         </FileCard>
 
                         {/* Success Message */}
-                        <Stack direction="row" alignItems="center" spacing={1} sx={{ pl: 1, mt: 1, color: 'success.main', opacity: 0.9 }}>
-                            <CheckCircleRoundedIcon sx={{ fontSize: 18 }} />
-                            <Typography variant="body2" fontWeight="600">Upload complete</Typography>
-                        </Stack>
+                        {!hasError ? (
+                            <Stack direction="row" alignItems="center" spacing={1} sx={{ pl: 1, mt: 1, color: 'success.main', opacity: 0.9 }}>
+                                <CheckCircleRoundedIcon sx={{ fontSize: 18 }} />
+                                <Typography variant="body2" fontWeight="600">Upload complete</Typography>
+                            </Stack>
+                        ) : (
+                            <Stack direction="row" alignItems="center" spacing={1} sx={{ pl: 1, mt: 1, color: theme.palette.error.main, opacity: 0.9 }}>
+                                <ErrorOutlineIcon sx={{ fontSize: 18 }} />
+                                <Typography variant="body2" fontWeight="600">Error reading file</Typography>
+                            </Stack>
+                        )}
                     </Box>
                 </Fade>
             );

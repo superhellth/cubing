@@ -95,10 +95,8 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         const solveIndex = solvesChrono.findIndex(s => s.pk === solvePk);
         const deletedPks: bigint[] = []
         for (let i = Math.max(0, solveIndex - lastX); i <= solveIndex; i++) {
-            console.log(i)
             deletedPks.push(solvesChrono[i].pk);
         }
-        console.log(deletedPks.length)
         dbWriter.deleteSolvesBulk(deletedPks, userID)
         setStatlessSolvesChrono(prev => prev.filter(s => !deletedPks.includes(s.pk)));
     }, [solvesChrono]);
