@@ -16,10 +16,11 @@ import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
 import DeleteManyDialog from "./DeleteManyDialog";
 import { getDisplayableTime } from "../../utils/solveUtils";
+import { useSolves } from "../../contexts/SolveContext";
 
-function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMany, onUpdateStatus }: {
+function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateStatus }: {
     solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
-    onDeleteSolve: Function, onDeleteMany: Function
+    onDeleteSolve: Function
 }) {
     const theme = useTheme();
     const [status, setStatus] = useState<Status>(solve.status);
@@ -31,6 +32,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
     });
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [openDeleteManyDialog, setOpenDeleteManyDialog] = useState(false);
+    const { deleteLastSolves } = useSolves();
     // const { solvesChrono } = useSolves();
     // const solveIndex = solvesChrono.findIndex(s => s.pk === solve.pk);
     // const avg12Solves = solvesChrono.slice(solveIndex - 11, solveIndex + 1);
@@ -219,7 +221,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onDeleteMan
             </Dialog>
 
             <DeleteManyDialog isOpen={openDeleteManyDialog} handleClose={() => { setOpenDeleteManyDialog(false); }}
-                deleteMany={(deleteX: number) => { onDeleteMany(solve.pk, deleteX); onClose(); }} />
+                deleteLastSolves={(lastX: number) => { deleteLastSolves(solve.pk, lastX); onClose(); }} />
         </>
     );
 }

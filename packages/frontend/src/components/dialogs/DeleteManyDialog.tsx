@@ -3,7 +3,7 @@ import Dialog from '@mui/material/Dialog';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useState } from 'react';
 
-function DeleteManyDialog({ isOpen, handleClose, deleteMany }: { isOpen: boolean, handleClose: Function, deleteMany: Function }) {
+function DeleteManyDialog({ isOpen, handleClose, deleteLastSolves }: { isOpen: boolean, handleClose: Function, deleteLastSolves: Function }) {
     const theme = useTheme();
     const [deleteManyInput, setDeleteManyInput] = useState<string>("");
     const handleInputChange = (e: any) => {
@@ -57,7 +57,7 @@ function DeleteManyDialog({ isOpen, handleClose, deleteMany }: { isOpen: boolean
                         if (deleteManyInput == "" || deleteManyInput.startsWith("0")) {
                             return;
                         }
-                        deleteMany(Number(deleteManyInput));
+                        deleteLastSolves(Number(deleteManyInput));
                         setDeleteManyInput("");
                         handleClose();
                     }}

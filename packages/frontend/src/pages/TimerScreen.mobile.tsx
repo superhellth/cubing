@@ -95,7 +95,7 @@ function TimerScreenMobile({ selectedDiscipline, updateSidebarVisibility }: { se
                         }
                     }}
                     onUpdateStatus={updateSolveStatus} isOpen={openedSolveDetailsDialog}
-                    onClose={() => { setOpenedSolveDetailsDialog(false); }} onDeleteMany={() => console.log("todo")}></SolveDetailsScreen>
+                    onClose={() => { setOpenedSolveDetailsDialog(false); }}></SolveDetailsScreen>
             )}
             <LimitReachedDialog isOpen={isLimitDialogOpen} handleClose={() => setIsLimitDialogOpen(false)} />
         </ScreenContainer>

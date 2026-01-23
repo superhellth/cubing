@@ -90,15 +90,18 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         setStatlessSolvesChrono(prev => prev.filter(s => s.pk !== solvePk));
     }, []);
 
-    const deleteMany = useCallback((solvePk: bigint, lastX: number) => {
-        console.log(lastX)
-        const solveIndex = solvesChrono.findIndex(s => s.pk === solvePk);
-        const deletedPks: bigint[] = []
+    const deleteLastSolves = useCallback((pkOfFirstSolve: bigint, lastX: number) => {
+        const solveIndex = solvesChrono.findIndex(s => s.pk === pkOfFirstSolve);
+        const toDelete: bigint[] = []
         for (let i = Math.max(0, solveIndex - lastX); i <= solveIndex; i++) {
-            deletedPks.push(solvesChrono[i].pk);
+            toDelete.push(solvesChrono[i].pk);
         }
-        dbWriter.deleteSolvesBulk(deletedPks, userID)
-        setStatlessSolvesChrono(prev => prev.filter(s => !deletedPks.includes(s.pk)));
+        deleteMany(toDelete);
+    }, [solvesChrono]);
+
+    const deleteMany = useCallback((pksToDelete: bigint[]) => {
+        dbWriter.deleteSolvesBulk(pksToDelete, userID)
+        setStatlessSolvesChrono(prev => prev.filter(s => !pksToDelete.includes(s.pk)));
     }, [solvesChrono]);
 
     const updateSolveStatus = useCallback((oldSolve: Solve, newStatus: Status) => {
@@ -120,6 +123,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         insertBulk,
         deleteSolve,
         deleteMany,
+        deleteLastSolves,
         updateSolveStatus,
     };
 };

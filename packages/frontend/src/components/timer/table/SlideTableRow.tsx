@@ -3,7 +3,9 @@ import TableRow from '@mui/material/TableRow';
 
 export const SlideTableRow = styled(TableRow)(({ theme }) => ({
     position: 'relative', // Needed for absolute positioning of the checkbox
-    
+    transition: theme.transitions.create('transform', { duration: 200 }),
+    transform: 'translateX(0)',
+
     // 1. Target the Checkbox Cell
     '& .select-checkbox': {
         opacity: 0,
@@ -12,30 +14,30 @@ export const SlideTableRow = styled(TableRow)(({ theme }) => ({
         left: 0,
         top: 0,
         bottom: 0,
-        width: '40px', // Width of the slide
+        // bgcolor: "transparent",
+        padding: 0,
+        paddingLeft: "10px",
+        width: '20px', // Width of the slide
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        borderBottom: 'none', // Remove border to avoid double lines
         zIndex: 1,
+        transform: 'translateX(-20px)',
     },
 
-    // 2. Target the Data Cells (Everything except the checkbox)
-    '& .data-cell': {
-        transition: theme.transitions.create('transform', { duration: 200 }),
-        transform: 'translateX(0)',
-    },
-
-    // 3. Hover State
-    '&:hover': {
+    '&.Mui-selected, &:hover': {
         cursor: 'pointer',
-        backgroundColor: theme.palette.action.hover, // Optional: highlight row
-        
+        transform: 'translateX(20px)',
+
         '& .select-checkbox': {
             opacity: 1,
         },
-        '& .data-cell': {
-            transform: 'translateX(40px)', // Move text right to make room
-        },
     },
+
+    // '&.Mui-selected': {
+    //     backgroundColor: "rgba(255, 255, 255, 0.08) !important", // Force selected color
+    // },
+    // '&.Mui-selected:hover': {
+    //     backgroundColor: "rgba(255, 255, 255, 0.12) !important", // Slightly lighter on hover
+    // }
 }));
