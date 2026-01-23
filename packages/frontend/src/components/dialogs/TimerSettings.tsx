@@ -105,6 +105,16 @@ function TimerSettings({ isOpen, onClose }: { isOpen: boolean, onClose: Function
                             Graph
                         </Typography>
                         <Stack spacing={2}>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={settings.showAvgGraph}
+                                        color="info"
+                                        onChange={(e) => updateSetting('showAvgGraph', e.target.checked)}
+                                    />
+                                }
+                                label="Show Graph"
+                            />
                             <FormControl fullWidth size="small">
                                 <InputLabel>Displayed Times</InputLabel>
                                 <Select
@@ -150,7 +160,6 @@ function TimerSettings({ isOpen, onClose }: { isOpen: boolean, onClose: Function
                                 />
                                 <FormHelperText>How many solves to display.</FormHelperText>
                             </FormControl>
-
                         </Stack>
                     </Box>
                 </Stack>

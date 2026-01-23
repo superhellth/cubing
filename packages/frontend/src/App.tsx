@@ -5,15 +5,15 @@ import { Box, useMediaQuery } from '@mui/system';
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
+import Sidebar from './components/navigation/Sidebar';
+import { SolveProvider } from './contexts/SolveContext';
+import { TimerSettingsProvider } from './contexts/TimerSettingsContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Licenses from './pages/LicenseScreen';
 import StatisticsScreen from './pages/StatisticsScreen';
 import TimerScreen from './pages/TimerScreen';
 import DBReader from './services/dbReader';
 import theme from './styles/theme';
-import Sidebar from './components/navigation/Sidebar';
-import { TimerSettingsProvider } from './contexts/TimerSettingsContext';
-import { SolveProvider } from './contexts/SolveContext';
 
 const dbReader: DBReader = DBReader.instance;
 

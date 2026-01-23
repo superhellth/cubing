@@ -73,6 +73,8 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
         setSolveTableIsExpanded(newState);
     };
 
+    
+
     return (
         <ScreenContainer isMobile={false}>
             <TimerPanel>
@@ -100,8 +102,10 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
                         Ao12: {getDisplayableTime(solvesChrono[solvesChrono.length - 1], "avg12")}
                     </Typography>
                 </Box>
-                <Box sx={{ flex: 5, visibility: hideElements ? "hidden" : "visible", width: "100%", alignContent: "flex-end" }}>
-                    <AvgGraphs solves={solvesChrono} settings={settings} isResizing={solveTableIsResizing} />
+                <Box sx={{ flex: settings.showAvgGraph ? 5 : 3, visibility: hideElements ? "hidden" : "visible", width: "100%", alignContent: "flex-end" }}>
+                    {settings.showAvgGraph &&
+                        <AvgGraphs solves={solvesChrono} settings={settings} isResizing={solveTableIsResizing} />
+                    }
                 </Box>
             </TimerPanel>
 

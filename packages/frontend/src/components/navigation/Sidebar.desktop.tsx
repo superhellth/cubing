@@ -1,19 +1,21 @@
 import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Box, Divider, Menu, MenuItem, Stack, Typography, useTheme } from '@mui/material';
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { EVENT_AND_DISCIPLINES_MAP } from '../../utils/constants';
 import HCButton from '../HCButton';
+import ImportDialog from '../dialogs/ImportDialog';
 import TimerSettings from '../dialogs/TimerSettings';
+import WelcomeSnackbar from '../snackbars/WelcomeSnackbar';
 import NavigationButton from './NavButton';
 import { NavContainer, PrivacyButton, SidebarContainer } from './Sidebar.styles';
-import ImportDialog from '../dialogs/ImportDialog';
 
 interface SidebarProps {
     selectedDiscipline: Discipline;
@@ -28,6 +30,8 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
     isVisible, toggleResize: setIsResizing }: SidebarProps) {
     const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
     const [importDialogOpen, setImportDialogOpen] = useState<boolean>(false);
+    const [hasClosedSnackbar, setHasClosedSnackbar] = useLocalStorage("hasClosedSnackbar", false);
+    const [snackbarIsOpen, setSnackbarIsOpen] = useState<boolean>(!hasClosedSnackbar);
     const navigate = useNavigate();
     const location = useLocation();
     const theme = useTheme();
@@ -46,6 +50,13 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
             setIsResizing(false);
         }, theme.transitions.duration.standard);
     }
+
+    const handleSnackbarClose = (userClose: boolean) => {
+        if (userClose) {
+            setHasClosedSnackbar(true);
+        }
+        setSnackbarIsOpen(false);
+    };
 
     return (
         <NavContainer component="nav" isVisible={isVisible}>
@@ -212,6 +223,7 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                 </Box>
             </SidebarContainer>
 
+            <WelcomeSnackbar isOpen={snackbarIsOpen} onClose={(userClose: boolean) => { handleSnackbarClose(userClose) }} onImport={() => setImportDialogOpen(true)} />
             <TimerSettings isOpen={settingsOpen} onClose={() => { setSettingsOpen(false) }} />
             <ImportDialog isOpen={importDialogOpen} onClose={() => setImportDialogOpen(false)} selectedDiscipline={selectedDiscipline} />
         </NavContainer >

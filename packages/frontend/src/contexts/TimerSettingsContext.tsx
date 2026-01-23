@@ -1,5 +1,5 @@
 import { Discipline } from "@cubing/shared";
-import { useLocalStorage } from "../hooks/useLocalStorage"; // Import your utility
+import { useLocalStorage } from "../hooks/useLocalStorage";
 import { createContext, useContext, type ReactNode } from "react";
 
 const defaultSettings = {
@@ -11,6 +11,7 @@ const defaultSettings = {
     avgGraphNumSolves: 50,
     lastStatDiscipline: Discipline.ThreeByThree,
     clickToTime: false,
+    showAvgGraph: true
 };
 
 interface TimerSettingsContextType {

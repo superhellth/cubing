@@ -1,12 +1,15 @@
 import type { Solve } from '@cubing/shared';
-import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Typography, useTheme, type SortDirection } from '@mui/material';
+import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Tooltip, Typography, useTheme, type SortDirection } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import { TableVirtuoso } from 'react-virtuoso';
 import { SolveRow } from './SolveRow';
 import { HEAD_CELLS } from './TimeDisplay';
 import { SlideTableRow } from './SlideTableRow';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import CloseIcon from '@mui/icons-material/Close';
+import { useSolves } from '../../../contexts/SolveContext';
+import ConfirmDeleteManyDialog from '../../dialogs/ConfirmDeleteManyDialog';
 
 interface SolvesTableProps {
     solves: Solve[],
@@ -58,7 +61,9 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
     const [order, setOrder] = useState<SortDirection>('asc');
     const [orderBy, setOrderBy] = useState('id');
     const theme = useTheme();
-    const [selectedSolves, setSelectedSolves] = useState<BigInt[]>([]);
+    const [selectedSolves, setSelectedSolves] = useState<bigint[]>([]);
+    const { deleteMany } = useSolves();
+    const [confirmDeleteDialogIsOpen, setConfirmDeleteDialogIsOpen] = useState<boolean>(false);
 
     const sortedSolves = useMemo(() => {
         return stableSort(solves, getComparator(order, orderBy));
@@ -128,48 +133,61 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
 
             // 2. Define the Header
             fixedHeaderContent={() => {
-                // 1. CONDITIONAL CHECK: Are items selected?
                 if (selectedSolves.length > 0) {
                     return (
-                        <TableRow sx={{ bgcolor: (theme) => theme.palette.primary.light }}> {/* Or any highlight color */}
-                            <TableCell
-                                // Span all columns: The ghost column + your data columns
-                                colSpan={HEAD_CELLS.length + 1}
-                                sx={{
-                                    padding: '0 16px',
-                                    height: '60px'
-                                }}
-                            >
-                                <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    width: '100%'
-                                }}>
-                                    {/* LEFT: Selection Count */}
-                                    <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold' }}>
-                                        {selectedSolves.length} selected
-                                    </Typography>
+                        <>
+                            <TableRow>
+                                <TableCell
+                                    colSpan={HEAD_CELLS.length + 1}
+                                    sx={{
+                                        padding: '0 16px',
+                                        height: '60px',
+                                        bgcolor: theme.palette.primary.main
+                                    }}
+                                >
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        width: '100%'
+                                    }}>
+                                        {/* LEFT: Selection Count */}
+                                        <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold' }}>
+                                            {selectedSolves.length} selected
+                                        </Typography>
 
-                                    {/* RIGHT: Actions */}
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        {/* Example Action: Delete */}
-                                        <IconButton onClick={() => console.log("delete")}>
-                                            <DeleteIcon />
-                                        </IconButton>
-
-                                        {/* Example Action: Clear Selection */}
-                                        <IconButton onClick={() => setSelectedSolves([])}>
-                                            <CloseIcon />
-                                        </IconButton>
+                                        {/* RIGHT: Actions */}
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <Tooltip title="Select All" placement='top' arrow>
+                                                <IconButton sx={{ color: theme.palette.text.primary }} onClick={() => setSelectedSolves(solves.map(s => s.pk))}>
+                                                    <DoneAllIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Delete Solves" placement='top' arrow>
+                                                <IconButton sx={{ color: theme.palette.error.main }} onClick={() => {
+                                                    setConfirmDeleteDialogIsOpen(true);
+                                                }}>
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Unselect" placement='top' arrow>
+                                                <IconButton sx={{ color: theme.palette.text.primary }} onClick={() => setSelectedSolves([])}>
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </div>
                                     </div>
-                                </div>
-                            </TableCell>
-                        </TableRow>
+                                </TableCell>
+                            </TableRow>
+                            <ConfirmDeleteManyDialog isOpen={confirmDeleteDialogIsOpen} onClose={() => setConfirmDeleteDialogIsOpen(false)}
+                                onConfirm={() => {
+                                    deleteMany(selectedSolves);
+                                    setSelectedSolves([]);
+                                }} />
+                        </>
                     );
                 }
 
-                // 2. DEFAULT HEADER (Your existing code)
                 return (
                     <TableRow>
                         <>
