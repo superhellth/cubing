@@ -19,6 +19,7 @@ import HCButton from '../HCButton';
 import FileUpload from './FileUpload';
 import ImportDetailSelectDialog from './ImportDetailSelectDialog';
 import { SessionCard } from './ImportDialog.styles';
+import LimitReachedDialog from './LimitReachedDialog';
 
 const IMPORT_SOURCES = [ImportSource.CsTimer, ImportSource.CubicTimer]
 
@@ -32,6 +33,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
     const [selectedSession, setSelectedSession] = useState<any | null>(null);
     const [importedSessions, setImportedSessions] = useState<number[]>([]);
     const [isUploading, setIsUploading] = useState<boolean>(false);
+    const [limitReachedDialogIsOpen, setLimitReachedDialogIsOpen] = useState<boolean>(false);
     const { insertBulk } = useSolves();
 
     useEffect(() => {
@@ -54,20 +56,27 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
 
         let toInsert: NewSolve[] = asNewSolves;
         if (checkDuplicates) {
-            // TODO: Add session check: Allow duplicate imports into different sessions
             const solvesToCompare: StatlessSolve[] = await DBReader.instance.getSolvesByImportSource(userID, importFrom);
-            const existingImportKeys: bigint[] = solvesToCompare.map(s => s.importKey!);
+            const solvesFromDisc: StatlessSolve[] = await DBReader.instance.getSolvesByDisciplineAndSession(userID, toDisc, "default");
+            const solvesFromDiscKeys: bigint[] = solvesFromDisc.map(s => s.pk);
+            const existingImportKeys: bigint[] = solvesToCompare.filter(s => solvesFromDiscKeys.includes(s.pk)).map(s => s.importKey!);
             toInsert = toInsert.filter(s => !existingImportKeys.includes(s.importKey!));
         }
 
         // Register new solves if imported to current discipline, else only write to db
-        if (selectedDiscipline === toDisc) {
-            await insertBulk(toInsert);
-        } else {
-            await DBWriter.instance.insertSolvesBulk(toInsert);
+        try {
+
+            if (selectedDiscipline === toDisc) {
+                await insertBulk(toInsert);
+            } else {
+                await DBWriter.instance.insertSolvesBulk(toInsert);
+            }
+            setImportedSessions(prev => [...prev, selectedSession.name]);
+            setIsUploading(false);
+        } catch (error: any) {
+            setIsUploading(false);
+            setLimitReachedDialogIsOpen(true);
         }
-        setImportedSessions(prev => [...prev, selectedSession.name]);
-        setIsUploading(false);
     }
 
     const handleClose = () => {
@@ -186,6 +195,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
             </Dialog >
             <ImportDetailSelectDialog onClose={() => setSelectedSession(null)} session={selectedSession} defaultDiscipline={selectedDiscipline}
                 importSolves={importSolves} />
+            <LimitReachedDialog isOpen={limitReachedDialogIsOpen} handleClose={() => setLimitReachedDialogIsOpen(false)} />
         </>
     );
 }

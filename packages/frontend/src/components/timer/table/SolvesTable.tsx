@@ -1,15 +1,10 @@
 import type { Solve } from '@cubing/shared';
-import { IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Tooltip, Typography, useTheme, type SortDirection } from '@mui/material';
-import React, { useMemo, useState } from 'react';
+import { Paper, Table, TableBody, TableContainer, TableHead, type SortDirection } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
 import { TableVirtuoso } from 'react-virtuoso';
-import { SolveRow } from './SolveRow';
-import { HEAD_CELLS } from './TimeDisplay';
 import { SlideTableRow } from './SlideTableRow';
-import DeleteIcon from '@mui/icons-material/Delete';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
-import CloseIcon from '@mui/icons-material/Close';
-import { useSolves } from '../../../contexts/SolveContext';
-import ConfirmDeleteManyDialog from '../../dialogs/ConfirmDeleteManyDialog';
+import { SolveRow } from './SolveRow';
+import SolvesTableHeader from './SolvesTableHeader';
 
 interface SolvesTableProps {
     solves: Solve[],
@@ -60,14 +55,35 @@ function stableSort(array: any[], comparator: any) {
 export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen }: SolvesTableProps) {
     const [order, setOrder] = useState<SortDirection>('asc');
     const [orderBy, setOrderBy] = useState('id');
-    const theme = useTheme();
     const [selectedSolves, setSelectedSolves] = useState<bigint[]>([]);
-    const { deleteMany } = useSolves();
-    const [confirmDeleteDialogIsOpen, setConfirmDeleteDialogIsOpen] = useState<boolean>(false);
+    const [shiftIsHeld, setShiftIsHeld] = useState<boolean>(false);
 
     const sortedSolves = useMemo(() => {
         return stableSort(solves, getComparator(order, orderBy));
     }, [solves, order, orderBy]);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+                event.preventDefault();
+                setShiftIsHeld(true);
+            }
+        };
+
+        const handleKeyUp = (event: KeyboardEvent) => {
+            if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+                event.preventDefault();
+                setShiftIsHeld(false);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+        };
+    }, []);
 
     const handleSortRequest = (property: string) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -133,114 +149,10 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
 
             // 2. Define the Header
             fixedHeaderContent={() => {
-                if (selectedSolves.length > 0) {
-                    return (
-                        <>
-                            <TableRow>
-                                <TableCell
-                                    colSpan={HEAD_CELLS.length + 1}
-                                    sx={{
-                                        padding: '0 16px',
-                                        height: '60px',
-                                        bgcolor: theme.palette.primary.main
-                                    }}
-                                >
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        width: '100%'
-                                    }}>
-                                        {/* LEFT: Selection Count */}
-                                        <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold' }}>
-                                            {selectedSolves.length} selected
-                                        </Typography>
-
-                                        {/* RIGHT: Actions */}
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <Tooltip title="Select All" placement='top' arrow>
-                                                <IconButton sx={{ color: theme.palette.text.primary }} onClick={() => setSelectedSolves(solves.map(s => s.pk))}>
-                                                    <DoneAllIcon />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Delete Solves" placement='top' arrow>
-                                                <IconButton sx={{ color: theme.palette.error.main }} onClick={() => {
-                                                    setConfirmDeleteDialogIsOpen(true);
-                                                }}>
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </Tooltip>
-                                            <Tooltip title="Unselect" placement='top' arrow>
-                                                <IconButton sx={{ color: theme.palette.text.primary }} onClick={() => setSelectedSolves([])}>
-                                                    <CloseIcon />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </div>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                            <ConfirmDeleteManyDialog isOpen={confirmDeleteDialogIsOpen} onClose={() => setConfirmDeleteDialogIsOpen(false)}
-                                onConfirm={() => {
-                                    deleteMany(selectedSolves);
-                                    setSelectedSolves([]);
-                                }} />
-                        </>
-                    );
-                }
-
                 return (
-                    <TableRow>
-                        <>
-                            <TableCell sx={{ width: 0, p: 0, m: 0 }} />
-                            {HEAD_CELLS.slice(0, -2).map((headCell) => {
-                                if (sortedSolves.length < headCell.minSolves) return null;
-                                return (
-                                    <TableCell
-                                        size='small'
-                                        key={headCell.id}
-                                        sortDirection={orderBy === headCell.id ? order : undefined}
-                                        align={"right"}
-                                        sx={{
-                                            whiteSpace: 'nowrap',
-                                            fontSize: '1.3rem',
-                                            paddingLeft: 0,
-                                            paddingTop: "16px",
-                                            overflow: 'visible',
-                                            height: '60px',
-                                            // width: "10%",
-                                            paddingBottom: "16px",
-                                            fontWeight: "bold",
-                                            bgcolor: theme.palette.primary.main,
-                                        }}
-                                    >
-
-                                        <TableSortLabel
-                                            active={orderBy === headCell.id}
-                                            direction={orderBy === headCell.id ? (order === 'desc' ? 'desc' : 'asc') : "asc"}
-                                            onClick={() => handleSortRequest(headCell.id)}
-                                            sx={{
-                                                margin: 0,
-                                                padding: 0,
-                                                maxWidth: "60px",
-                                                color: headCell.color,
-                                                '&.Mui-active': { color: headCell.color },
-                                                '&:hover': { color: headCell.color, opacity: 0.3 },
-                                                '&.Mui-active .MuiTableSortLabel-icon': { color: headCell.color },
-                                                '&:hover .Mui-active': { color: headCell.color },
-                                                '&.MuiTableSortLabel-icon': { color: `${headCell.color} !important` }
-                                            }}
-                                        >
-                                            {headCell.label}
-                                        </TableSortLabel>
-                                    </TableCell>
-
-                                );
-
-                            })}
-
-                        </>
-
-                    </TableRow>
+                    <SolvesTableHeader numSolves={sortedSolves.length} selectedSolves={selectedSolves}
+                        selectAll={() => setSelectedSolves(solves.map(s => s.pk))} unselectAll={() => setSelectedSolves([])}
+                        handleSortRequest={handleSortRequest} orderBy={orderBy} order={order} />
                 );
             }}
 
@@ -251,6 +163,13 @@ export default function SolvesTable({ solves, bestStats, openSolveDetailsScreen 
                             setSelectedSolves(prev => prev.filter(id => id !== solve.pk));
                         } else {
                             setSelectedSolves(prev => [...prev, solve.pk]);
+                        }
+                        // Select all from last selected
+                        if (shiftIsHeld) {
+                            const lastSelectedIndex: number = sortedSolves.length - [...sortedSolves].reverse().findIndex(s => selectedSolves.includes(s.pk)) - 1;
+                            const currentIndex: number = sortedSolves.findIndex(s => s.pk == solve.pk);
+                            const pksBetween: bigint[] = sortedSolves.slice(lastSelectedIndex + 1, currentIndex).map(s => s.pk);
+                            setSelectedSolves(prev => [...prev, ...pksBetween]);
                         }
                     }}
                     isSelected={selectedSolves.includes(solve.pk)}

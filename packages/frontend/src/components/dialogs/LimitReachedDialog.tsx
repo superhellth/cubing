@@ -6,20 +6,21 @@ function LimitReachedDialog({ isOpen, handleClose }: { isOpen: boolean, handleCl
         <Dialog
             open={isOpen}
             onClose={() => handleClose()}
+            
         >
-            <DialogTitle>
-                {"Limit Reached"}
+            <DialogTitle sx={{color: "error.main"}}>
+                {"Limit Reached!"}
             </DialogTitle>
 
             <DialogContent>
                 <DialogContentText sx={{color: "text.primary"}}>
-                    You have reached the maximum number of solves (5000).
+                    You have reached the maximum number of solves (10,000).
                     Please delete some older solves before adding new ones.
                 </DialogContentText>
             </DialogContent>
 
             <DialogActions>
-                <Button onClick={() => handleClose()} autoFocus sx={{color: "info.main"}}>
+                <Button onClick={() => handleClose()} autoFocus color='info' variant="contained" disableElevation>
                     Okay
                 </Button>
             </DialogActions>

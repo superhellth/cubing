@@ -88,14 +88,14 @@ function TimerSettings({ isOpen, onClose }: { isOpen: boolean, onClose: Function
                                 label="Use Mouse Timer"
                             />
                             <TextField
-                                label="Preparation Timer"
+                                label="Preparation Time"
                                 variant="outlined"
                                 color="info"
                                 size="small"
                                 fullWidth
                                 value={settings.readyAfter}
                                 onChange={(e) => updateSetting('readyAfter', e.target.value)}
-                                helperText="The time you have to press spacebar before starting your solve (ms)."
+                                helperText="The time you have to hold spacebar before starting your solve (ms)"
                             />
                         </Stack>
                     </Box>
@@ -144,7 +144,7 @@ function TimerSettings({ isOpen, onClose }: { isOpen: boolean, onClose: Function
                                         </MenuItem>
                                     ))}
                                 </Select>
-                                <FormHelperText>Which values to display in the Timer Graph.</FormHelperText>
+                                <FormHelperText>Which values to display in the Timer Graph</FormHelperText>
                             </FormControl>
                             <FormControl fullWidth size="small">
                                 <Slider
@@ -158,7 +158,7 @@ function TimerSettings({ isOpen, onClose }: { isOpen: boolean, onClose: Function
                                     min={0}
                                     max={500}
                                 />
-                                <FormHelperText>How many solves to display.</FormHelperText>
+                                <FormHelperText>How many solves to display</FormHelperText>
                             </FormControl>
                         </Stack>
                     </Box>

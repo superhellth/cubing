@@ -140,6 +140,7 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                                     >
                                         {[...EVENT_AND_DISCIPLINES_MAP.keys()].map((discipline) => (
                                             <Box
+                                                key={discipline}
                                                 onClick={() => {
                                                     onDisciplineChange(discipline);
                                                     setAnchorEl(null);
