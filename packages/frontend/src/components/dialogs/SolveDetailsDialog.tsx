@@ -5,22 +5,21 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Divider, IconButton, Paper } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from '@mui/material/Dialog';
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
-import DeleteManyDialog from "./DeleteManyDialog";
-import { getDisplayableTime } from "../../utils/solveUtils";
 import { useSolves } from "../../contexts/SolveContext";
+import { getDisplayableTime } from "../../utils/solveUtils";
+import ConfirmationDialog from "./ConfirmationDialog";
+import { AverageSurface } from "./SolveDetailsDialog.styles";
+import AverageDialog from "./AverageDialog";
 
-function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateStatus }: {
-    solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function,
-    onDeleteSolve: Function
+function SolveDetailsScreen({ solve, isOpen, onClose, onUpdateStatus }: {
+    solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function
 }) {
     const theme = useTheme();
     const [status, setStatus] = useState<Status>(solve.status);
@@ -31,12 +30,8 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
         day: 'numeric'
     });
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-    const [openDeleteManyDialog, setOpenDeleteManyDialog] = useState(false);
-    const { deleteLastSolves } = useSolves();
-    // const { solvesChrono } = useSolves();
-    // const solveIndex = solvesChrono.findIndex(s => s.pk === solve.pk);
-    // const avg12Solves = solvesChrono.slice(solveIndex - 11, solveIndex + 1);
-    // console.log(avg12Solves)
+    const [averageDialogIsOpen, setAverageDialogIsOpen] = useState<boolean>(false);
+    const { deleteSolve, solvesChrono } = useSolves();
 
     useEffect(() => {
         setStatus(solve.status);
@@ -94,7 +89,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                         </Box>
 
                         {/* SCRAMBLE BOX */}
-                        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', borderColor: 'divider' }}>
+                        <Paper variant="outlined" sx={{ p: 2, bgcolor: 'action.hover', borderColor: 'divider', borderRadius: "10px" }}>
                             <Typography
                                 variant="body2"
                                 fontFamily="monospace"
@@ -107,19 +102,19 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                         </Paper>
 
                         {/* STATS GRID */}
-                        <Stack direction="row" justifyContent="space-around" divider={<Divider orientation="vertical" flexItem />}>
-                            <Box textAlign="center">
+                        <Stack direction="row" justifyContent="space-around">
+                            <AverageSurface onClick={() => setAverageDialogIsOpen(true)}>
                                 <Typography variant="caption" color={theme.palette.text.secondary}>Single</Typography>
                                 <Typography variant="h6">{getDisplayableTime(solve, "duration")}</Typography>
-                            </Box>
-                            <Box textAlign="center">
+                            </AverageSurface>
+                            <AverageSurface>
                                 <Typography variant="caption" color="text.secondary">Ao5</Typography>
                                 <Typography variant="h6" color={theme.palette.info.light}>{getDisplayableTime(solve, "avg5")}</Typography>
-                            </Box>
-                            <Box textAlign="center">
+                            </AverageSurface>
+                            <AverageSurface>
                                 <Typography variant="caption" color="text.secondary">Ao12</Typography>
                                 <Typography variant="h6" color={theme.palette.info.dark}>{getDisplayableTime(solve, "avg12")}</Typography>
-                            </Box>
+                            </AverageSurface>
                         </Stack>
 
                         <Divider />
@@ -162,66 +157,31 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onDeleteSolve, onUpdateSta
                             </ToggleButtonGroup>
                         </Box>
 
-                        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                startIcon={<DeleteIcon />}
-                                onClick={() => setOpenDeleteManyDialog(true)}
-                                fullWidth
-                                sx={{ borderRadius: 2, textTransform: 'none', flex: 1 }}
-                            >
-                                Delete Many
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                startIcon={<DeleteIcon />}
-                                onClick={() => setOpenDeleteDialog(true)}
-                                fullWidth
-                                sx={{ borderRadius: 2, textTransform: 'none', flex: 2 }}
-                            >
-                                Delete Solve
-                            </Button>
-                        </Box>
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => setOpenDeleteDialog(true)}
+                            fullWidth
+                            sx={{ borderRadius: 2, textTransform: 'none', flex: 2 }}
+                        >
+                            Delete Solve
+                        </Button>
                     </Stack>
                 </DialogContent>
             </Dialog>
 
             {/* DELETE CONFIRMATION */}
-            <Dialog
-                open={openDeleteDialog}
+            <ConfirmationDialog
+                isOpen={openDeleteDialog}
                 onClose={() => setOpenDeleteDialog(false)}
-                PaperProps={{ sx: { borderRadius: 3, border: `1px solid ${theme.palette.error.dark}` } }}
-            >
-                <DialogTitle sx={{ color: "error.main", display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <DeleteIcon /> Delete Solve?
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        This will permanently remove this time from your history and recalculate your averages.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={() => setOpenDeleteDialog(false)} color="inherit">
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            onDeleteSolve(solve.pk, solve.uuid);
-                            setOpenDeleteDialog(false);
-                        }}
-                        variant="contained"
-                        color="error"
-                        disableElevation
-                    >
-                        Confirm Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                onConfirm={() => { deleteSolve(solve.pk, solve.uuid); onClose() }}
+                icon={<DeleteIcon />}
+                title="Delete Solve?"
+                text="This will permanently remove this time from your history and recalculate your averages."
+            />
 
-            <DeleteManyDialog isOpen={openDeleteManyDialog} handleClose={() => { setOpenDeleteManyDialog(false); }}
-                deleteLastSolves={(lastX: number) => { deleteLastSolves(solve.pk, lastX); onClose(); }} />
+            <AverageDialog isOpen={averageDialogIsOpen} onClose={() => setAverageDialogIsOpen(false)} />
         </>
     );
 }

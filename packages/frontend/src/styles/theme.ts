@@ -3,13 +3,20 @@ import '@mui/material/styles';
 import { alpha, createTheme } from '@mui/material/styles';
 import type { } from '@mui/x-charts/themeAugmentation';
 
+interface DialogPaletteType {
+  surface: string;
+  border: string;
+}
+
 declare module '@mui/material/styles' {
     interface Palette {
         graphColors: Record<string, string>;
+        dialog: DialogPaletteType;
     }
 
     interface PaletteOptions {
         graphColors?: Record<string, string>;
+        dialog?: DialogPaletteType;
     }
 }
 
@@ -62,6 +69,10 @@ const theme = createTheme({
         background: {
             default: background,
             paper: primary
+        },
+        dialog: {
+            surface: dialogSurface,
+            border: dialogBorder
         },
         graphColors: {
             pb: accent,
