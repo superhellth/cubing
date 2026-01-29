@@ -7,8 +7,11 @@ import { useTheme } from "@mui/system";
 import { memo } from 'react';
 import { getDisplayableTime } from '../../utils/solveUtils';
 
-const TrendCard = memo(({ trend, headerKey, solve }: {trend: any, headerKey: keyof Solve, solve: Solve}) => {
+const TrendCard = memo(({ trend, headerKey, solve }: { trend: any, headerKey: keyof Solve, solve: Solve }) => {
     const theme = useTheme();
+    const absoluteChange = headerKey == "pb" || headerKey == "duration" ? trend.absoluteChange : trend.absoluteChangeSmoothed;
+    const relativeChange = headerKey == "pb" || headerKey == "duration" ? trend.relativeChange : trend.relativeChangeSmoothed;
+
     return (
         <Paper
             elevation={0}
@@ -64,13 +67,13 @@ const TrendCard = memo(({ trend, headerKey, solve }: {trend: any, headerKey: key
                         variant="body2"
                         fontWeight={600}
                         sx={{
-                            color: trend.absoluteChange <= 0 ? 'success.main' : 'error.main',
+                            color: absoluteChange <= 0 ? 'success.main' : 'error.main',
                             fontVariantNumeric: 'tabular-nums'
                         }}
                     >
                         {/* Always show sign for clarity */}
-                        {trend.absoluteChange > 0 ? "+" : ""}
-                        {(trend.absoluteChange / 1000).toFixed(2)}s
+                        {absoluteChange > 0 ? "+" : ""}
+                        {(absoluteChange / 1000).toFixed(2)}s
                     </Typography>
 
                     {/* B. Relative Change (The Pill) */}
@@ -79,8 +82,8 @@ const TrendCard = memo(({ trend, headerKey, solve }: {trend: any, headerKey: key
                         alignItems="center"
                         spacing={0.5}
                         sx={{
-                            bgcolor: (theme) => alpha(trend.absoluteChange <= 0 ? theme.palette.success.main : theme.palette.error.main, 0.1),
-                            color: trend.absoluteChange <= 0 ? 'success.main' : 'error.main',
+                            bgcolor: (theme) => alpha(absoluteChange <= 0 ? theme.palette.success.main : theme.palette.error.main, 0.1),
+                            color: absoluteChange <= 0 ? 'success.main' : 'error.main',
                             px: 0.75,
                             py: 0.25,
                             borderRadius: 99,
@@ -88,7 +91,7 @@ const TrendCard = memo(({ trend, headerKey, solve }: {trend: any, headerKey: key
                         }}
                     >
                         {/* Conditional Icon */}
-                        {trend.absoluteChange > 0 ? (
+                        {absoluteChange > 0 ? (
                             <TrendingDownIcon sx={{ fontSize: '0.75rem' }} />
                         ) : (
                             <TrendingUpIcon sx={{ fontSize: '0.75rem' }} />
@@ -99,7 +102,7 @@ const TrendCard = memo(({ trend, headerKey, solve }: {trend: any, headerKey: key
                             fontWeight={700}
                             sx={{ fontVariantNumeric: 'tabular-nums' }}
                         >
-                            {Math.abs(trend.relativeChange * 100).toFixed(1)}%
+                            {Math.abs(relativeChange * 100).toFixed(1)}%
                         </Typography>
                     </Stack>
                 </Stack>

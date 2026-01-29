@@ -18,7 +18,7 @@ import { ScrambleText, ScreenContainer, TimerPanel } from "./TimerScreen.styles"
 function TimerScreenMobile({ selectedDiscipline, updateSidebarVisibility }: { selectedDiscipline: Discipline, updateSidebarVisibility: Function }) {
     const { settings } = useTimerSettings();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
-    const { solvesChrono, addSolve, deleteSolve, updateSolveStatus, currentScramble, pb } = useSolves();
+    const { solvesChrono, addSolve, updateSolveStatus, currentScramble, pb } = useSolves();
     const percentile = usePercentile(solvesChrono);
     const [reset, setReset] = useState(false);
     const { timerStatus, timerHandlers } = useTimerLogic(
@@ -87,10 +87,8 @@ function TimerScreenMobile({ selectedDiscipline, updateSidebarVisibility }: { se
 
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve}
-                    onDeleteSolve={(solvePk: bigint, uuid: string) => {
-                        setOpenedSolveDetailsDialog(false);
-                        deleteSolve(solvePk, uuid);
-                        if (solvePk === solvesChrono[0].pk) {
+                    onDeleteSolve={(solvePk: bigint) => {
+                        if (solvePk === solvesChrono[solvesChrono.length - 1].pk) {
                             setReset(!reset);
                         }
                     }}

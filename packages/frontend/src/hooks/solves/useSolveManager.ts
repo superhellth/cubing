@@ -50,6 +50,16 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         return () => { mounted = false; };
     }, [userID, selectedDiscipline, selectedSession]);
 
+    const getSolvesOfAverage = (solve: Solve, avgType: "avg5" | "avg12") => {
+        const solveIndex = solvesChrono.findIndex(s => s.pk === solve.pk);
+        const relevantSolves: Solve[] = [];
+        const howMany: number = avgType == "avg5" ? 5 : 12;
+        for (let i = solveIndex; i > Math.max(0, solveIndex - howMany); i--) {
+            relevantSolves.push(solvesChrono[i]);
+        }
+        return relevantSolves;
+    }
+
     const addSolve = useCallback(async (finalTime: number, dnf: boolean) => {
         const solveStatus: Status = dnf ? Status.DNF : Status.Valid;
 
@@ -119,6 +129,7 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         pb,
         dataIsReady,
         setIsLimitDialogOpen,
+        getSolvesOfAverage,
         addSolve,
         insertBulk,
         deleteSolve,

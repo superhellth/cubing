@@ -2,14 +2,16 @@ import type { Solve } from "@cubing/shared";
 import { useMemo } from "react";
 
 export interface ImprovementStats {
-    slope: number,
-    absoluteChange: number,
-    relativeChange: number
+    slope: number;
+    absoluteChange: number;
+    relativeChange: number;
+    absoluteChangeSmoothed: number;
+    relativeChangeSmoothed: number;
 }
 
 const calculateTrend = (data: number[]): ImprovementStats => {
     const n = data.length;
-    if (n < 2) return { slope: 0, absoluteChange: 0, relativeChange: 0 };
+    if (n < 2) return { slope: 0, absoluteChange: 0, relativeChange: 0, absoluteChangeSmoothed: 0, relativeChangeSmoothed: 0 };
 
     let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
 
@@ -37,8 +39,10 @@ const calculateTrend = (data: number[]): ImprovementStats => {
 
     return {
         slope: parseFloat(slope.toFixed(2)),
-        absoluteChange: parseFloat(estimatedChange.toFixed(2)),
-        relativeChange: relativeChange
+        absoluteChange: data[n - 1] - data[0],
+        relativeChange: (data[n - 1] - data[0]) / Math.abs(data[0]),
+        absoluteChangeSmoothed: parseFloat(estimatedChange.toFixed(2)),
+        relativeChangeSmoothed: relativeChange,
     };
 };
 

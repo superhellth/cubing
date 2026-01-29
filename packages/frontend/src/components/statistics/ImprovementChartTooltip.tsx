@@ -7,12 +7,7 @@ import { useMemo } from 'react';
 import theme from '../../styles/theme';
 import { getDisplayableTime } from '../../utils/solveUtils';
 import { ColorBar, DataLabel, TooltipContainer } from './ImprovementChartTooltip.styles';
-
-const longFormatter = new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-});
+import { getDisplayableDate } from '../../utils/formatUtils';
 
 export function ImprovementChartTooltip({ displayedSolves, display, predictionStart }: { displayedSolves: any, display: (keyof SolveStats)[], predictionStart: number }) {
     const tooltipData = useAxesTooltip();
@@ -32,7 +27,7 @@ export function ImprovementChartTooltip({ displayedSolves, display, predictionSt
         >
             <Stack>
                 {solveIndex < predictionStart ?
-                    <Typography sx={{ p: 1 }}>{longFormatter.format(solve.date)}</Typography>
+                    <Typography sx={{ p: 1 }}>{getDisplayableDate(solve.date)}</Typography>
                     : <Typography sx={{ p: 1 }}>{"Prediction " + (solveIndex - predictionStart + 1) + " solves into the future"}</Typography>
                 }
 

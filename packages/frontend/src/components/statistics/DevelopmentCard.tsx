@@ -16,13 +16,14 @@ const DevelopmentCard = ({ solvesChrono, numTrueSolves }: any) => {
     const theme = useTheme();
     const [timeFrame, setTimeFrame] = useState("recent");
     const trends = useImprovementStats(solvesChrono);
+    console.log(trends)
     const impRate = useMemo(() => {
         return timeFrame == "all" ? -trends.all.duration.slope : -trends.recent.duration.slope
     }, [solvesChrono, timeFrame])
 
     return (
         <GraphCard title={"Improvement speed"} icon={<AutoAwesomeIcon />}
-            hint="These statistics do not simply compare your current stats with your stats of the past, but use averaging to more realistically reflect your development.">
+            hint="The statistics for your averages do not simply compare your current stats with your stats of the past, but use averaging to more realistically reflect your development.">
             <LockedOverlay numSolves={numTrueSolves} solvesToUnlock={15} fontSize={20} hint="Keep solving !">
                 <Typography variant="h4" sx={{ color: impRate < 0 ? theme.palette.error.main : '#fff', m: 1, fontWeight: 700 }}>
                     {impRate}

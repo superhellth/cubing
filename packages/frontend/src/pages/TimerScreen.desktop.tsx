@@ -21,7 +21,7 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
     const { settings } = useTimerSettings();
     const theme = useTheme();
     const [openedSolveDetailsDialog, setOpenedSolveDetailsDialog] = useState<boolean>(false);
-    const { solvesChrono, addSolve, deleteSolve, updateSolveStatus, currentScramble, pb } = useSolves();
+    const { solvesChrono, addSolve, updateSolveStatus, currentScramble, pb } = useSolves();
     const percentile = usePercentile(solvesChrono);
     const [reset, setReset] = useState(false);
     const { timerStatus, timerHandlers } = useTimerLogic(
@@ -73,7 +73,7 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
         setSolveTableIsExpanded(newState);
     };
 
-    
+
 
     return (
         <ScreenContainer isMobile={false}>
@@ -122,10 +122,8 @@ function TimerScreenDesktop({ selectedDiscipline, updateSidebarVisibility, setSi
 
             {selectedSolve && (
                 <SolveDetailsScreen solve={selectedSolve}
-                    onDeleteSolve={(solvePk: bigint, uuid: string) => {
-                        setOpenedSolveDetailsDialog(false);
-                        deleteSolve(solvePk, uuid);
-                        if (solvePk === solvesChrono[0].pk) {
+                    onDeleteSolve={(solvePk: bigint) => {
+                        if (solvePk === solvesChrono[solvesChrono.length - 1].pk) {
                             setReset(!reset);
                         }
                     }}

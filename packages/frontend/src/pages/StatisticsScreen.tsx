@@ -1,6 +1,6 @@
-import { Discipline, type Solve } from "@cubing/shared";
+import { Discipline } from "@cubing/shared";
 import { Box, Grid, useTheme } from "@mui/system";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import ActivityCard from "../components/statistics/ActivityCard";
 import DevelopmentCard from "../components/statistics/DevelopmentCard";
 import DistributionCard from "../components/statistics/DistributionCard";
@@ -8,7 +8,6 @@ import ImprovementChart from "../components/statistics/ImprovementChart";
 import CalculationLoader from "../components/statistics/Loading";
 import VariabilityCard from "../components/statistics/VariabilityCard";
 import { useSolves } from "../contexts/SolveContext";
-import { useDemoSolves } from "../hooks/solves/useDemoSolves";
 
 function StatisticsScreen({ selectedDiscipline, sidebarResizing }: { selectedDiscipline: Discipline, sidebarResizing: boolean }) {
     const theme = useTheme();
@@ -17,25 +16,16 @@ function StatisticsScreen({ selectedDiscipline, sidebarResizing }: { selectedDis
     // const [selectedSession] = useState<string>("default");
 
     const { solvesChrono, dataIsReady } = useSolves();
-    const { demoSolves, demoIsReady } = useDemoSolves(dataIsReady && solvesChrono.length < 50);
-    const displayData: Solve[] = useMemo(() => {
-        if (!dataIsReady) return [];
-
-        if (solvesChrono.length < 12) {
-            return demoSolves;
-        }
-        return solvesChrono;
-    }, [solvesChrono, dataIsReady]);
 
     useEffect(() => {
         if (dataIsReady) {
             const locked = solvesChrono.length < 12
             setIsLocked(locked);
-            setIsLoading(locked && !demoIsReady);
+            setIsLoading(false);
         } else {
             setIsLoading(true);
         }
-    }, [dataIsReady, isLocked, solvesChrono, demoIsReady])
+    }, [dataIsReady, isLocked, solvesChrono])
 
     useEffect(() => {
         setIsLoading(true);

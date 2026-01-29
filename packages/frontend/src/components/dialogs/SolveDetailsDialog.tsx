@@ -14,24 +14,21 @@ import { Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useSolves } from "../../contexts/SolveContext";
 import { getDisplayableTime } from "../../utils/solveUtils";
+import AverageDialog from "./AverageDialog";
 import ConfirmationDialog from "./ConfirmationDialog";
 import { AverageSurface } from "./SolveDetailsDialog.styles";
-import AverageDialog from "./AverageDialog";
+import { getDisplayableDate } from "../../utils/formatUtils";
 
-function SolveDetailsScreen({ solve, isOpen, onClose, onUpdateStatus }: {
-    solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function
+function SolveDetailsScreen({ solve, isOpen, onClose, onUpdateStatus, onDeleteSolve }: {
+    solve: Solve, isOpen: boolean, onClose: Function, onUpdateStatus: Function, onDeleteSolve: Function
 }) {
     const theme = useTheme();
     const [status, setStatus] = useState<Status>(solve.status);
     const date: Date = new Date(solve.date);
-    const longFormatter = new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-    const [averageDialogIsOpen, setAverageDialogIsOpen] = useState<boolean>(false);
-    const { deleteSolve, solvesChrono } = useSolves();
+    const [avgDialogIsOpen, setAvgDialogIsOpen] = useState<boolean>(false);
+    const [averageDialogKey, setAverageDialogKey] = useState<"avg5" | "avg12" | null>(null);
+    const { deleteSolve } = useSolves();
 
     useEffect(() => {
         setStatus(solve.status);
@@ -78,7 +75,7 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onUpdateStatus }: {
                             <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" mt={1}>
                                 <CalendarTodayIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                                 <Typography variant="caption" color="text.secondary">
-                                    {longFormatter.format(date)}
+                                    {getDisplayableDate(date)}
                                 </Typography>
                             </Stack>
                             {solve.importKey &&
@@ -103,15 +100,15 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onUpdateStatus }: {
 
                         {/* STATS GRID */}
                         <Stack direction="row" justifyContent="space-around">
-                            <AverageSurface onClick={() => setAverageDialogIsOpen(true)}>
+                            <AverageSurface>
                                 <Typography variant="caption" color={theme.palette.text.secondary}>Single</Typography>
                                 <Typography variant="h6">{getDisplayableTime(solve, "duration")}</Typography>
                             </AverageSurface>
-                            <AverageSurface>
+                            <AverageSurface onClick={() => {setAverageDialogKey("avg5"); setAvgDialogIsOpen(true)}}>
                                 <Typography variant="caption" color="text.secondary">Ao5</Typography>
                                 <Typography variant="h6" color={theme.palette.info.light}>{getDisplayableTime(solve, "avg5")}</Typography>
                             </AverageSurface>
-                            <AverageSurface>
+                            <AverageSurface onClick={() => {setAverageDialogKey("avg12"); setAvgDialogIsOpen(true)}}>
                                 <Typography variant="caption" color="text.secondary">Ao12</Typography>
                                 <Typography variant="h6" color={theme.palette.info.dark}>{getDisplayableTime(solve, "avg12")}</Typography>
                             </AverageSurface>
@@ -175,13 +172,16 @@ function SolveDetailsScreen({ solve, isOpen, onClose, onUpdateStatus }: {
             <ConfirmationDialog
                 isOpen={openDeleteDialog}
                 onClose={() => setOpenDeleteDialog(false)}
-                onConfirm={() => { deleteSolve(solve.pk, solve.uuid); onClose() }}
+                onConfirm={() => { deleteSolve(solve.pk, solve.uuid); onDeleteSolve(solve.pk); onClose() }}
                 icon={<DeleteIcon />}
                 title="Delete Solve?"
                 text="This will permanently remove this time from your history and recalculate your averages."
             />
 
-            <AverageDialog isOpen={averageDialogIsOpen} onClose={() => setAverageDialogIsOpen(false)} />
+            <AverageDialog isOpen={avgDialogIsOpen}
+                avgKey={averageDialogKey}
+                onClose={() => setAvgDialogIsOpen(false)}
+                solve={solve} />
         </>
     );
 }
