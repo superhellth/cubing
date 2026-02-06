@@ -21,3 +21,11 @@ pm2 startup
 pm2 list
 pm2 delete <name>
 pm2 save
+
+docker ps
+docker build -t visualcube .
+docker run -d \
+  --name visualcube \
+  --restart unless-stopped \
+  -p 127.0.0.1:8080:80 \
+  visualcube

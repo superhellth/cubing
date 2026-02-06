@@ -14,6 +14,7 @@ import StatisticsScreen from './pages/StatisticsScreen';
 import TimerScreen from './pages/TimerScreen';
 import DBReader from './services/dbReader';
 import theme from './styles/theme';
+import AlgVisScreen from './pages/AlgVisScreen';
 
 const dbReader: DBReader = DBReader.instance;
 
@@ -76,6 +77,7 @@ function App() {
                       setSidebarIsCollapsed={setSidebarIsCollapsed}
                     />} />
                   <Route path="/stats" element={<StatisticsScreen selectedDiscipline={selectedDiscipline} sidebarResizing={sidebarResizing} />} />
+                  <Route path="/algVis" element={<AlgVisScreen />} />
                   <Route path="/privacy-policy" element={<Licenses />} />
                 </Routes>
               </Box>

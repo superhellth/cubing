@@ -2,6 +2,7 @@ import { Discipline, ImportSource, type NewSolve, type StatlessSolve } from '@cu
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import InfoIcon from '@mui/icons-material/Info';
 import { Button, Chip, CircularProgress, DialogActions, Typography, Zoom } from '@mui/material';
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -105,12 +106,18 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
                         <Typography variant="overline" display="block" gutterBottom >
                             Import
                         </Typography>
-                        <Stack spacing={2} direction="row">
+                        <Stack spacing={1} direction="column">
                             <CCSingleSelect options={IMPORT_SOURCES}
                                 selected={importFrom}
                                 onChange={(event: any) => setImportFrom(event.target.value)}
-                                label="Import from" helperText="Source of import file" />
-
+                                label="Import from" />
+                            {importFrom == ImportSource.CubicTimer &&
+                                <Box sx={{ display: 'flex', alignItems: 'center', color: 'info.main' }}>
+                                    <InfoIcon fontSize="small" sx={{ mr: 0.5 }} />
+                                    <Typography variant="caption">Make sure to select "Export for backup"</Typography>
+                                </Box>
+                            }
+                            {/* <InfoIcon /> */}
                         </Stack>
                         <FileUpload currentFile={currentFile} setCurrentFile={setCurrentFile} hasError={error != null}></FileUpload>
                         {sessions != null &&

@@ -2,6 +2,7 @@ import { Discipline } from '@cubing/shared';
 import AlarmFilledIcon from '@mui/icons-material/Alarm';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import PaletteIcon from '@mui/icons-material/Palette';
 import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import QueryStatsOutlinedIcon from '@mui/icons-material/QueryStats';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -184,6 +185,9 @@ export default function SidebarDesktop({ selectedDiscipline, onDisciplineChange,
                 </NavigationButton>
                 <NavigationButton isSelected={location.pathname === "/stats"} onClick={() => navigate("/stats")} icon={<QueryStatsOutlinedIcon />}
                     label="Statistics" isCollapsed={isCollapsed}>
+                </NavigationButton>
+                <NavigationButton isSelected={location.pathname === "/algVis"} onClick={() => navigate("/algVis")} icon={<PaletteIcon />}
+                    label="Visualization" isCollapsed={isCollapsed}>
                 </NavigationButton>
 
                 <Box sx={{ height: "100%" }}>

@@ -4,8 +4,8 @@ import { alpha, createTheme } from '@mui/material/styles';
 import type { } from '@mui/x-charts/themeAugmentation';
 
 interface DialogPaletteType {
-  surface: string;
-  border: string;
+    surface: string;
+    border: string;
 }
 
 declare module '@mui/material/styles' {
@@ -125,6 +125,16 @@ const theme = createTheme({
                     }
                 }
             }
+        },
+        MuiAccordionSummary: {
+            styleOverrides: {
+                expandIconWrapper: {
+                    color: accent,
+                    '&.Mui-expanded': {
+                        color: accentDarker,
+                    },
+                },
+            },
         },
         MuiSkeleton: {
             styleOverrides: {
@@ -284,7 +294,17 @@ const theme = createTheme({
                         borderColor: "rgba(255, 255, 255, 0.6)", // Change to your desired color
                         borderWidth: '1px', // Optional: thicker border on focus
                     },
+                    '&.Mui-focused .MuiSelect-icon': {
+                        color: accent, // Your primary color
+                    },
                 }),
+            },
+        },
+        MuiSelect: {
+            styleOverrides: {
+                icon: {
+                    color: 'white'
+                },
             },
         },
         MuiToggleButton: {
