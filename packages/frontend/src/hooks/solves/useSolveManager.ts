@@ -1,4 +1,4 @@
-import { Discipline, Status, type NewSolve, type Solve, type StatlessSolve } from "@cubing/shared";
+import { Discipline, Status, ImportSource, type NewSolve, type Solve, type StatlessSolve } from "@cubing/shared";
 import { useCallback, useEffect, useState } from 'react';
 import DBReader from '../../services/dbReader';
 import DBWriter from '../../services/dbWriter';
@@ -95,6 +95,44 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         setStatlessSolvesChrono(prev => [...prev, ...insertedSolves]);
     }, [])
 
+    const [isImporting, setIsImporting] = useState<boolean>(false);
+
+    const importSolves = useCallback(async (solves: NewSolve[], toDisc: Discipline, importFrom: ImportSource, checkDuplicates: boolean, sessionName?: string) => {
+        setIsImporting(true);
+
+        const asNewSolves: NewSolve[] = solves.map(s => ({ ...s, discipline: toDisc }));
+
+        let toInsert: NewSolve[] = asNewSolves;
+
+        if (checkDuplicates) {
+            try {
+                const solvesToCompare: StatlessSolve[] = await dbReader.getSolvesByImportSource(userID, importFrom);
+                const solvesFromDisc: StatlessSolve[] = await dbReader.getSolvesByDisciplineAndSession(userID, toDisc, "default");
+                const solvesFromDiscKeys: bigint[] = solvesFromDisc.map(s => s.pk);
+                const existingImportKeys: bigint[] = solvesToCompare.filter(s => solvesFromDiscKeys.includes(s.pk)).map(s => s.importKey!);
+                toInsert = toInsert.filter(s => !existingImportKeys.includes(s.importKey!));
+            } catch (error) {
+                console.error("Failed to check duplicates:", error);
+            }
+        }
+
+        try {
+            if (selectedDiscipline === toDisc) {
+                await insertBulk(toInsert);
+            } else {
+                await dbWriter.insertSolvesBulk(toInsert);
+            }
+            setIsImporting(false);
+            return sessionName;
+        } catch (error: any) {
+            setIsImporting(false);
+            if (error?.message === 'LIMIT_REACHED') {
+                setIsLimitDialogOpen(true);
+            }
+            throw error;
+        }
+    }, [selectedDiscipline, insertBulk, userID]);
+
     const deleteSolve = useCallback((solvePk: bigint, uuid: string) => {
         dbWriter.deleteSolve(solvePk, uuid);
         setStatlessSolvesChrono(prev => prev.filter(s => s.pk !== solvePk));
@@ -126,12 +164,14 @@ export const useSolveManager = (selectedDiscipline: Discipline, selectedSession:
         solvesChrono,
         currentScramble,
         isLimitDialogOpen,
+        isImporting,
         pb,
         dataIsReady,
         setIsLimitDialogOpen,
         getSolvesOfAverage,
         addSolve,
         insertBulk,
+        importSolves,
         deleteSolve,
         deleteMany,
         deleteLastSolves,

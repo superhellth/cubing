@@ -1,75 +1,87 @@
-# React + TypeScript + Vite
+# Cosmic Cubing
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern speedcubing timer and statistics platform for all WCA events. Track your solve times, analyze improvements, and visualize algorithms.
 
-Currently, two official plugins are available:
+**Live at [cosmic-cubing.com](https://cosmic-cubing.com)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Screenshots
 
-## React Compiler
+### Timer
+![Timer Screen](docs/screenshots/timer.png)
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Full-screen timer with scramble generation, live Ao5/Ao12 averages, and a mini solve-time chart. Responsive layout adapts to desktop and mobile.
 
-Note: This will impact Vite dev & build performances.
+### Statistics Dashboard
+![Statistics Dashboard](docs/screenshots/statistics.png)
 
-## Expanding the ESLint configuration
+Detailed analytics including improvement trends (single, Ao5, Ao12, Ao100, Ao1000, PB), consistency tracking, solve time distribution, and development comparisons across recent vs. all-time performance.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Precision Timer** — spacebar-activated timer with WCA inspection support, +2/DNF penalties
+- **All WCA Events** — 2x2 through 7x7, BLD, OH, FMC, Clock, Megaminx, Pyraminx, Skewb, Square-1
+- **Statistics & Charts** — improvement graphs, distribution histograms, consistency metrics, PB tracking
+- **Algorithm Visualizer** — interactive cube state preview with SVG/image export
+- **Data Import** — import solves from csTimer and Cubic Timer
+- **Sessions** — organize solves into sessions per discipline
+- **Responsive** — dedicated desktop and mobile layouts
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19, TypeScript, MUI 7, Vite 7 |
+| Backend | Express 5, Node.js, TypeScript |
+| Database | PostgreSQL (via `pg`) |
+| Shared | Zod schemas, shared types & enums |
+| Monorepo | pnpm workspaces |
+
+## Project Structure
+
+```
+packages/
+├── frontend/      React SPA (Vite)
+│   └── src/
+│       ├── pages/           Timer, Statistics, AlgVis, Licenses
+│       ├── components/      UI components (timer, stats cards, navigation, dialogs)
+│       ├── contexts/        SolveContext, TimerSettingsContext
+│       ├── hooks/           Solve management, local storage, timer logic
+│       └── services/        API client
+├── backend/       Express REST API
+│   └── src/
+│       ├── controllers/     Solve CRUD
+│       ├── routes/          API routes
+│       └── config/          Database config
+└── shared/        Shared types, enums, Zod schemas
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js
+- pnpm
+- PostgreSQL
+
+### Setup
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start backend (from packages/backend)
+pnpm dev
+
+# Start frontend (from packages/frontend)
+pnpm dev
 ```
+
+The frontend dev server runs via Vite; the backend uses nodemon for hot reload.
+
+## Author
+
+**superhellth**
+
+## License
+
+UNLICENSED — All rights reserved.

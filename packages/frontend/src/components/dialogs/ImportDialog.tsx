@@ -1,4 +1,4 @@
-import { Discipline, ImportSource, type NewSolve, type StatlessSolve } from '@cubing/shared';
+import { Discipline, ImportSource } from '@cubing/shared';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import CloseIcon from '@mui/icons-material/Close';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
@@ -12,9 +12,6 @@ import { alpha, Box, Stack, useTheme } from "@mui/system";
 import { useEffect, useState } from 'react';
 import { useSolves } from '../../contexts/SolveContext';
 import { useExtractSessions } from '../../hooks/useExtractSessions';
-import { useUserID } from '../../hooks/useUserID';
-import DBReader from '../../services/dbReader';
-import DBWriter from '../../services/dbWriter';
 import CCSingleSelect from '../CCSingleSelect';
 import HCButton from '../HCButton';
 import FileUpload from './FileUpload';
@@ -26,16 +23,13 @@ const IMPORT_SOURCES = [ImportSource.CsTimer, ImportSource.CubicTimer]
 
 function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean, onClose: Function, selectedDiscipline: Discipline }) {
     const theme = useTheme();
-    const userID = useUserID();
     const [importFrom, setImportFrom] = useState<ImportSource>(ImportSource.CsTimer);
     const [currentFile, setCurrentFile] = useState<any>(null);
 
     const { sessions, error } = useExtractSessions(currentFile, importFrom);
     const [selectedSession, setSelectedSession] = useState<any | null>(null);
-    const [importedSessions, setImportedSessions] = useState<number[]>([]);
-    const [isUploading, setIsUploading] = useState<boolean>(false);
-    const [limitReachedDialogIsOpen, setLimitReachedDialogIsOpen] = useState<boolean>(false);
-    const { insertBulk } = useSolves();
+    const [importedSessions, setImportedSessions] = useState<string[]>([]);
+    const { importSolves, isImporting, isLimitDialogOpen, setIsLimitDialogOpen } = useSolves();
 
     useEffect(() => {
         if (currentFile == null) {
@@ -43,41 +37,12 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
         }
     }, [currentFile])
 
-    // TODO: Move to useSolveManager
-    const importSolves = async (solves: any[], toDisc: Discipline, checkDuplicates: boolean) => {
-        setIsUploading(true);
-        const asNewSolves: NewSolve[] = [];
-        // Update Discipline
-        for (let solve of solves) {
-            asNewSolves.push({
-                ...solve,
-                discipline: toDisc
-            });
+    const handleImport = async (solves: any[], toDisc: Discipline, checkDuplicates: boolean) => {
+        const sessionName = await importSolves(solves, toDisc, importFrom, checkDuplicates, selectedSession?.name);
+        if (sessionName) {
+            setImportedSessions(prev => [...prev, sessionName]);
         }
 
-        let toInsert: NewSolve[] = asNewSolves;
-        if (checkDuplicates) {
-            const solvesToCompare: StatlessSolve[] = await DBReader.instance.getSolvesByImportSource(userID, importFrom);
-            const solvesFromDisc: StatlessSolve[] = await DBReader.instance.getSolvesByDisciplineAndSession(userID, toDisc, "default");
-            const solvesFromDiscKeys: bigint[] = solvesFromDisc.map(s => s.pk);
-            const existingImportKeys: bigint[] = solvesToCompare.filter(s => solvesFromDiscKeys.includes(s.pk)).map(s => s.importKey!);
-            toInsert = toInsert.filter(s => !existingImportKeys.includes(s.importKey!));
-        }
-
-        // Register new solves if imported to current discipline, else only write to db
-        try {
-
-            if (selectedDiscipline === toDisc) {
-                await insertBulk(toInsert);
-            } else {
-                await DBWriter.instance.insertSolvesBulk(toInsert);
-            }
-            setImportedSessions(prev => [...prev, selectedSession.name]);
-            setIsUploading(false);
-        } catch (error: any) {
-            setIsUploading(false);
-            setLimitReachedDialogIsOpen(true);
-        }
     }
 
     const handleClose = () => {
@@ -152,7 +117,7 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
                                                 </Box>
                                             </Box>
 
-                                            {isUploading ? (
+                                            {isImporting ? (
                                                 <Zoom in={true} key="loading">
                                                     <CircularProgress color='info' />
                                                 </Zoom>
@@ -201,8 +166,8 @@ function ImportDialog({ isOpen, onClose, selectedDiscipline }: { isOpen: boolean
                 </DialogActions>
             </Dialog >
             <ImportDetailSelectDialog onClose={() => setSelectedSession(null)} session={selectedSession} defaultDiscipline={selectedDiscipline}
-                importSolves={importSolves} />
-            <LimitReachedDialog isOpen={limitReachedDialogIsOpen} handleClose={() => setLimitReachedDialogIsOpen(false)} />
+                importSolves={handleImport} />
+            <LimitReachedDialog isOpen={isLimitDialogOpen} handleClose={() => setIsLimitDialogOpen(false)} />
         </>
     );
 }
