@@ -2,7 +2,7 @@
 
 A modern speedcubing timer and statistics platform for all WCA events. Track your solve times, analyze improvements, and visualize algorithms.
 
-**Live at [cosmic-cubing.com](https://cosmic-cubing.com)**
+**Formally live at [cosmic-cubing.com](https://cosmic-cubing.com)**
 
 ## Screenshots
 
