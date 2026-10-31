@@ -1,12 +1,11 @@
 import { Pool } from "pg";
-import process, { exit, loadEnvFile } from "node:process";
+import process, { loadEnvFile } from "node:process";
 
 // types.setTypeParser(types.builtins.INT8, (val) => val.toString());
 try {
     loadEnvFile('./.env');
 } catch (error) {
-    console.log("No .env file found...");
-    exit(1);
+    console.log("No .env file found, using environment variables");
 }
 
 

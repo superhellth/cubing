@@ -11,6 +11,7 @@ on:
       - pnpm-workspace.yaml
       - generate-licenses.js
       - .dockerignore
+      - Dockerfile
       - .github/workflows/publish.yaml
   pull_request:
     paths: *paths
@@ -55,7 +56,7 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
-          file: packages/frontend/Dockerfile
+          target: frontend
           platforms: linux/amd64
           push: true
           tags: |
