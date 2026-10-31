@@ -62,7 +62,7 @@ function AlgVisControls({ setGeneratedUrl, fileFormat, setFileFormat }: AlgVisCo
 
     // --- URL Construction ---
     useEffect(() => {
-        const baseUrl = "https://cosmic-cubing.com/cube-img/";
+        const baseUrl = `${window.location.origin}/cube-img/`;
         const params = new URLSearchParams();
 
         // Core
