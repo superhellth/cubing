@@ -24,7 +24,7 @@ FROM node:24-alpine AS backend
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=backend-build /deploy .
-USER node
+USER 1000:1000
 EXPOSE 3000
 CMD ["node", "dist/app.js"]
 

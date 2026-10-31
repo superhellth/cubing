@@ -5,9 +5,10 @@ import solveRoutes from './routes/solve.routes';
 const app = express();
 const port = 3000;
 
+app.set('trust proxy', 'uniquelocal');
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://highpercube.com'],
+    origin: ['http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 // app.use(express.json());
