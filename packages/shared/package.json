@@ -17,6 +17,7 @@
     "typescript": "~5.9.3"
   },
   "dependencies": {
-    "pg-format": "^1.0.4"
+    "pg-format": "^1.0.4",
+    "zod": "^4.6.7"
   }
 }
