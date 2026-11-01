@@ -69,7 +69,7 @@ jobs:
       matrix:
         include:
           - target: frontend
-            image: ghcr.io/superhellth/cubing
+            image: ghcr.io/superhellth/cubing-frontend
           - target: backend
             image: ghcr.io/superhellth/cubing-backend
           - target: visualcube
