@@ -3,19 +3,16 @@ kind: Deployment
 metadata:
   name: cubing-backend
   labels:
-    {{- include "cubing.labels" . | nindent 4 }}
-    app.kubernetes.io/component: backend
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 4 }}
 spec:
   replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels: 
-      {{- include "cubing.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: backend
+      {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "backend") | nindent 6 }}
   template:
     metadata:
-      labels: 
-        {{- include "cubing.labels" . | nindent 8 }}
-        app.kubernetes.io/component: backend
+      labels:
+        {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 8 }}
     spec:
       securityContext:
         {{- .Values.podSecurityContext | toYaml | nindent 8 }}

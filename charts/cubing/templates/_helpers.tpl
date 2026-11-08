@@ -1,4 +1,18 @@
 {{/*
+Labels for a component. Usage:
+include "cubing.componentLabels" (dict "context" $ "component" "frontend")
+*/}}
+{{- define "cubing.componentLabels" -}}
+{{ include "cubing.labels" .context }}
+app.kubernetes.io/component: {{ .component }}
+{{- end }}
+
+{{- define "cubing.componentSelectorLabels" -}}
+{{ include "cubing.selectorLabels" .context }}
+app.kubernetes.io/component: {{ .component }}
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "cubing.name" -}}
@@ -48,15 +62,4 @@ Selector labels
 {{- define "cubing.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cubing.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{/*
-Create the name of the service account to use
-*/}}
-{{- define "cubing.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "cubing.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
 {{- end }}

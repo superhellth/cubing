@@ -3,19 +3,16 @@ kind: Deployment
 metadata:
   name: cubing-visualcube
   labels:
-    {{- include "cubing.labels" . | nindent 4 }}
-    app.kubernetes.io/component: visualcube
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "visualcube") | nindent 4 }}
 spec:
   replicas: {{ .Values.visualcube.replicaCount }}
   selector:
     matchLabels:
-      {{- include "cubing.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: visualcube
+      {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "visualcube") | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "cubing.labels" . | nindent 8 }}
-        app.kubernetes.io/component: visualcube
+        {{- include "cubing.componentLabels" (dict "context" $ "component" "visualcube") | nindent 8 }}
     spec:
       securityContext:
         {{- .Values.podSecurityContext | toYaml | nindent 8 }}
@@ -48,18 +45,15 @@ kind: NetworkPolicy
 metadata:
   name: visualcube
   labels:
-    {{- include "cubing.labels" . | nindent 4 }}
-    app.kubernetes.io/component: visualcube
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "visualcube") | nindent 4 }}
 spec:
   podSelector:
     matchLabels: 
-      {{- include "cubing.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: visualcube
+      {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "visualcube") | nindent 6 }}
   policyTypes: [Ingress, Egress]
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              {{- include "cubing.selectorLabels" . | nindent 14 }}
-              app.kubernetes.io/component: frontend
+              {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "frontend") | nindent 14 }}
       ports: [{ port: http }]

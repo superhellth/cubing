@@ -3,8 +3,7 @@ kind: ConfigMap
 metadata:
   name: cubing-backend-config
   labels:
-    {{- include "cubing.labels" . | nindent 4 }}
-    app.kubernetes.io/component: backend
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 4 }}
 data:
   DB_HOST: {{ .Values.backend.dbConfig.host | quote }}
   DB_PORT: {{ .Values.backend.dbConfig.port | quote }}

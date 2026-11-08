@@ -4,12 +4,10 @@ kind: Service
 metadata:
   name: cubing-frontend
   labels:
-    {{- include "cubing.labels" . | nindent 4 }}
-    app.kubernetes.io/component: frontend
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "frontend") | nindent 4 }}
 spec:
   selector:
-    {{- include "cubing.selectorLabels" . | nindent 4 }}
-    app.kubernetes.io/component: frontend
+    {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "frontend") | nindent 4 }}
   ports: [{ name: http, port: 80, targetPort: http }]
 ---
 apiVersion: v1
@@ -17,12 +15,10 @@ kind: Service
 metadata:
   name: backend
   labels:
-    {{- include "cubing.labels" . | nindent 4 }}
-    app.kubernetes.io/component: backend
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 4 }}
 spec:
   selector: 
-    {{- include "cubing.selectorLabels" . | nindent 4 }}
-    app.kubernetes.io/component: backend
+    {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "backend") | nindent 4 }}
   ports: [{ name: http, port: 3000, targetPort: http }]
 ---
 apiVersion: v1
@@ -30,10 +26,8 @@ kind: Service
 metadata:
   name: visualcube
   labels:
-    {{- include "cubing.labels" . | nindent 4 }}
-    app.kubernetes.io/component: visualcube
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "visualcube") | nindent 4 }}
 spec:
   selector: 
-    {{- include "cubing.selectorLabels" . | nindent 4 }}
-    app.kubernetes.io/component: visualcube
+    {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "visualcube") | nindent 4 }}
   ports: [{ name: http, port: 80, targetPort: http }]
