@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cubing-backend
+  name: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}
   labels:
     {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 4 }}
 spec:
@@ -28,7 +28,8 @@ spec:
             - --advisory-lock-mode
             - wait
           envFrom:
-            - configMapRef: { name: cubing-backend-config }
+            - configMapRef: 
+                name: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}-config
             - secretRef: { name: cubing-backend-secrets }
           env:
             - { name: PGHOST, value: $(DB_HOST) }
@@ -42,13 +43,14 @@ spec:
             requests: { cpu: 10m, memory: 64Mi }
             limits: { memory: 256Mi }
       containers:
-        - name: cubing-backend
+        - name: backend
           image: "ghcr.io/superhellth/cubing-backend:{{ .Chart.AppVersion }}"
           ports: [{ name: http, containerPort: 3000 }]
           securityContext:
             {{- .Values.securityContext | toYaml | nindent 12 }}
           envFrom:
-            - configMapRef: { name: cubing-backend-config }
+            - configMapRef: 
+                name: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}-config
             - secretRef: { name: cubing-backend-secrets }
           readinessProbe:
             httpGet: { path: /api/health, port: http }

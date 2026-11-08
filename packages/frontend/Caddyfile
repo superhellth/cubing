@@ -10,12 +10,12 @@
     encode zstd gzip
 
     handle /api/* {
-        reverse_proxy backend:3000
+        reverse_proxy {$BACKEND_UPSTREAM:backend:3000}
     }
 
     handle /cube-img/* {
         rewrite * /visualcube.php
-        reverse_proxy visualcube:80
+        reverse_proxy {$VISUALCUBE_UPSTREAM:visualcube:80}
     }
 
     handle /assets/* {

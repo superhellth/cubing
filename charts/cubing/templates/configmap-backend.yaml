@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cubing-backend-config
+  name: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}-config
   labels:
     {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 4 }}
 data:

@@ -13,6 +13,14 @@ app.kubernetes.io/component: {{ .component }}
 {{- end }}
 
 {{/*
+Build the component name from fullName + component. Usage:
+include "cubing.componentName" (dict "context" $ "component" "frontend")
+*/}}
+{{- define "cubing.componentName" -}}
+{{- printf "%s-%s" (include "cubing.fullname" .context) .component | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "cubing.name" -}}

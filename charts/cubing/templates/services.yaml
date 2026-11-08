@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: cubing-frontend
+  name: {{ include "cubing.componentName" (dict "context" $ "component" "frontend") }}
   labels:
     {{- include "cubing.componentLabels" (dict "context" $ "component" "frontend") | nindent 4 }}
 spec:
@@ -13,7 +13,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend
+  name: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}
   labels:
     {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 4 }}
 spec:
@@ -24,7 +24,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: visualcube
+  name: {{ include "cubing.componentName" (dict "context" $ "component" "visualcube") }}
   labels:
     {{- include "cubing.componentLabels" (dict "context" $ "component" "visualcube") | nindent 4 }}
 spec:

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cubing-frontend
+  name: {{ include "cubing.componentName" (dict "context" $ "component" "frontend") }}
   labels:
     {{- include "cubing.componentLabels" (dict "context" $ "component" "frontend") | nindent 4 }}
 spec:
@@ -17,11 +17,16 @@ spec:
       securityContext:
         {{- .Values.podSecurityContext | toYaml | nindent 8 }}
       containers:
-        - name: cubing-frontend
+        - name: frontend
           image: "ghcr.io/superhellth/cubing-frontend:{{ .Chart.AppVersion }}"
           ports: [{ name: http, containerPort: 8080 }]
           securityContext:
             {{- .Values.securityContext | toYaml | nindent 12 }}
+          env:
+            - name: BACKEND_UPSTREAM
+              value: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}:3000
+            - name: VISUALCUBE_UPSTREAM
+              value: {{ include "cubing.componentName" (dict "context" $ "component" "visualcube") }}:80
           readinessProbe:
             httpGet: { path: /, port: http }
             periodSeconds: 10
