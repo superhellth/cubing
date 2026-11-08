@@ -1,4 +1,15 @@
 {{/*
+DB secret name. existingSecret if set, else <fullname>-backend-db.
+*/}}
+{{- define "cubing.dbSecretName" -}}
+{{- if .Values.backend.dbConfig.existingSecret }}
+{{- .Values.backend.dbConfig.existingSecret }}
+{{- else }}
+{{- printf "%s-db" (include "cubing.componentName" (dict "context" . "component" "backend")) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/*
 Labels for a component. Usage:
 include "cubing.componentLabels" (dict "context" $ "component" "frontend")
 */}}

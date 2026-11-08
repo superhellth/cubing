@@ -8,6 +8,9 @@ backend:
     port: "5432"
     name: "cubing"
     user: "cubing"
+    existingSecret: ""
+    passwordKey: password
+    password: ""
 
 visualcube:
   replicaCount: 1
