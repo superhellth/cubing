@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cubing-visualcube
+  labels:
+    {{- include "cubing.labels" . | nindent 4 }}
+    app.kubernetes.io/component: visualcube
+spec:
+  replicas: {{ .Values.visualcube.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "cubing.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: visualcube
+  template:
+    metadata:
+      labels:
+        {{- include "cubing.labels" . | nindent 8 }}
+        app.kubernetes.io/component: visualcube
+    spec:
+      securityContext:
+        {{- .Values.podSecurityContext | toYaml | nindent 8 }}
+      containers:
+        - name: visualcube
+          image: "ghcr.io/superhellth/cubing-visualcube:{{ .Chart.AppVersion }}"
+          ports: [{ name: http, containerPort: 8080 }]
+          securityContext:
+            {{- .Values.securityContext | toYaml | nindent 12 }}
+          readinessProbe:
+            httpGet: { path: "/visualcube.php?fmt=svg", port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: "/visualcube.php?fmt=svg", port: http }
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 256Mi }
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+            - { name: apache-run, mountPath: /var/run/apache2 }
+            - { name: apache-lock, mountPath: /var/lock/apache2 }
+      volumes:
+        - { name: tmp, emptyDir: { sizeLimit: 64Mi } }
+        - { name: apache-run, emptyDir: {} }
+        - { name: apache-lock, emptyDir: {} }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: visualcube
+  labels:
+    {{- include "cubing.labels" . | nindent 4 }}
+    app.kubernetes.io/component: visualcube
+spec:
+  podSelector:
+    matchLabels: 
+      {{- include "cubing.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: visualcube
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "cubing.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: frontend
+      ports: [{ port: http }]

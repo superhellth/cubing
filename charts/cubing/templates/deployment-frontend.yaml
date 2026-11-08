@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cubing-frontend
+  labels:
+    {{- include "cubing.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "cubing.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels: 
+        {{- include "cubing.labels" . | nindent 8 }}
+        app.kubernetes.io/component: frontend
+    spec:
+      securityContext:
+        {{- .Values.podSecurityContext | toYaml | nindent 8 }}
+      containers:
+        - name: cubing-frontend
+          image: "ghcr.io/superhellth/cubing-frontend:{{ .Chart.AppVersion }}"
+          ports: [{ name: http, containerPort: 8080 }]
+          securityContext:
+            {{- .Values.securityContext | toYaml | nindent 12 }}
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 128Mi }
