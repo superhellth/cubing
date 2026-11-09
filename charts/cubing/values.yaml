@@ -1,0 +1,40 @@
+frontend:
+  replicaCount: 2
+
+backend:
+  replicaCount: 2
+  dbConfig:
+    host: "pg-main-rw.databases.svc"
+    port: "5432"
+    name: "cubing"
+    user: "cubing"
+    existingSecret: ""
+    passwordKey: password
+    password: ""
+
+visualcube:
+  replicaCount: 1
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile: { type: RuntimeDefault }
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities: { drop: ["ALL"] }
+
+# -- Expose the service via gateway-api HTTPRoute
+# Requires Gateway API resources and suitable controller installed within the cluster
+# (see: https://gateway-api.sigs.k8s.io/guides/)
+httpRoute:
+  enabled: true
+  annotations: {}
+  parentRefs:
+    - name: main
+      namespace: gateway
+      sectionName: https
+  hostnames:
+    - cubing.superhellth.com
+
+resources: {}

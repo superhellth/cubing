@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cubing.componentName" (dict "context" $ "component" "frontend") }}
+  labels:
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "frontend") | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "frontend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "cubing.componentLabels" (dict "context" $ "component" "frontend") | nindent 8 }}
+    spec:
+      securityContext:
+        {{- .Values.podSecurityContext | toYaml | nindent 8 }}
+      containers:
+        - name: frontend
+          image: "ghcr.io/superhellth/cubing-frontend:{{ .Chart.AppVersion }}"
+          ports: [{ name: http, containerPort: 8080 }]
+          securityContext:
+            {{- .Values.securityContext | toYaml | nindent 12 }}
+          env:
+            - name: BACKEND_UPSTREAM
+              value: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}:3000
+            - name: VISUALCUBE_UPSTREAM
+              value: {{ include "cubing.componentName" (dict "context" $ "component" "visualcube") }}:80
+          readinessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 128Mi }

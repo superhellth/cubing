@@ -1,0 +1,6 @@
+apiVersion: v2
+type: application
+name: cubing
+description: The most statistics-rich Timer in the Speedcubing world!
+version: 0.1.0
+appVersion: "1.16.0"

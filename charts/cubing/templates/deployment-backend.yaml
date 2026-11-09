@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}
+  labels:
+    {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 4 }}
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels: 
+      {{- include "cubing.componentSelectorLabels" (dict "context" $ "component" "backend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "cubing.componentLabels" (dict "context" $ "component" "backend") | nindent 8 }}
+    spec:
+      securityContext:
+        {{- .Values.podSecurityContext | toYaml | nindent 8 }}
+      terminationGracePeriodSeconds: 5
+      initContainers:
+        - name: migrate
+          image: "ghcr.io/superhellth/cubing-backend:{{ .Chart.AppVersion }}"
+          command:
+            - node_modules/.bin/node-pg-migrate
+            - up
+            - -m
+            - migrations
+            - --advisory-lock-mode
+            - wait
+          envFrom:
+            - configMapRef: 
+                name: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}-config
+          env:
+            - { name: PGHOST, value: $(DB_HOST) }
+            - { name: PGPORT, value: $(DB_PORT) }
+            - { name: PGDATABASE, value: $(DB_NAME) }
+            - { name: PGUSER, value: $(DB_USER) }
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubing.dbSecretName" . }}
+                  key: {{ .Values.backend.dbConfig.passwordKey }}
+            - { name: PGPASSWORD, value: $(DB_PASSWORD) }
+          securityContext:
+            {{- .Values.securityContext | toYaml | nindent 12 }}
+          resources:
+            requests: { cpu: 10m, memory: 64Mi }
+            limits: { memory: 256Mi }
+      containers:
+        - name: backend
+          image: "ghcr.io/superhellth/cubing-backend:{{ .Chart.AppVersion }}"
+          ports: [{ name: http, containerPort: 3000 }]
+          securityContext:
+            {{- .Values.securityContext | toYaml | nindent 12 }}
+          envFrom:
+            - configMapRef: 
+                name: {{ include "cubing.componentName" (dict "context" $ "component" "backend") }}-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "cubing.dbSecretName" . }}
+                  key: {{ .Values.backend.dbConfig.passwordKey }}
+          readinessProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /api/health, port: http }
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 10m, memory: 64Mi }
+            limits: { memory: 384Mi }
