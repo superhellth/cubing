@@ -14,6 +14,7 @@ on:
       - .dockerignore
       - Dockerfile
       - .github/workflows/publish.yaml
+      - charts/**
   pull_request:
     paths: *paths
   workflow_dispatch:
@@ -38,30 +39,43 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @cubing/frontend build
       - run: pnpm --filter @cubing/backend... build
+      - uses: azure/setup-helm@v4
+      - run: helm lint --strict charts/cubing
+      - run: helm template t charts/cubing --set backend.dbConfig.password=x > /dev/null
 
   version:
     needs: check
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.read.outputs.version }}
-      is_new: ${{ steps.read.outputs.is_new }}
+      app_version: ${{ steps.read.outputs.app_version }}
+      app_is_new: ${{ steps.read.outputs.app_is_new }}
+      chart_version: ${{ steps.read.outputs.chart_version }}
+      chart_is_new: ${{ steps.read.outputs.chart_is_new }}
     steps:
       - uses: actions/checkout@v4
       - id: read
         run: |
-          version=$(jq -r .version package.json)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          if git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
-            echo "is_new=false" >> "$GITHUB_OUTPUT"
+          app_version=$(jq -r .version package.json)
+          echo "app_version=$app_version" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$app_version" > /dev/null; then
+            echo "app_is_new=false" >> "$GITHUB_OUTPUT"
           else
-            echo "is_new=true" >> "$GITHUB_OUTPUT"
+            echo "app_is_new=true" >> "$GITHUB_OUTPUT"
           fi
 
-  publish:
+          chart_version=$(yq -r .version charts/cubing/Chart.yaml)
+          echo "chart_version=$chart_version" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/chart-v$chart_version" > /dev/null; then
+            echo "chart_is_new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "chart_is_new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish-images:
     needs: version
     runs-on: ubuntu-latest
-    if: needs.version.outputs.is_new == 'true'
+    if: needs.version.outputs.app_is_new == 'true'
     permissions:
       contents: read
       packages: write
@@ -91,17 +105,35 @@ jobs:
           tags: |
             ${{ matrix.image }}:latest
             ${{ matrix.image }}:sha-${{ github.sha }}
-            ${{ matrix.image }}:${{ needs.version.outputs.version }}
+            ${{ matrix.image }}:${{ needs.version.outputs.app_version }}
           cache-from: type=gha,scope=${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=${{ matrix.target }}
 
-  tag:
-    needs: [version, publish]
+  publish-chart:
+    needs: [version, publish-images]
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && needs.version.outputs.chart_is_new == 'true' && needs.publish-images.result != 'failure' }}
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - run: |
+          cv="${{ needs.version.outputs.chart_version }}"
+          helm package charts/cubing --app-version "${{ needs.version.outputs.app_version }}" -d dist
+          helm push "dist/cubing-$cv.tgz" oci://ghcr.io/superhellth/charts
+          git tag "chart-v$cv"
+          git push origin "chart-v$cv"
+
+  tag-images:
+    needs: [version, publish-images]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
       - run: |
-          git tag "v${{ needs.version.outputs.version }}"
-          git push origin "v${{ needs.version.outputs.version }}"
+          git tag "v${{ needs.version.outputs.app_version }}"
+          git push origin "v${{ needs.version.outputs.app_version }}"
